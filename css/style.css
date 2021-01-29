@@ -1,0 +1,44 @@
+body{
+background-color: green
+}
+
+#mat{
+    background-color: blanchedalmond;
+    width: 900px;
+    height: 700px;
+    margin: 20px auto;
+}
+
+#Title{
+	border: 4px blue solid;
+	text-align: center;
+}
+
+#Options{
+	border: 4px blue solid;
+	text-align: center;
+	float: left;
+	width: 25%;
+	height: 400px;
+	margin-right: 10px;
+
+}
+
+#Content{
+
+	border: 4px blue solid;
+	text-align: center;
+	float: left;
+	width: 73%;
+	height: 400px;
+
+}
+
+#Footer{
+	border: 4px blue solid;
+	text-align: center;
+	float: left;
+	width: 99%;
+	height: 80px;
+
+}
