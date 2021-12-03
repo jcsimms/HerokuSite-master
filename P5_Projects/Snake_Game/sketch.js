@@ -7,7 +7,8 @@ let score = 0
 
 function setup() {
   windowWidth
-  createCanvas(400, 400);
+  createCanvas(600, 600
+  );
   w = floor(width / rez);
   h = floor(height / rez);
   frameRate(5);
