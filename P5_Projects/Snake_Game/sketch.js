@@ -6,6 +6,7 @@ let h;
 let score = 0
 
 function setup() {
+  windowWidth
   createCanvas(400, 400);
   w = floor(width / rez);
   h = floor(height / rez);

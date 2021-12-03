@@ -1,9 +1,9 @@
 let bubble = [];
 
 function setup() {
-  createCanvas(400, 400);
-  for (var i = 0; i < 100; i++) {
-    bubble[i] = new Bubble(200, 200, 100, random(0, 255), random(0, 255), random(0, 255));
+  createCanvas(windowWidth, windowHeight);
+    for (var i = 0; i < 400; i++) {
+    bubble[i] = new Bubble(windowWidth/2, windowHeight/2, 100, random(0, 255), random(0, 255), random(0, 255));
   }
 }
 

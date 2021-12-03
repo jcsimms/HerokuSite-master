@@ -2,19 +2,19 @@ var btn = true
 var slide = 140
 
 function setup() {
-  createCanvas(700, 500);
+  createCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
   background(10);
-  translate(200, 250)
+  translate(windowWidth/2, 400)
   if (btn) {
     fill(300, 300, 0, 100)
   } else {
     noFill()
   }
   noStroke()
-  triangle(120, 0, -300, -300, -300, 300)
+  triangle(120, 0, -600, -500, -600, 500)
   fill(100)
   ellipse(400, 0, 100 * .66, 100)
   rect(0, -50, 400, 100)

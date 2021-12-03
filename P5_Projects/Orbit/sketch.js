@@ -1,7 +1,7 @@
 time = 0
 
 function setup() {
-  createCanvas(800, 500);
+  createCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
