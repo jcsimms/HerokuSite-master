@@ -83,11 +83,11 @@ function draw() {
   // text(ball.y-120, 80,600);
 } 
 
-function keyPressed(){
-  if (keyCode === 32 && ballFire === false){
+function mouseClicked(){
+  if (ballFire === false){
     derivX = mouseX-width/2
     ballFire = true
-  }else if (keyCode === 32 && ballFire === true){
+  }else if (ballFire === true){
     ballFire = false 
     shipFire = false;
     // ship.reset()
