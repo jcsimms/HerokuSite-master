@@ -16,6 +16,10 @@ let derivX;
 let derivY;
 let ang = 50
 
+let timerRun = false
+let timer = 0
+
+
 function setup() {
   
   createCanvas(windowWidth, windowHeight);
@@ -43,6 +47,8 @@ function setup() {
 
 function draw() {
   background(100); 
+
+//Make the bricks and keep track of them
   for (var i = 0; i < bricks.length; i++) {
     bricks[i].show()
     if(ball.hits(bricks[i])){
@@ -50,56 +56,81 @@ function draw() {
       bricks.splice(i,1)
     }
   } 
+
+//Show the ball and ship and wait until the click to fire them
   if (ballFire === false){
     ball.show()
     ship.show()
-  } else {
+  } 
+  else if (ballFire === true && timerRun === true){
     ball.fire()
     ship.fire()
+    if (frameCount % 6 == 0 && timer >= 0) {
+      timer = timer + (1/10)
+    }
+    textAlign(CENTER, CENTER);
+    textSize(50);
+    text(timer.toFixed(1),width/2, height/2);
   }
 
-  if (bricks.length < 2){
-    fill(random(150,250), random(150,250), random(150,250));
+//The winning screen
+  if (bricks.length < 30){
+    fill(200,200,200);
     rect(width/4,height/4,width/2,height/2,20)
     fill(01, 102, 153);
     textAlign(CENTER);
     textSize(100);
-    text('AMAZING!', width/2,height/2);
+    text(timer.toFixed(1), width/2,height/2.4);
+    text('Seconds', width/2,height/1.9);
+    textSize(30);
+    text('Your Score Has Been Recorded!', width/2,height/1.6);
+    text('Click Anywhere to Play Again', width/2,height/1.5);
     ball.x = -100
     ball.y = -100
+    timerRun = false
+    noLoop();
+    document.getElementById('score').innerHTML = timer.toFixed(1);
+    document.getElementById('score').style.display = 'none'; 
   }
-  else if (ball.y > height-50){
-    let dim = 1
-    fill(dim);
-    dim = dim+10
+
+//The losing screen
+  if (ball.y > height-50){
+    fill(30);
     rect(width/4,height/4,width/2,height/2,20)
     fill(01, 102, 153);
     textAlign(CENTER);
     textSize(100);
     text('OOOOF...', width/2,height/2);
+    textSize(25);
+    text('Your Failure to Succed Has Been Recorded', width/2,height/1.6);
+    text('Click Anywhere to Play Again', width/2,height/1.5);
+    noLoop();
+    document.getElementById('score').innerHTML = 'Failure';
+    document.getElementById('score').style.display = 'none'; 
   }
-  // fill(200,200,153);
-  // textSize(25);
-  // text(ball.y-120, 80,600);
-} 
+}
 
 function mouseClicked(){
+
   if (ballFire === false){
     derivX = mouseX-width/2
-    ballFire = true
-  }else if (ballFire === true){
+    ballFire = true;
+    shipFire = true;  
+    timerRun = true;
+    loop();
+  }
+  else if (ballFire === true){
     ballFire = false 
-    shipFire = false;
-    // ship.reset()
-    // ball.reset()
-    // bricks.reset()               
+    shipFire = false;            
     x = 0;
     y = 20;
-    brickNum = 25;
+    brickNum = 30;
     brickHeight = 50;
     brickRows = 3;
-    gap = 120
+    gap = 120;
+    timer = 0;
     setup()
     draw()
+    loop();
   }
-} 
+}
