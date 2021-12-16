@@ -70,11 +70,11 @@ function draw() {
     }
     textAlign(CENTER, CENTER);
     textSize(50);
-    text(timer.toFixed(1),width/2, height/2);
+    text(timer.toFixed(1),width/20, height/20);
   }
 
 //The winning screen
-  if (bricks.length < 1){
+  if (bricks.length < 2){
     fill(200,200,200);
     rect(width/4,height/4,width/2,height/2,20)
     fill(01, 102, 153);
