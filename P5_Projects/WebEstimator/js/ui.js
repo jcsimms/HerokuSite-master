@@ -58,7 +58,7 @@ const UI = {
                 '<input type="radio" name="type-' + index + '" class="radio-button" value="events" ' + (source.type === 'events' ? 'checked' : '') + ' onchange="App.updateSourceType(' + index + ', \'events\')">',
                 '</div></div>',
                 '<div class="source-multiplier">',
-                '<div class="source-multiplier-label">Multiplier Value</div>',
+                '<div class="source-multiplier-label">Number of Objects or Streams</div>',
                 '<div class="stepper-container">',
                 '<button class="stepper-button" onclick="App.changeSourceMultiplier(' + index + ', -1)" aria-label="Decrease">−</button>',
                 '<input type="number" class="stepper-input" id="multiplier-' + index + '" value="' + source.multiplier + '" readonly>',
