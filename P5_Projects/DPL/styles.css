@@ -1,10 +1,11 @@
 /* Salesforce Price List - Simulation Styles */
 :root {
-    /* Horizontal inset for all pages (header + main interactive area) */
-    --page-gutter: clamp(16px, 3.5vw, 36px);
-    /* Inset from the inner “mat” so tabs, labels, and chevrons don’t hug the edge */
-    --mat-inner-inset: clamp(20px, 2.5vw, 32px);
-    --content-max-width: 1440px;
+    /* Near full-width layout: thin margin from browser edge (~15–20px) */
+    --page-gutter: clamp(14px, 1.35vw, 20px);
+    /* Light inner padding for filters, table disclaimers, editor blocks (no second “column” max-width) */
+    --mat-inner-inset: clamp(10px, 1vw, 16px);
+    /* Uncapped — header + main align to viewport minus --page-gutter only */
+    --content-max-width: none;
 
     --font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --color-default: #181818;
@@ -68,6 +69,7 @@ body {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 
 .header-left {
@@ -117,7 +119,8 @@ body {
 /* Marketing banner — only on View Price List (see .content.has-price-list-banner) */
 .marketing-banner-slot {
     display: none;
-    padding: 16px var(--mat-inner-inset) 12px;
+    /* Full bleed within .content (horizontal margin is only --page-gutter on main) */
+    padding: 12px 0 8px;
 }
 
 .content.has-price-list-banner .marketing-banner-slot {
@@ -149,7 +152,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px var(--mat-inner-inset);
+    padding: 14px var(--mat-inner-inset);
     background: var(--color-white);
     border-bottom: 1px solid var(--color-gray-90);
 }
@@ -158,13 +161,15 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 16px 24px;
-    padding-left: 2px; /* optical align with accordion chevrons */
 }
 
 .tab-link {
     color: #3e3e3c;
     text-decoration: none;
     font-weight: 500;
+    /* Slightly larger than header greeting (.greeting at 16px) */
+    font-size: 17px;
+    line-height: 22px;
     padding: 4px 4px 4px 0;
     border-bottom: 2px solid transparent;
 }
@@ -193,7 +198,7 @@ body {
     background: var(--color-gray-90);
 }
 
-/* Content — centered column like the reference “mat” */
+/* Content — full width minus thin side gutters (matches wide DPL layout) */
 .content {
     flex: 1;
     overflow-y: auto;
@@ -203,6 +208,7 @@ body {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 
 .page {
@@ -214,7 +220,8 @@ body {
 }
 
 .page-padding {
-    padding: 16px var(--mat-inner-inset);
+    /* Vertical rhythm only; horizontal alignment comes from .content --page-gutter */
+    padding: 16px 0;
 }
 
 /* Filters Bar */
@@ -413,7 +420,7 @@ body {
     overflow: hidden;
 }
 
-/* Main "All Products" header - dark grey (horizontal inset comes from page-padding; small inner nudge from card edge) */
+/* Main "All Products" header - dark grey (full width of card; chevron has minimal nudge) */
 .all-products-main-header {
     display: flex;
     align-items: center;
@@ -793,6 +800,68 @@ body {
     margin-top: 24px;
 }
 
+/* Estimation setup interstitial (above country modal) */
+.estimation-setup-overlay {
+    z-index: 2100;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-estimation-setup {
+    width: min(100%, 480px);
+    max-width: 100%;
+}
+
+.estimation-setup-lead {
+    margin: -8px 0 16px;
+    font-size: 13px;
+    color: var(--color-weak);
+    line-height: 1.45;
+}
+
+.label-required {
+    color: var(--color-delete);
+    font-weight: 600;
+}
+
+.label-optional {
+    font-weight: 400;
+    color: var(--color-gray-50);
+}
+
+.modal-text-input,
+.modal-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-table-border);
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.modal-text-input:focus,
+.modal-textarea:focus {
+    outline: none;
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 2px var(--color-blue-95);
+}
+
+.modal-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.estimation-setup-actions {
+    margin-top: 20px;
+}
+
+.pricing-estimator-context-summary {
+    margin: 8px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-blue-20);
+}
+
 /* ========== Scratchpad editor page ========== */
 .scratchpad-edit-padding {
     padding-bottom: 32px;
@@ -1053,6 +1122,268 @@ body {
     line-height: 1.5;
     max-width: 640px;
     margin: 0;
+}
+
+.pricing-estimator-landing {
+    padding: 8px 0 24px;
+}
+
+.pricing-estimator-cta {
+    margin-top: 20px;
+}
+
+.estimator-saved-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-gray-90);
+}
+
+.estimator-saved-title {
+    margin-bottom: 12px;
+}
+
+/* Create estimation — menu/questions column + capture panel to the right */
+.pricing-estimator-create {
+    max-width: 100%;
+}
+
+.pricing-estimator-work-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(16px, 2vw, 28px);
+    width: 100%;
+    max-width: 100%;
+}
+
+.pricing-estimator-create-column {
+    --estimator-gap: clamp(12px, 1.5vw, 20px);
+    /* Same width as the 3-across menu (former 5-across tile width) */
+    width: calc((100% - 4 * var(--estimator-gap)) * 3 / 5 + 2 * var(--estimator-gap));
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pricing-estimator-create-column.estimator-left-column {
+    margin-left: 0;
+    margin-right: 0;
+    flex: 0 0 auto;
+}
+
+.estimator-capture-aside {
+    flex: 1 1 260px;
+    min-width: min(100%, 240px);
+    max-width: 400px;
+    align-self: stretch;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-90);
+    border-radius: 8px;
+    padding: 16px 18px 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.estimator-capture-title {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-blue-20);
+}
+
+.estimator-capture-empty {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-weak);
+    line-height: 1.5;
+}
+
+.estimator-capture-entry {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-gray-90);
+}
+
+.estimator-capture-entry:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.estimator-capture-option-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--color-default);
+}
+
+.estimator-capture-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--color-default);
+    line-height: 1.5;
+}
+
+.estimator-questions-pane {
+    width: 100%;
+}
+
+.estimator-questions-card {
+    width: 100%;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-90);
+    border-radius: 8px;
+    padding: 20px 20px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.estimator-questions-heading {
+    margin: 0 0 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-blue-20);
+}
+
+.estimator-questions-card .form-group {
+    margin-bottom: 16px;
+}
+
+.estimator-questions-card .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--color-default);
+}
+
+.estimator-add-to-estimate-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.pricing-estimator-create-header {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.pricing-estimator-create-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.pricing-estimator-back {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-link);
+    text-decoration: underline;
+    margin-bottom: 0;
+}
+
+.pricing-estimator-back:hover {
+    text-decoration: none;
+}
+
+.pricing-estimator-create-title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-blue-20);
+}
+
+.pricing-estimator-create-sub {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-weak);
+    line-height: 1.5;
+}
+
+.estimator-option-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Row height follows each tile (aspect-ratio); don’t stretch rows */
+    grid-template-rows: repeat(3, auto);
+    gap: var(--estimator-gap, clamp(12px, 1.5vw, 20px));
+    align-items: start;
+    justify-items: stretch;
+    width: 100%;
+}
+
+.estimator-option-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    width: 100%;
+    height: auto;
+    /* ~30% shorter than 2:3 tiles: height ≈ 1.05 × width (width : height = 20 : 21) */
+    aspect-ratio: 20 / 21;
+    min-height: 0;
+    padding: 12px 12px 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    background: var(--color-white);
+    border: 1px solid var(--color-table-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    gap: 8px;
+}
+
+.estimator-option-tile-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-default);
+    width: 100%;
+}
+
+.estimator-option-tile-desc {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-gray-50);
+    text-align: left;
+    width: 100%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+}
+
+.estimator-option-tile:hover {
+    border-color: var(--color-blue);
+    background: var(--color-blue-95);
+    box-shadow: 0 2px 8px rgba(1, 118, 211, 0.12);
+}
+
+.estimator-option-tile:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+    .estimator-option-grid {
+        grid-template-rows: repeat(3, auto);
+    }
+}
+
+@media (max-width: 520px) {
+    .estimator-option-grid {
+        grid-template-rows: repeat(3, auto);
+    }
+
+    .estimator-option-tile {
+        padding: 10px;
+    }
 }
 
 /* Scrollbar */
