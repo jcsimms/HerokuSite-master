@@ -270,6 +270,14 @@ let state = {
     scratchpads: JSON.parse(JSON.stringify(MOCK_SCRATCHPADS)),
     /** When set, next Add to Scratchpad merges lines into this scratchpad */
     mergeTargetScratchpadId: null,
+    /** Create estimation: interstitial completed for current visit to /pricing-estimator/new */
+    estimationSetupAcknowledged: false,
+    /** Saved when user completes estimation setup modal */
+    currentEstimation: null,
+    /** Persisted when user clicks Save on the create flow (Pricing Estimator tab) */
+    savedEstimations: [],
+    /** When set (1–9), menu is hidden and option question form is shown */
+    estimatorActiveOption: null,
 };
 
 function getProductById(id) {
@@ -323,7 +331,11 @@ function initRouting() {
 
     document.querySelectorAll('.tab-link').forEach(link => {
         const r = link.getAttribute('data-route');
-        link.classList.toggle('active', !isScratchEdit && r === route);
+        const pricingTab =
+            r === '/pricing-estimator' &&
+            (route === '/pricing-estimator' || route === '/pricing-estimator/new');
+        const active = !isScratchEdit && (r === route || pricingTab);
+        link.classList.toggle('active', active);
     });
 
     document.querySelectorAll('.page').forEach(page => {
@@ -333,6 +345,7 @@ function initRouting() {
             (route === '/accounts' && pageId === 'page-accounts') ||
             (route === '/scratchpads' && pageId === 'page-scratchpads') ||
             (route === '/pricing-estimator' && pageId === 'page-pricing-estimator') ||
+            (route === '/pricing-estimator/new' && pageId === 'page-pricing-estimator-new') ||
             (isScratchEdit && pageId === 'page-scratchpad-edit');
         page.classList.toggle('active', isActive);
     });
@@ -340,7 +353,7 @@ function initRouting() {
     if (route === '/') renderProducts();
     if (route === '/accounts') renderAccounts();
     if (route === '/scratchpads') renderScratchpads();
-    if (route === '/pricing-estimator') renderPricingEstimator();
+    if (route === '/pricing-estimator' || route === '/pricing-estimator/new') renderPricingEstimator();
     if (isScratchEdit) renderScratchpadEditor(scratchEdit[1]);
 }
 
@@ -348,6 +361,11 @@ function navigateTo(path, opts = {}) {
     const p = path && path.startsWith('/') ? path : '/' + (path || '');
     if (p === '/' && !opts.preserveMergeTarget) {
         state.mergeTargetScratchpadId = null;
+    }
+    if (p === '/pricing-estimator/new' && !opts.keepEstimationSession) {
+        state.estimationSetupAcknowledged = false;
+        state.currentEstimation = null;
+        state.estimatorActiveOption = null;
     }
     location.hash = p;
     initRouting();
@@ -715,8 +733,309 @@ function openSavedScratchpads(accountId) {
 }
 
 // ============ Pricing Estimator tab ============
+const ESTIMATOR_OPTION_TITLES = {
+    1: 'Option One',
+    2: 'Option Two',
+    3: 'Option Three',
+    4: 'Option Four',
+    5: 'Option Five',
+    6: 'Option Six',
+    7: 'Option Seven',
+    8: 'Option Eight',
+    9: 'Option Nine',
+};
+
+function getEstimatorOptionTitle(optionNum) {
+    const n = Number(optionNum);
+    return ESTIMATOR_OPTION_TITLES[n] || `Option ${n}`;
+}
+
 function renderPricingEstimator() {
-    /* Placeholder for future estimator UI; tab route is active. */
+    const modal = document.getElementById('estimationSetupModal');
+
+    if (state.currentRoute === '/pricing-estimator') {
+        modal?.classList.remove('open');
+        state.estimatorActiveOption = null;
+        renderSavedEstimations();
+        return;
+    }
+
+    if (state.currentRoute !== '/pricing-estimator/new') {
+        modal?.classList.remove('open');
+        return;
+    }
+
+    const summaryEl = document.getElementById('estimationContextSummary');
+
+    populateEstimationAccountSelect();
+
+    if (!state.estimationSetupAcknowledged) {
+        resetEstimationSetupForm();
+        modal?.classList.add('open');
+        requestAnimationFrame(() => {
+            document.getElementById('estimationNameInput')?.focus();
+        });
+        if (summaryEl) {
+            summaryEl.hidden = true;
+            summaryEl.textContent = '';
+        }
+    } else {
+        modal?.classList.remove('open');
+        updateEstimationContextSummary();
+    }
+
+    syncEstimatorSaveButton();
+    syncEstimatorOptionViews();
+    renderEstimatorCaptureAside();
+}
+
+function renderSavedEstimations() {
+    const container = document.getElementById('estimationList');
+    if (!container) return;
+
+    if (state.savedEstimations.length === 0) {
+        container.innerHTML =
+            '<p class="scratchpad-empty">No saved estimations yet. Click <strong>Create new estimation</strong>, complete the setup, then click <strong>Save Your Estimate</strong>.</p>';
+        return;
+    }
+
+    container.innerHTML = state.savedEstimations
+        .map(
+            (est) => `
+        <div class="scratchpad-item estimation-item" role="button" tabindex="0" onclick="openSavedEstimation('${escapeHtml(est.id)}')" onkeydown="if(event.key==='Enter')openSavedEstimation('${escapeHtml(est.id)}')">
+            <div>
+                <span class="scratchpad-name">${escapeHtml(est.name)}</span>
+                <div class="scratchpad-meta">${escapeHtml(est.accountName)} • ${escapeHtml(est.updatedAt)}</div>
+            </div>
+            <button type="button" class="btn-brand" onclick="event.stopPropagation(); openSavedEstimation('${escapeHtml(est.id)}')">Open</button>
+        </div>
+    `
+        )
+        .join('');
+}
+
+function openSavedEstimation(id) {
+    const rec = state.savedEstimations.find((e) => e.id === id);
+    if (!rec) return;
+    state.currentEstimation = {
+        name: rec.name,
+        accountId: rec.accountId,
+        accountName: rec.accountName,
+        details: rec.details || '',
+        optionAnswers:
+            rec.optionAnswers && typeof rec.optionAnswers === 'object'
+                ? { ...rec.optionAnswers }
+                : {},
+    };
+    state.estimationSetupAcknowledged = true;
+    state.estimatorActiveOption = null;
+    navigateTo('/pricing-estimator/new', { keepEstimationSession: true });
+}
+
+function syncEstimatorSaveButton() {
+    const btn = document.getElementById('estimatorSaveBtn');
+    if (!btn) return;
+    const ok = state.estimationSetupAcknowledged && !!state.currentEstimation;
+    btn.disabled = !ok;
+}
+
+function saveCurrentEstimation() {
+    if (!state.estimationSetupAcknowledged || !state.currentEstimation) {
+        window.alert('Complete the estimation setup before saving.');
+        return;
+    }
+    const e = state.currentEstimation;
+    const rec = {
+        id: `est-${Date.now()}`,
+        name: e.name,
+        accountId: e.accountId,
+        accountName: e.accountName,
+        details: e.details || '',
+        optionAnswers:
+            e.optionAnswers && typeof e.optionAnswers === 'object' ? { ...e.optionAnswers } : {},
+        updatedAt: new Date().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        }),
+    };
+    state.savedEstimations.unshift(rec);
+    window.alert('Estimation saved.');
+    navigateTo('/pricing-estimator');
+}
+
+function populateEstimationAccountSelect() {
+    const sel = document.getElementById('estimationAccountSelect');
+    if (!sel) return;
+    const opts =
+        '<option value="">Select an account</option>' +
+        MOCK_ACCOUNTS.map(
+            (a) => `<option value="${escapeHtml(a.id)}">${escapeHtml(a.name)}</option>`
+        ).join('');
+    sel.innerHTML = opts;
+}
+
+function resetEstimationSetupForm() {
+    const nameEl = document.getElementById('estimationNameInput');
+    const accEl = document.getElementById('estimationAccountSelect');
+    const detEl = document.getElementById('estimationDetailsInput');
+    if (nameEl) nameEl.value = '';
+    if (accEl) accEl.value = '';
+    if (detEl) detEl.value = '';
+}
+
+function updateEstimationContextSummary() {
+    const el = document.getElementById('estimationContextSummary');
+    const e = state.currentEstimation;
+    if (!el) return;
+    if (!e) {
+        el.hidden = true;
+        el.textContent = '';
+        return;
+    }
+    el.hidden = false;
+    el.textContent = `${e.name} · ${e.accountName}`;
+}
+
+function submitEstimationSetup() {
+    const name = (document.getElementById('estimationNameInput')?.value || '').trim();
+    const accountId = document.getElementById('estimationAccountSelect')?.value || '';
+    const details = (document.getElementById('estimationDetailsInput')?.value || '').trim();
+
+    if (!name) {
+        window.alert('Please enter a name for your estimation.');
+        document.getElementById('estimationNameInput')?.focus();
+        return;
+    }
+    if (!accountId) {
+        window.alert('Please select an account.');
+        document.getElementById('estimationAccountSelect')?.focus();
+        return;
+    }
+
+    const acc = MOCK_ACCOUNTS.find((a) => a.id === accountId);
+    state.currentEstimation = {
+        name,
+        accountId,
+        accountName: acc ? acc.name : accountId,
+        details,
+        optionAnswers: {},
+    };
+    state.estimationSetupAcknowledged = true;
+    document.getElementById('estimationSetupModal')?.classList.remove('open');
+    updateEstimationContextSummary();
+    syncEstimatorSaveButton();
+    syncEstimatorOptionViews();
+    renderEstimatorCaptureAside();
+}
+
+function ensureCurrentEstimationOptionAnswers() {
+    if (state.currentEstimation && !state.currentEstimation.optionAnswers) {
+        state.currentEstimation.optionAnswers = {};
+    }
+}
+
+function getOptionAnswerForOption(optionNum) {
+    ensureCurrentEstimationOptionAnswers();
+    const key = String(optionNum);
+    return state.currentEstimation.optionAnswers[key] || {};
+}
+
+function syncEstimatorOptionViews() {
+    const menu = document.getElementById('estimatorMenuPane');
+    const questions = document.getElementById('estimatorQuestionsPane');
+    if (!menu || !questions) return;
+
+    const n = state.estimatorActiveOption;
+    if (n == null) {
+        menu.hidden = false;
+        questions.hidden = true;
+        return;
+    }
+
+    menu.hidden = true;
+    questions.hidden = false;
+
+    const heading = document.getElementById('estimatorQuestionsHeading');
+    if (heading) heading.textContent = getEstimatorOptionTitle(n);
+
+    const oa = getOptionAnswerForOption(n);
+    const rowsEl = document.getElementById('estimatorQRows');
+    const timesEl = document.getElementById('estimatorQTimesPerDay');
+    const usersEl = document.getElementById('estimatorQUsers');
+    if (rowsEl) rowsEl.value = oa.rows != null && oa.rows !== '' ? String(oa.rows) : '';
+    if (timesEl) timesEl.value = oa.timesPerDay != null && oa.timesPerDay !== '' ? String(oa.timesPerDay) : '';
+    if (usersEl) usersEl.value = oa.users != null && oa.users !== '' ? String(oa.users) : '';
+
+    requestAnimationFrame(() => rowsEl?.focus());
+}
+
+function renderEstimatorCaptureAside() {
+    const aside = document.getElementById('estimatorCaptureAside');
+    if (!aside) return;
+
+    if (!state.estimationSetupAcknowledged || !state.currentEstimation) {
+        aside.innerHTML =
+            '<p class="estimator-capture-empty">Complete setup, then select options to build your estimate.</p>';
+        return;
+    }
+
+    ensureCurrentEstimationOptionAnswers();
+    const answers = state.currentEstimation.optionAnswers;
+    const keys = Object.keys(answers).sort((a, b) => Number(a) - Number(b));
+
+    if (keys.length === 0) {
+        aside.innerHTML =
+            '<p class="estimator-capture-empty">Captured answers will appear here after you use <strong>Add to estimate</strong> on an option.</p>';
+        return;
+    }
+
+    const rowsHtml = keys
+        .map((k) => {
+            const d = answers[k] || {};
+            const rowVal = d.rows !== '' && d.rows != null ? String(d.rows) : '—';
+            const dayVal = d.timesPerDay !== '' && d.timesPerDay != null ? String(d.timesPerDay) : '—';
+            const userVal = d.users !== '' && d.users != null ? String(d.users) : '—';
+            return `
+            <div class="estimator-capture-entry">
+                <div class="estimator-capture-option-label">${escapeHtml(getEstimatorOptionTitle(k))}</div>
+                <ul class="estimator-capture-list">
+                    <li>How many rows do you need? <strong>${escapeHtml(rowVal)}</strong></li>
+                    <li>How many times per day? <strong>${escapeHtml(dayVal)}</strong></li>
+                    <li>How many users? <strong>${escapeHtml(userVal)}</strong></li>
+                </ul>
+            </div>`;
+        })
+        .join('');
+
+    aside.innerHTML = `<h3 class="estimator-capture-title">In this estimate</h3>${rowsHtml}`;
+}
+
+function addCurrentOptionToEstimate() {
+    const n = state.estimatorActiveOption;
+    if (n == null) return;
+    ensureCurrentEstimationOptionAnswers();
+
+    const rows = document.getElementById('estimatorQRows')?.value ?? '';
+    const timesPerDay = document.getElementById('estimatorQTimesPerDay')?.value ?? '';
+    const users = document.getElementById('estimatorQUsers')?.value ?? '';
+
+    state.currentEstimation.optionAnswers[String(n)] = { rows, timesPerDay, users };
+    state.estimatorActiveOption = null;
+    syncEstimatorOptionViews();
+    renderEstimatorCaptureAside();
+}
+
+/** Open option-specific questions (same width as 3-across menu) */
+function onEstimatorOptionClick(optionNumber) {
+    if (!state.estimationSetupAcknowledged) {
+        window.alert('Please complete the estimation details in the dialog first.');
+        document.getElementById('estimationSetupModal')?.classList.add('open');
+        return;
+    }
+    ensureCurrentEstimationOptionAnswers();
+    state.estimatorActiveOption = optionNumber;
+    syncEstimatorOptionViews();
 }
 
 // ============ Render Scratchpads ============
