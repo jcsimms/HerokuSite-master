@@ -7,7 +7,7 @@ A static HTML/CSS/JavaScript simulation of the Digital Pricelist Tool (DPL) expe
 - **View Price List** – Browse products with search, sort, and filters. Select products and **Add to Scratchpad** to create a scratchpad and open the **Scratchpad editor** (line items, editable **Qty** and **Discount %**, totals, Save / Export / Update products).
 - **View Accounts** – Customer accounts table with search.
 - **Access Saved Scratchpads** – Open any saved scratchpad in the same editor. New scratchpads from the price list appear at the top of the list.
-- **Pricing Estimator** – Fourth tab (placeholder page for future pricing scenarios).
+- **Pricing Estimator** – Landing page lists **Saved estimations** (like scratchpads). **Create new estimation** opens a **3×3** grid after an interstitial. Each option opens a **question panel** (rows, times per day, users) the same width as the grid; **Add to estimate** returns to the menu and shows answers in a **panel to the right**. **Save Your Estimate** persists the record (including option answers) to the list.
 - **Header** – Salesforce-style header with greeting and **#Support** link.
 - **Marketing banner** – FY27 upgrade-finder banner image on **View Price List** only (below header, above tabs).
 - **Country/Currency** – Modal to change country and currency (simulated).
