@@ -205,16 +205,110 @@
                 </div>
             </div>
 
-            <!-- Page: Pricing Estimator -->
+            <!-- Page: Pricing Estimator (landing) -->
             <div id="page-pricing-estimator" class="page">
                 <div class="page-padding">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body pricing-estimator-landing">
                             <h3 class="section-title">Pricing Estimator</h3>
                             <p class="pricing-estimator-intro">
-                                Estimate pricing scenarios outside of the price list scratchpad flow. Use this area to
-                                build quick quotes or what-if calculations (simulation — connect your rules here).
+                                Estimate pricing scenarios outside of the price list scratchpad flow. Create a new
+                                estimation to choose options and build quick quotes or what-if calculations
+                                (simulation — connect your rules here).
                             </p>
+                            <button type="button" class="btn-brand pricing-estimator-cta" onclick="navigateTo('/pricing-estimator/new')">
+                                Create new estimation
+                            </button>
+                            <div class="estimator-saved-section">
+                                <h3 class="section-title estimator-saved-title">Saved estimations</h3>
+                                <div class="scratchpad-list" id="estimationList">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Pricing Estimator — create flow (3×3 tiles, same width as former 5-across) -->
+            <div id="page-pricing-estimator-new" class="page">
+                <div class="page-padding">
+                    <div class="pricing-estimator-create">
+                        <div class="pricing-estimator-work-row">
+                            <div class="pricing-estimator-create-column estimator-left-column">
+                                <div class="pricing-estimator-create-header">
+                                    <div class="pricing-estimator-create-header-top">
+                                        <a href="#" class="pricing-estimator-back" onclick="event.preventDefault(); navigateTo('/pricing-estimator')">← Back to Pricing Estimator</a>
+                                        <button type="button" id="estimatorSaveBtn" class="btn-brand" onclick="saveCurrentEstimation()" disabled>
+                                            Save Your Estimate
+                                        </button>
+                                    </div>
+                                    <h2 class="pricing-estimator-create-title">Create pricing estimation</h2>
+                                    <p class="pricing-estimator-create-sub">Select an option below to continue (simulation).</p>
+                                    <p class="pricing-estimator-context-summary" id="estimationContextSummary" hidden></p>
+                                </div>
+                                <div id="estimatorMenuPane">
+                                    <div class="estimator-option-grid" role="group" aria-label="Estimation menu options">
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(1)">
+                                            <span class="estimator-option-tile-title">Option One</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(2)">
+                                            <span class="estimator-option-tile-title">Option Two</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(3)">
+                                            <span class="estimator-option-tile-title">Option Three</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(4)">
+                                            <span class="estimator-option-tile-title">Option Four</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(5)">
+                                            <span class="estimator-option-tile-title">Option Five</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(6)">
+                                            <span class="estimator-option-tile-title">Option Six</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(7)">
+                                            <span class="estimator-option-tile-title">Option Seven</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(8)">
+                                            <span class="estimator-option-tile-title">Option Eight</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(9)">
+                                            <span class="estimator-option-tile-title">Option Nine</span>
+                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="estimatorQuestionsPane" class="estimator-questions-pane" hidden>
+                                    <div class="estimator-questions-card">
+                                        <h3 class="estimator-questions-heading" id="estimatorQuestionsHeading">Option One</h3>
+                                        <div class="form-group">
+                                            <label for="estimatorQRows">How many rows do you need?</label>
+                                            <input type="number" id="estimatorQRows" class="modal-text-input" min="0" step="1" placeholder="0" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="estimatorQTimesPerDay">How many times per day?</label>
+                                            <input type="number" id="estimatorQTimesPerDay" class="modal-text-input" min="0" step="1" placeholder="0" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="estimatorQUsers">How many users?</label>
+                                            <input type="number" id="estimatorQUsers" class="modal-text-input" min="0" step="1" placeholder="0" />
+                                        </div>
+                                        <button type="button" class="btn-brand estimator-add-to-estimate-btn" onclick="addCurrentOptionToEstimate()">
+                                            Add to estimate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="estimator-capture-aside" id="estimatorCaptureAside" aria-label="Captured option answers"></aside>
                         </div>
                     </div>
                 </div>
@@ -301,6 +395,31 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Estimation setup interstitial (create flow) -->
+    <div id="estimationSetupModal" class="modal-overlay estimation-setup-overlay" role="dialog" aria-modal="true" aria-labelledby="estimationSetupTitle">
+        <div class="modal modal-estimation-setup">
+            <h3 id="estimationSetupTitle">Set up your estimation</h3>
+            <p class="estimation-setup-lead">Name this estimation and choose an account to continue.</p>
+            <div class="form-group">
+                <label for="estimationNameInput">Estimation name <span class="label-required" aria-hidden="true">*</span></label>
+                <input type="text" id="estimationNameInput" class="modal-text-input" autocomplete="off" placeholder="e.g. Q2 renewal scenario" />
+            </div>
+            <div class="form-group">
+                <label for="estimationAccountSelect">Account <span class="label-required" aria-hidden="true">*</span></label>
+                <select id="estimationAccountSelect">
+                    <option value="">Select an account</option>
+                </select>
+            </div>
+            <div class="form-group form-group-optional">
+                <label for="estimationDetailsInput">Additional details <span class="label-optional">(optional)</span></label>
+                <textarea id="estimationDetailsInput" class="modal-textarea" rows="4" placeholder="tell me more about your estimation"></textarea>
+            </div>
+            <div class="modal-actions estimation-setup-actions">
+                <button type="button" class="btn-brand" onclick="submitEstimationSetup()">Continue</button>
+            </div>
+        </div>
     </div>
 
     <!-- Country/Currency Modal -->
