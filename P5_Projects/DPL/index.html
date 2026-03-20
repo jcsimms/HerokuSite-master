@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salesforce Price List - Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="header-left">
+                    <button class="logo-btn" title="Home" onclick="navigateTo('/')">
+                        <img
+                            class="salesforce-logo"
+                            src="assets/salesforce-cloud-logo.png"
+                            width="48"
+                            height="32"
+                            alt="Salesforce"
+                        />
+                    </button>
+                    <span class="greeting" id="greeting">Good Morning, User</span>
+                </div>
+                <div class="header-right">
+                    <a href="#" class="support-link">#Support</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="content" id="mainContent">
+            <!-- Marketing banner (View Price List only; below app header, above tabs) -->
+            <div class="marketing-banner-slot" id="marketingBannerSlot" aria-label="Marketing">
+                <a href="#" class="marketing-banner-link" onclick="event.preventDefault()">
+                    <img
+                        src="assets/marketing-banner.png"
+                        alt="Maximize ACV uplift in FY27 with the new upgrade finder. Find My Customers."
+                        class="marketing-banner-img"
+                        width="1400"
+                        height="280"
+                    />
+                </a>
+            </div>
+
+            <!-- Card Header with Tabs -->
+            <div class="card-header">
+                <div class="header-tabs">
+                    <a href="#/" class="tab-link active" data-route="/">View Price List</a>
+                    <a href="#/accounts" class="tab-link" data-route="/accounts">View Accounts</a>
+                    <a href="#/scratchpads" class="tab-link" data-route="/scratchpads">Access Saved Scratchpads</a>
+                    <a href="#/pricing-estimator" class="tab-link" data-route="/pricing-estimator">Pricing Estimator</a>
+                </div>
+                <div class="header-actions">
+                    <button class="country-btn" onclick="openCountryModal()">
+                        Country: <strong>United States</strong> | Currency: <strong>USD ($)</strong> ✎
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page: Price List (All Products) -->
+            <div id="page-price-list" class="page active">
+                <div class="page-padding">
+                    <!-- Filters (reference layout: search + Search btn + labeled dropdowns) -->
+                    <div class="filters-bar filters-bar-price-list">
+                        <div class="search-with-actions">
+                            <div class="search-input-wrap">
+                                <span class="search-input-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                                </span>
+                                <input
+                                    type="text"
+                                    id="productSearch"
+                                    class="search-input-field"
+                                    placeholder="Search Products"
+                                    oninput="filterProducts()"
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <button type="button" class="btn-brand btn-search-submit" onclick="filterProducts()">Search</button>
+                        </div>
+                        <div class="filter-group filter-group-labeled">
+                            <div class="labeled-select">
+                                <label for="priceFilter">Pricing:</label>
+                                <select id="priceFilter" class="filter-select-slds" onchange="filterProducts()">
+                                    <option value="MONTHLY">Monthly</option>
+                                    <option value="ANNUAL">Annual</option>
+                                </select>
+                            </div>
+                            <div class="labeled-select">
+                                <label for="priceListFilter">Price List:</label>
+                                <select id="priceListFilter" class="filter-select-slds" onchange="filterProducts()">
+                                    <option value="CORE">Core</option>
+                                    <option value="TOP">Top</option>
+                                </select>
+                            </div>
+                            <div class="labeled-select">
+                                <label for="sortFilter">Sort By:</label>
+                                <select id="sortFilter" class="filter-select-slds" onchange="filterProducts()">
+                                    <option value="RANK">Rank</option>
+                                    <option value="ALPHA">Alphabetical</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Favorites (collapsible; matches reference grey bar) -->
+                    <div class="card favorites-card">
+                        <div class="all-products-main-header favorites-main-header" onclick="toggleFavoritesSection()">
+                            <span class="main-chevron" id="chevron-favorites">▶</span>
+                            <span>Favorites</span>
+                        </div>
+                        <div class="all-products-body favorites-body collapsed" id="favoritesBody">
+                            <div class="favorites-empty">
+                                No favorite products yet. Use the heart on product rows when available to add favorites here.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Products Accordion -->
+                    <div class="card all-products-card">
+                        <!-- Main "All Products" header - dark grey -->
+                        <div class="all-products-main-header" id="allProductsMainHeader" onclick="toggleAllProducts()">
+                            <span class="main-chevron" id="chevron-all">▼</span>
+                            <span>All Products</span>
+                        </div>
+                        <!-- Collapsible: Column headers + content -->
+                        <div class="all-products-body" id="allProductsBody">
+                            <!-- Column headers -->
+                            <div class="all-products-column-headers">
+                                <div class="col-products">
+                                    <span class="filter-icon" title="Filter">⌃</span>
+                                    Products
+                                </div>
+                                <div class="col-price">List Price</div>
+                                <div class="col-resources-host">
+                                    <div class="col-resources">Resources</div>
+                                </div>
+                            </div>
+                            <!-- Category accordion content -->
+                            <div id="allProductsAccordionContent" class="all-products-accordion-body">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <!-- Products Footer (slider + Add to Scratchpad) -->
+                        <footer class="products-footer">
+                            <div class="slider-container">
+                                <div class="slider-content" id="selectedProductsSlider">
+                                    <!-- Selected product pills appear here -->
+                                </div>
+                            </div>
+                            <button class="btn-brand" id="addToScratchpadBtn" onclick="addToScratchpad()" disabled>
+                                Add to Scratchpad
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Accounts (Dashboard) -->
+            <div id="page-accounts" class="page">
+                <div class="page-padding">
+                    <div class="filters-bar">
+                        <div class="search-box">
+                            <input type="text" id="accountSearch" placeholder="Search accounts...">
+                        </div>
+                        <button class="btn-neutral" onclick="searchAccounts()">Search</button>
+                        <button class="btn-neutral" onclick="resetAccounts()">Reset</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="section-title">Customer Accounts</h3>
+                            <div class="account-table-container">
+                                <table class="product-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <th>Total Contract Value</th>
+                                            <th>Updated</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accountTableBody">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Scratchpads -->
+            <div id="page-scratchpads" class="page">
+                <div class="page-padding">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="section-title">Saved Scratchpads</h3>
+                            <div class="scratchpad-list" id="scratchpadList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Pricing Estimator -->
+            <div id="page-pricing-estimator" class="page">
+                <div class="page-padding">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="section-title">Pricing Estimator</h3>
+                            <p class="pricing-estimator-intro">
+                                Estimate pricing scenarios outside of the price list scratchpad flow. Use this area to
+                                build quick quotes or what-if calculations (simulation — connect your rules here).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Scratchpad editor (after Add to Scratchpad or Open) -->
+            <div id="page-scratchpad-edit" class="page">
+                <div class="page-padding scratchpad-edit-padding">
+                    <div class="price-list-page-title">
+                        <span class="price-list-doc-icon" aria-hidden="true">📄</span>
+                        <h1 class="price-list-heading">Price List</h1>
+                    </div>
+
+                    <div class="card scratchpad-editor-card">
+                        <div class="scratchpad-editor-header">
+                            <h2 class="scratchpad-editor-title">Scratchpad</h2>
+                            <div class="scratchpad-editor-meta">
+                                <span>Country: <strong id="scratchpadMetaCountry">United States</strong></span>
+                                <span class="scratchpad-meta-sep">|</span>
+                                <span>Currency: <strong id="scratchpadMetaCurrency">USD ($)</strong></span>
+                            </div>
+                            <div class="scratchpad-editor-actions">
+                                <label class="scratchpad-pricing-label">
+                                    Pricing:
+                                    <select id="scratchpadPricingSelect" class="scratchpad-pricing-select" onchange="onScratchpadPricingChange()">
+                                        <option value="MONTHLY">Monthly</option>
+                                        <option value="ANNUAL">Annual</option>
+                                    </select>
+                                </label>
+                                <button type="button" class="btn-brand btn-compact" onclick="onPricingGuidance()">Pricing Guidance</button>
+                            </div>
+                        </div>
+
+                        <div class="scratchpad-table-wrap">
+                            <table class="scratchpad-table" id="scratchpadTable">
+                                <thead>
+                                    <tr>
+                                        <th>Products</th>
+                                        <th>View DAM</th>
+                                        <th>Qty</th>
+                                        <th>Effective Qty</th>
+                                        <th>List Price P/U</th>
+                                        <th>List Price</th>
+                                        <th>Discount %</th>
+                                        <th>Net P/U</th>
+                                        <th>Net Price</th>
+                                        <th>Approval Level</th>
+                                        <th>Pricing Guidance</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scratchpadTableBody"></tbody>
+                                <tfoot>
+                                    <tr class="scratchpad-total-row">
+                                        <td colspan="5"><strong>Total</strong></td>
+                                        <td id="scratchpadTotalList" class="num">$0.00</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td id="scratchpadTotalNet" class="num">$0.00</td>
+                                        <td colspan="3"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="scratchpad-footer-actions">
+                            <button type="button" class="btn-outline" onclick="scratchpadUpdateAddProducts()">Update/Add Products</button>
+                            <div class="scratchpad-footer-actions-right">
+                                <button type="button" class="btn-outline" onclick="scratchpadExport()">Export to Google Sheets</button>
+                                <button type="button" class="btn-brand" onclick="scratchpadSave()">Save Scratchpad</button>
+                            </div>
+                        </div>
+
+                        <p class="scratchpad-disclaimer">
+                            <em>Products displayed in the scratchpad, including products with derived pricing, default to list price. Apply the customer's negotiated discount to generate an accurate proposal.</em>
+                        </p>
+                    </div>
+
+                    <p class="scratchpad-back-link">
+                        <a href="#" class="support-link" onclick="event.preventDefault(); navigateTo('/scratchpads')">← Back to saved scratchpads</a>
+                        <span class="scratchpad-back-sep">·</span>
+                        <a href="#" class="support-link" onclick="event.preventDefault(); navigateTo('/')">View Price List</a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Country/Currency Modal -->
+    <div id="countryModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Change Country & Currency</h3>
+            <div class="form-group">
+                <label>Country</label>
+                <select id="modalCountry">
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Currency</label>
+                <select id="modalCurrency">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="EUR">EUR - Euro</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-neutral" onclick="closeCountryModal()">Cancel</button>
+                <button class="btn-brand" onclick="saveCountryCurrency()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
