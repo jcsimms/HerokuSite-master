@@ -248,6 +248,66 @@ const MOCK_SCRATCHPADS = [
     },
 ];
 
+const MOCK_SAVED_ESTIMATIONS = [
+    {
+        id: 'est-seed-1',
+        name: 'FY27 Data 360 Expansion',
+        accountId: 'acc-1',
+        accountName: 'Acme Corporation',
+        details: 'Expansion scenario focused on marketing and audience segmentation.',
+        optionAnswers: {
+            'uc-1': { rows: '120000', timesPerDay: '4', users: '28' },
+        },
+        updatedAt: 'Mar 20, 2026',
+    },
+    {
+        id: 'est-seed-2',
+        name: 'Enterprise Capabilities Rollout',
+        accountId: 'acc-2',
+        accountName: 'Global Media Group',
+        details: 'Capability-first rollout for enterprise business unit.',
+        optionAnswers: {
+            'cap-2': { rows: '80000', timesPerDay: '3', users: '18' },
+            'cap-5': { rows: '24000', timesPerDay: '2', users: '12' },
+        },
+        updatedAt: 'Mar 18, 2026',
+    },
+    {
+        id: 'est-seed-3',
+        name: 'Q2 Personalization Pilot',
+        accountId: 'acc-3',
+        accountName: 'Northern Trail Outfitters',
+        details: 'Pilot for cross-channel personalization use cases.',
+        optionAnswers: {
+            'uc-3': { rows: '35000', timesPerDay: '6', users: '10' },
+        },
+        updatedAt: 'Mar 15, 2026',
+    },
+    {
+        id: 'est-seed-4',
+        name: 'Renewal Uplift What-If',
+        accountId: 'acc-4',
+        accountName: 'Edge Communications',
+        details: 'Renewal uplift modeling with alternate user-count assumptions.',
+        optionAnswers: {
+            'uc-4': { rows: '54000', timesPerDay: '2', users: '14' },
+            'uc-6': { rows: '9000', timesPerDay: '1', users: '7' },
+        },
+        updatedAt: 'Mar 12, 2026',
+    },
+    {
+        id: 'est-seed-5',
+        name: 'Global Launch Readiness',
+        accountId: 'acc-5',
+        accountName: 'United Oil & Gas Corp',
+        details: 'Pre-launch estimate for global campaign readiness.',
+        optionAnswers: {
+            'cap-1': { rows: '110000', timesPerDay: '5', users: '24' },
+        },
+        updatedAt: 'Mar 10, 2026',
+    },
+];
+
 // ============ State ============
 let state = {
     selectedProducts: [],
@@ -275,9 +335,13 @@ let state = {
     /** Saved when user completes estimation setup modal */
     currentEstimation: null,
     /** Persisted when user clicks Save on the create flow (Pricing Estimator tab) */
-    savedEstimations: [],
-    /** When set (1–9), menu is hidden and option question form is shown */
+    savedEstimations: JSON.parse(JSON.stringify(MOCK_SAVED_ESTIMATIONS)),
+    /** When set (e.g. 'uc-1', 'cap-3'), menu is hidden and option question form is shown */
     estimatorActiveOption: null,
+    /** Right workbook panel: 'agent' | 'details' | 'notebook' */
+    estimatorWorkbookTab: 'agent',
+    /** Menu category tab above the tiles: 'usecases' | 'capabilities' */
+    estimatorMenuTab: 'usecases',
 };
 
 function getProductById(id) {
@@ -324,7 +388,9 @@ function initRouting() {
     if (!route.startsWith('/')) route = '/' + route;
     state.currentRoute = route;
 
-    document.getElementById('mainContent')?.classList.toggle('has-price-list-banner', route === '/');
+    const mainEl = document.getElementById('mainContent');
+    mainEl?.classList.toggle('has-price-list-banner', route === '/');
+    mainEl?.classList.toggle('pricing-estimator-create-active', route === '/pricing-estimator/new');
 
     const scratchEdit = route.match(/^\/scratchpad\/([^/]+)$/);
     const isScratchEdit = !!scratchEdit;
@@ -366,6 +432,8 @@ function navigateTo(path, opts = {}) {
         state.estimationSetupAcknowledged = false;
         state.currentEstimation = null;
         state.estimatorActiveOption = null;
+        state.estimatorWorkbookTab = 'agent';
+        state.estimatorMenuTab = 'usecases';
     }
     location.hash = p;
     initRouting();
@@ -734,20 +802,28 @@ function openSavedScratchpads(accountId) {
 
 // ============ Pricing Estimator tab ============
 const ESTIMATOR_OPTION_TITLES = {
-    1: 'Option One',
-    2: 'Option Two',
-    3: 'Option Three',
-    4: 'Option Four',
-    5: 'Option Five',
-    6: 'Option Six',
-    7: 'Option Seven',
-    8: 'Option Eight',
-    9: 'Option Nine',
+    'uc-1': 'Segment & Target Audiences',
+    'uc-2': 'Use Case Two',
+    'uc-3': 'Use Case Three',
+    'uc-4': 'Use Case Four',
+    'uc-5': 'Use Case Five',
+    'uc-6': 'Use Case Six',
+    'uc-7': 'Use Case Seven',
+    'uc-8': 'Use Case Eight',
+    'uc-9': 'Use Case Nine',
+    'cap-1': 'Capability One',
+    'cap-2': 'Capability Two',
+    'cap-3': 'Capability Three',
+    'cap-4': 'Capability Four',
+    'cap-5': 'Capability Five',
+    'cap-6': 'Capability Six',
+    'cap-7': 'Capability Seven',
+    'cap-8': 'Capability Eight',
+    'cap-9': 'Capability Nine',
 };
 
-function getEstimatorOptionTitle(optionNum) {
-    const n = Number(optionNum);
-    return ESTIMATOR_OPTION_TITLES[n] || `Option ${n}`;
+function getEstimatorOptionTitle(key) {
+    return ESTIMATOR_OPTION_TITLES[String(key)] || `Option ${key}`;
 }
 
 function renderPricingEstimator() {
@@ -785,8 +861,10 @@ function renderPricingEstimator() {
     }
 
     syncEstimatorSaveButton();
+    syncEstimatorMenuTabs();
     syncEstimatorOptionViews();
     renderEstimatorCaptureAside();
+    updateEstimationCreatePageHeading();
 }
 
 function renderSavedEstimations() {
@@ -829,6 +907,7 @@ function openSavedEstimation(id) {
     };
     state.estimationSetupAcknowledged = true;
     state.estimatorActiveOption = null;
+    state.estimatorWorkbookTab = 'agent';
     navigateTo('/pricing-estimator/new', { keepEstimationSession: true });
 }
 
@@ -884,6 +963,23 @@ function resetEstimationSetupForm() {
     if (detEl) detEl.value = '';
 }
 
+const DEFAULT_ESTIMATION_CREATE_HEADING = 'Create pricing estimation';
+
+function updateEstimationCreatePageHeading() {
+    const h2 = document.getElementById('estimationCreatePageHeading');
+    if (!h2) return;
+    if (
+        state.estimationSetupAcknowledged &&
+        state.currentEstimation &&
+        state.currentEstimation.name &&
+        state.currentEstimation.accountName
+    ) {
+        h2.textContent = `${state.currentEstimation.name} - ${state.currentEstimation.accountName}`;
+    } else {
+        h2.textContent = DEFAULT_ESTIMATION_CREATE_HEADING;
+    }
+}
+
 function updateEstimationContextSummary() {
     const el = document.getElementById('estimationContextSummary');
     const e = state.currentEstimation;
@@ -924,6 +1020,7 @@ function submitEstimationSetup() {
     state.estimationSetupAcknowledged = true;
     document.getElementById('estimationSetupModal')?.classList.remove('open');
     updateEstimationContextSummary();
+    updateEstimationCreatePageHeading();
     syncEstimatorSaveButton();
     syncEstimatorOptionViews();
     renderEstimatorCaptureAside();
@@ -939,6 +1036,31 @@ function getOptionAnswerForOption(optionNum) {
     ensureCurrentEstimationOptionAnswers();
     const key = String(optionNum);
     return state.currentEstimation.optionAnswers[key] || {};
+}
+
+function setEstimatorMenuTab(tab) {
+    const allowed = ['usecases', 'capabilities'];
+    if (!allowed.includes(tab)) return;
+    state.estimatorMenuTab = tab;
+    syncEstimatorMenuTabs();
+}
+
+function syncEstimatorMenuTabs() {
+    const tab = state.estimatorMenuTab || 'usecases';
+    document.querySelectorAll('.estimator-menu-tab').forEach((btn) => {
+        const id = btn.getAttribute('data-menu-tab');
+        const isOn = id === tab;
+        btn.classList.toggle('estimator-menu-tab-active', isOn);
+        btn.setAttribute('aria-selected', isOn ? 'true' : 'false');
+    });
+    const panels = {
+        usecases: document.getElementById('estimatorMenuUsecases'),
+        capabilities: document.getElementById('estimatorMenuCapabilities'),
+    };
+    Object.entries(panels).forEach(([key, el]) => {
+        if (!el) return;
+        el.hidden = key !== tab;
+    });
 }
 
 function syncEstimatorOptionViews() {
@@ -970,23 +1092,53 @@ function syncEstimatorOptionViews() {
     requestAnimationFrame(() => rowsEl?.focus());
 }
 
+function setEstimatorWorkbookTab(tab) {
+    const allowed = ['agent', 'details', 'notebook'];
+    if (!allowed.includes(tab)) return;
+    state.estimatorWorkbookTab = tab;
+    syncEstimatorWorkbookTabsUI();
+}
+
+function syncEstimatorWorkbookTabsUI() {
+    const tab = state.estimatorWorkbookTab || 'details';
+    document.querySelectorAll('.estimator-workbook-tab').forEach((btn) => {
+        const id = btn.getAttribute('data-workbook-tab');
+        const isOn = id === tab;
+        btn.classList.toggle('estimator-workbook-tab-active', isOn);
+        btn.setAttribute('aria-selected', isOn ? 'true' : 'false');
+        btn.setAttribute('tabindex', isOn ? '0' : '-1');
+    });
+
+    const panels = {
+        agent: document.getElementById('workbookPanelAgent'),
+        details: document.getElementById('workbookPanelDetails'),
+        notebook: document.getElementById('workbookPanelNotebook'),
+    };
+    Object.entries(panels).forEach(([key, el]) => {
+        if (!el) return;
+        el.hidden = key !== tab;
+    });
+}
+
 function renderEstimatorCaptureAside() {
-    const aside = document.getElementById('estimatorCaptureAside');
-    if (!aside) return;
+    const body = document.getElementById('estimatorWorkbookDetailsBody');
+    if (!body) return;
 
     if (!state.estimationSetupAcknowledged || !state.currentEstimation) {
-        aside.innerHTML =
+        body.innerHTML =
             '<p class="estimator-capture-empty">Complete setup, then select options to build your estimate.</p>';
+        syncEstimatorWorkbookTabsUI();
         return;
     }
 
     ensureCurrentEstimationOptionAnswers();
     const answers = state.currentEstimation.optionAnswers;
-    const keys = Object.keys(answers).sort((a, b) => Number(a) - Number(b));
+    const keys = Object.keys(answers).sort((a, b) => a.localeCompare(b));
 
     if (keys.length === 0) {
-        aside.innerHTML =
+        body.innerHTML =
             '<p class="estimator-capture-empty">Captured answers will appear here after you use <strong>Add to estimate</strong> on an option.</p>';
+        syncEstimatorWorkbookTabsUI();
         return;
     }
 
@@ -1008,7 +1160,8 @@ function renderEstimatorCaptureAside() {
         })
         .join('');
 
-    aside.innerHTML = `<h3 class="estimator-capture-title">In this estimate</h3>${rowsHtml}`;
+    body.innerHTML = rowsHtml;
+    syncEstimatorWorkbookTabsUI();
 }
 
 function addCurrentOptionToEstimate() {
@@ -1022,6 +1175,7 @@ function addCurrentOptionToEstimate() {
 
     state.currentEstimation.optionAnswers[String(n)] = { rows, timesPerDay, users };
     state.estimatorActiveOption = null;
+    state.estimatorWorkbookTab = 'details';
     syncEstimatorOptionViews();
     renderEstimatorCaptureAside();
 }

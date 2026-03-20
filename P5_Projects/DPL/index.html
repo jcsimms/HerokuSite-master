@@ -210,15 +210,33 @@
                 <div class="page-padding">
                     <div class="card">
                         <div class="card-body pricing-estimator-landing">
-                            <h3 class="section-title">Pricing Estimator</h3>
-                            <p class="pricing-estimator-intro">
-                                Estimate pricing scenarios outside of the price list scratchpad flow. Create a new
-                                estimation to choose options and build quick quotes or what-if calculations
-                                (simulation — connect your rules here).
-                            </p>
-                            <button type="button" class="btn-brand pricing-estimator-cta" onclick="navigateTo('/pricing-estimator/new')">
-                                Create new estimation
-                            </button>
+                            <div class="pricing-estimator-hero">
+                                <div class="pricing-estimator-hero-content">
+                                    <h3 class="section-title">Pricing Estimator</h3>
+                                    <p class="pricing-estimator-intro">
+                                        Estimate pricing scenarios outside of the price list scratchpad flow. Create a new
+                                        estimation to choose options and build quick quotes or what-if calculations
+                                        (simulation — connect your rules here).
+                                    </p>
+                                    <button type="button" class="btn-brand pricing-estimator-cta" onclick="navigateTo('/pricing-estimator/new')">
+                                        Create new estimation
+                                    </button>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="pricing-estimator-hero-visual"
+                                    onclick="navigateTo('/pricing-estimator/new')"
+                                    aria-label="Create new estimation"
+                                >
+                                    <img
+                                        src="assets/pricing-estimator-hero.png"
+                                        alt=""
+                                        class="pricing-estimator-hero-img"
+                                        width="766"
+                                        height="1022"
+                                    />
+                                </button>
+                            </div>
                             <div class="estimator-saved-section">
                                 <h3 class="section-title estimator-saved-title">Saved estimations</h3>
                                 <div class="scratchpad-list" id="estimationList">
@@ -243,53 +261,117 @@
                                             Save Your Estimate
                                         </button>
                                     </div>
-                                    <h2 class="pricing-estimator-create-title">Create pricing estimation</h2>
+                                    <h2 class="pricing-estimator-create-title" id="estimationCreatePageHeading">Create pricing estimation</h2>
                                     <p class="pricing-estimator-create-sub">Select an option below to continue (simulation).</p>
                                     <p class="pricing-estimator-context-summary" id="estimationContextSummary" hidden></p>
                                 </div>
                                 <div id="estimatorMenuPane">
-                                    <div class="estimator-option-grid" role="group" aria-label="Estimation menu options">
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(1)">
-                                            <span class="estimator-option-tile-title">Option One</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(2)">
-                                            <span class="estimator-option-tile-title">Option Two</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(3)">
-                                            <span class="estimator-option-tile-title">Option Three</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(4)">
-                                            <span class="estimator-option-tile-title">Option Four</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(5)">
-                                            <span class="estimator-option-tile-title">Option Five</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(6)">
-                                            <span class="estimator-option-tile-title">Option Six</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(7)">
-                                            <span class="estimator-option-tile-title">Option Seven</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(8)">
-                                            <span class="estimator-option-tile-title">Option Eight</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
-                                        <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick(9)">
-                                            <span class="estimator-option-tile-title">Option Nine</span>
-                                            <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
-                                        </button>
+                                    <div class="estimator-menu-tabs" role="tablist" aria-label="Menu categories">
+                                        <button type="button" role="tab" class="estimator-menu-tab estimator-menu-tab-active" data-menu-tab="usecases" aria-selected="true" onclick="setEstimatorMenuTab('usecases')">Use Case Templates</button>
+                                        <button type="button" role="tab" class="estimator-menu-tab" data-menu-tab="capabilities" aria-selected="false" onclick="setEstimatorMenuTab('capabilities')">Capabilities</button>
+                                    </div>
+                                    <div id="estimatorMenuUsecases" class="estimator-menu-panel">
+                                        <div class="estimator-option-grid" role="group" aria-label="Use case options">
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-1')">
+                                                <span class="estimator-option-tile-title">Segment &amp; Target Audiences</span>
+                                                <span class="estimator-option-tile-desc estimator-option-tile-desc-segment">With Data 360, marketers can build dynamic, high-value segments using unified customer data and AI-powered insights to deliver more personalized, cross-channel engagement</span>
+                                                <img
+                                                    src="file:///Users/jsimms/.cursor/projects/Users-jsimms-Desktop-digital-pricelist-tool-www-master/assets/Gemini_Generated_Image_6xacds6xacds6xac-4658d501-0a3f-44c2-a35e-bc1edb52e32d.png"
+                                                    alt="Illustration for Segment and Target Audiences"
+                                                    class="estimator-option-tile-image estimator-option-tile-image-segment"
+                                                    loading="lazy"
+                                                />
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-2')">
+                                                <span class="estimator-option-tile-title">Surface a Unified View of my Customer</span>
+                                                <span class="estimator-option-tile-desc estimator-option-tile-desc-usecase-two">Unify fragmented data into a single, real-time customer profile. Empower your teams with a 360-degree view to deliver personalized engagement and consistent experiences across every touchpoint</span>
+                                                <img
+                                                    src="file:///Users/jsimms/.cursor/projects/Users-jsimms-Desktop-digital-pricelist-tool-www-master/assets/Gemini_Generated_Image_9055v19055v19055-39b20ef1-2028-4439-9f0b-117d104bbd7d.png"
+                                                    alt="Illustration for Surface a Unified View of my Customer"
+                                                    class="estimator-option-tile-image estimator-option-tile-image-usecase-two"
+                                                    loading="lazy"
+                                                />
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-3')">
+                                                <span class="estimator-option-tile-title">Unified Reporting &amp; Analytics</span>
+                                                <span class="estimator-option-tile-desc estimator-option-tile-desc-usecase-three">Transform fragmented data into a single source of truth and empower every user to turn trusted data into actionable insights and accurate reports across your entire ecosystem</span>
+                                                <img
+                                                    src="file:///Users/jsimms/.cursor/projects/Users-jsimms-Desktop-digital-pricelist-tool-www-master/assets/Gemini_Generated_Image_knwfmbknwfmbknwf-01085e12-cb69-401c-a107-34f3e873cbf7.png"
+                                                    alt="Illustration for Unified Reporting and Analytics"
+                                                    class="estimator-option-tile-image estimator-option-tile-image-usecase-three"
+                                                    loading="lazy"
+                                                />
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-4')">
+                                                <span class="estimator-option-tile-title">Use Case Four</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-5')">
+                                                <span class="estimator-option-tile-title">Use Case Five</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-6')">
+                                                <span class="estimator-option-tile-title">Use Case Six</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-7')">
+                                                <span class="estimator-option-tile-title">Use Case Seven</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-8')">
+                                                <span class="estimator-option-tile-title">Use Case Eight</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('uc-9')">
+                                                <span class="estimator-option-tile-title">Use Case Nine</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="estimatorMenuCapabilities" class="estimator-menu-panel" hidden>
+                                        <div class="estimator-option-grid" role="group" aria-label="Capability options">
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-1')">
+                                                <span class="estimator-option-tile-title">Capability One</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-2')">
+                                                <span class="estimator-option-tile-title">Capability Two</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-3')">
+                                                <span class="estimator-option-tile-title">Capability Three</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-4')">
+                                                <span class="estimator-option-tile-title">Capability Four</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-5')">
+                                                <span class="estimator-option-tile-title">Capability Five</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-6')">
+                                                <span class="estimator-option-tile-title">Capability Six</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-7')">
+                                                <span class="estimator-option-tile-title">Capability Seven</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-8')">
+                                                <span class="estimator-option-tile-title">Capability Eight</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                            <button type="button" class="estimator-option-tile" onclick="onEstimatorOptionClick('cap-9')">
+                                                <span class="estimator-option-tile-title">Capability Nine</span>
+                                                <span class="estimator-option-tile-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="estimatorQuestionsPane" class="estimator-questions-pane" hidden>
                                     <div class="estimator-questions-card">
-                                        <h3 class="estimator-questions-heading" id="estimatorQuestionsHeading">Option One</h3>
+                                        <h3 class="estimator-questions-heading" id="estimatorQuestionsHeading">Use Case One</h3>
                                         <div class="form-group">
                                             <label for="estimatorQRows">How many rows do you need?</label>
                                             <input type="number" id="estimatorQRows" class="modal-text-input" min="0" step="1" placeholder="0" />
@@ -308,7 +390,139 @@
                                     </div>
                                 </div>
                             </div>
-                            <aside class="estimator-capture-aside" id="estimatorCaptureAside" aria-label="Captured option answers"></aside>
+                            <aside class="estimator-capture-aside" id="estimatorCaptureAside" aria-label="Estimate workbook">
+                                <div class="estimator-workbook">
+                                    <h2 class="estimator-workbook-title">Estimate Workbook</h2>
+                                    <div class="estimator-workbook-tabs" role="tablist" aria-label="Workbook sections">
+                                        <button
+                                            type="button"
+                                            role="tab"
+                                            class="estimator-workbook-tab estimator-workbook-tab-active"
+                                            id="workbookTabAgent"
+                                            data-workbook-tab="agent"
+                                            aria-selected="true"
+                                            aria-controls="workbookPanelAgent"
+                                            tabindex="0"
+                                            onclick="setEstimatorWorkbookTab('agent')"
+                                        >
+                                            Estimation Agent
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="tab"
+                                            class="estimator-workbook-tab"
+                                            id="workbookTabDetails"
+                                            data-workbook-tab="details"
+                                            aria-selected="false"
+                                            aria-controls="workbookPanelDetails"
+                                            tabindex="-1"
+                                            onclick="setEstimatorWorkbookTab('details')"
+                                        >
+                                            Estimate Details
+                                        </button>
+                                        <button
+                                            type="button"
+                                            role="tab"
+                                            class="estimator-workbook-tab"
+                                            id="workbookTabNotebook"
+                                            data-workbook-tab="notebook"
+                                            aria-selected="false"
+                                            aria-controls="workbookPanelNotebook"
+                                            tabindex="-1"
+                                            onclick="setEstimatorWorkbookTab('notebook')"
+                                        >
+                                            Deal Notebook
+                                        </button>
+                                    </div>
+                                    <div class="estimator-workbook-panels">
+                                        <div
+                                            id="workbookPanelAgent"
+                                            class="estimator-workbook-panel"
+                                            role="tabpanel"
+                                            aria-labelledby="workbookTabAgent"
+                                        >
+                                            <div class="estimation-agent-chat" aria-label="Estimation Agent guided chat (simulation)">
+                                                <header class="estimation-agent-chat-header">
+                                                    <div class="estimation-agent-avatar" aria-hidden="true">
+                                                        <img src="assets/estimation-agent-avatar.png" alt="" class="estimation-agent-avatar-img" />
+                                                    </div>
+                                                    <div class="estimation-agent-header-text">
+                                                        <div class="estimation-agent-name">Estimation Agent</div>
+                                                        <div class="estimation-agent-sub">Salesforce Agent • Guided session</div>
+                                                    </div>
+                                                </header>
+                                                <div class="estimation-agent-transcript" role="log" aria-live="polite">
+                                                    <div class="estimation-agent-turn estimation-agent-turn-bot">
+                                                        <span class="estimation-agent-turn-label">Agent</span>
+                                                        <div class="estimation-agent-bubble estimation-agent-bubble-bot">
+                                                            Hi — I’m your <strong>Estimation Agent</strong>. I’ll walk you through this estimate step by step. Use the menu options on the left to add line items; I’ll reflect what you capture in your workbook.
+                                                        </div>
+                                                    </div>
+                                                    <div class="estimation-agent-turn estimation-agent-turn-bot">
+                                                        <span class="estimation-agent-turn-label">Agent</span>
+                                                        <div class="estimation-agent-bubble estimation-agent-bubble-bot">
+                                                            When you open an option, answer the three questions and tap <strong>Add to estimate</strong>. Your answers will show under <strong>Estimate Details</strong> here in the workbook.
+                                                        </div>
+                                                    </div>
+                                                    <div class="estimation-agent-turn estimation-agent-turn-user">
+                                                        <span class="estimation-agent-turn-label">You</span>
+                                                        <div class="estimation-agent-bubble estimation-agent-bubble-user">
+                                                            Got it — I’ll work through the options and add them to the estimate.
+                                                        </div>
+                                                    </div>
+                                                    <div class="estimation-agent-turn estimation-agent-turn-bot">
+                                                        <span class="estimation-agent-turn-label">Agent</span>
+                                                        <div class="estimation-agent-bubble estimation-agent-bubble-bot">
+                                                            Great. When you’re ready, click <strong>Save Your Estimate</strong> to store this workbook. You can reopen it anytime from the Pricing Estimator tab.
+                                                        </div>
+                                                    </div>
+                                                    <div class="estimation-agent-typing" aria-hidden="true">
+                                                        <span></span><span></span><span></span>
+                                                    </div>
+                                                </div>
+                                                <footer class="estimation-agent-composer">
+                                                    <div class="estimation-agent-composer-row">
+                                                        <input
+                                                            type="text"
+                                                            class="estimation-agent-input"
+                                                            disabled
+                                                            placeholder="Agent-led session — chat input is disabled"
+                                                            aria-label="Chat input (disabled in guided mode)"
+                                                        />
+                                                        <button type="button" class="estimation-agent-send" disabled aria-label="Send (disabled)">
+                                                            Send
+                                                        </button>
+                                                    </div>
+                                                    <p class="estimation-agent-forced-hint">
+                                                        <span class="estimation-agent-forced-badge">Guided</span>
+                                                        This is a forced / bot-led experience: the agent drives the flow; free typing is off for this simulation.
+                                                    </p>
+                                                </footer>
+                                            </div>
+                                        </div>
+                                        <div
+                                            id="workbookPanelDetails"
+                                            class="estimator-workbook-panel"
+                                            role="tabpanel"
+                                            aria-labelledby="workbookTabDetails"
+                                            hidden
+                                        >
+                                            <div id="estimatorWorkbookDetailsBody"></div>
+                                        </div>
+                                        <div
+                                            id="workbookPanelNotebook"
+                                            class="estimator-workbook-panel"
+                                            role="tabpanel"
+                                            aria-labelledby="workbookTabNotebook"
+                                            hidden
+                                        >
+                                            <p class="estimator-workbook-placeholder">
+                                                Deal notes and context would appear here (simulation).
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
                         </div>
                     </div>
                 </div>

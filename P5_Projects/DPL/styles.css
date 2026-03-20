@@ -201,6 +201,7 @@ body {
 /* Content — full width minus thin side gutters (matches wide DPL layout) */
 .content {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding-left: var(--page-gutter);
     padding-right: var(--page-gutter);
@@ -217,6 +218,103 @@ body {
 
 .page.active {
     display: block;
+}
+
+/* Create estimation: main column scroll is disabled; only menu grid or Q&A panel scrolls */
+.content.pricing-estimator-create-active {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.content.pricing-estimator-create-active > .card-header {
+    flex-shrink: 0;
+}
+
+.content.pricing-estimator-create-active #page-pricing-estimator-new.page.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.content.pricing-estimator-create-active #page-pricing-estimator-new .page-padding {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.content.pricing-estimator-create-active .pricing-estimator-create {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.content.pricing-estimator-create-active .pricing-estimator-work-row {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    align-items: stretch;
+    flex-wrap: nowrap;
+}
+
+.content.pricing-estimator-create-active .estimator-left-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    align-self: stretch;
+    max-height: 100%;
+}
+
+.content.pricing-estimator-create-active .pricing-estimator-create-header {
+    flex-shrink: 0;
+}
+
+/* Only the 3×3 menu scrolls (header + tabs stay fixed above) */
+.content.pricing-estimator-create-active #estimatorMenuPane {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Only the question form scrolls when an option is open */
+.content.pricing-estimator-create-active #estimatorQuestionsPane {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.content.pricing-estimator-create-active #estimatorQuestionsPane[hidden] {
+    display: none !important;
+}
+
+.content.pricing-estimator-create-active .estimator-capture-aside {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 0;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 700px) {
+    .content.pricing-estimator-create-active .pricing-estimator-work-row {
+        flex-wrap: wrap;
+    }
 }
 
 .page-padding {
@@ -1119,27 +1217,103 @@ body {
 .pricing-estimator-intro {
     color: var(--color-weak);
     font-size: 14px;
-    line-height: 1.5;
-    max-width: 640px;
+    line-height: 1.55;
+    max-width: 680px;
     margin: 0;
 }
 
 .pricing-estimator-landing {
-    padding: 8px 0 24px;
+    padding: 4px 0 22px;
+}
+
+.pricing-estimator-hero {
+    display: flex;
+    gap: clamp(18px, 2.8vw, 36px);
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f7f9fd 0%, #edf3fd 100%);
+    border: 1px solid #d8e3f6;
+    border-radius: 12px;
+    padding: clamp(16px, 2.4vw, 28px);
+}
+
+.pricing-estimator-hero-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pricing-estimator-hero-visual {
+    appearance: none;
+    -webkit-appearance: none;
+    width: clamp(160px, 18vw, 230px);
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #dbe4f5;
+    border-radius: 12px;
+    padding: clamp(8px, 1.2vw, 12px);
+    box-shadow: 0 2px 8px rgba(3, 45, 96, 0.08);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.pricing-estimator-hero-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.pricing-estimator-hero-visual:hover {
+    border-color: #b9c9e8;
+    box-shadow: 0 4px 12px rgba(3, 45, 96, 0.16);
+    transform: translateY(-1px);
+}
+
+.pricing-estimator-hero-visual:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
 }
 
 .pricing-estimator-cta {
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
 .estimator-saved-section {
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 1px solid var(--color-gray-90);
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid #dfe5f0;
+    border-radius: 10px;
+    background: #f9fbff;
 }
 
 .estimator-saved-title {
     margin-bottom: 12px;
+}
+
+.pricing-estimator-landing #estimationList .scratchpad-item {
+    background: #ffffff;
+    border-color: #d7dfef;
+    border-radius: 8px;
+}
+
+.pricing-estimator-landing #estimationList .scratchpad-item:hover {
+    background: #eff5ff;
+}
+
+@media (max-width: 860px) {
+    .pricing-estimator-hero {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pricing-estimator-hero-visual {
+        width: min(240px, 70%);
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
 
 /* Create estimation — menu/questions column + capture panel to the right */
@@ -1184,11 +1358,320 @@ body {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.estimator-capture-title {
-    margin: 0 0 14px;
-    font-size: 15px;
+.estimator-workbook {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 0;
+}
+
+.estimator-workbook-title {
+    margin: 0 0 12px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--color-blue-20);
+    line-height: 1.3;
+}
+
+.estimator-workbook-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    border-bottom: 1px solid var(--color-gray-90);
+    margin-bottom: 12px;
+    padding-bottom: 2px;
+}
+
+.estimator-workbook-tab {
+    background: none;
+    border: none;
+    padding: 8px 2px 10px;
+    margin: 0;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: #3e3e3c;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -3px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.estimator-workbook-tab:hover {
+    color: var(--color-text-link);
+}
+
+.estimator-workbook-tab-active {
+    color: var(--color-blue);
+    border-bottom-color: var(--color-blue);
+}
+
+.estimator-workbook-tab:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+}
+
+.estimator-workbook-panels {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.estimator-workbook-panel {
+    font-size: 13px;
+}
+
+/* Only the active workbook tab is visible; prevents chat UI from appearing on Details / Notebook */
+.estimator-workbook-panel[hidden] {
+    display: none !important;
+}
+
+#workbookPanelAgent[hidden] {
+    display: none !important;
+}
+
+.estimator-workbook-placeholder {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-weak);
+    line-height: 1.5;
+}
+
+/*
+ * Agentforce-style chat mock — scoped strictly to #workbookPanelAgent (Estimation Agent tab only).
+ * Estimate Details / Deal Notebook must not pick up these rules.
+ */
+#workbookPanelAgent {
+    display: flex;
+    flex-direction: column;
+    min-height: min(420px, 55vh);
+}
+
+#workbookPanelAgent .estimation-agent-chat {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    border: 1px solid var(--color-table-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-white);
+    box-shadow: 0 1px 3px rgba(3, 45, 96, 0.08);
+}
+
+#workbookPanelAgent .estimation-agent-chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(180deg, #fafaf9 0%, #f3f2f2 100%);
+    border-bottom: 1px solid var(--color-gray-90);
+    flex-shrink: 0;
+}
+
+#workbookPanelAgent .estimation-agent-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+#workbookPanelAgent .estimation-agent-avatar-img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    display: block;
+}
+
+#workbookPanelAgent .estimation-agent-header-text {
+    min-width: 0;
+}
+
+#workbookPanelAgent .estimation-agent-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-blue-20);
+    line-height: 1.2;
+}
+
+#workbookPanelAgent .estimation-agent-sub {
+    font-size: 11px;
+    color: var(--color-gray-50);
+    margin-top: 2px;
+}
+
+#workbookPanelAgent .estimation-agent-transcript {
+    flex: 1 1 auto;
+    min-height: 180px;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px 12px 8px;
+    background: var(--color-background);
+    -webkit-overflow-scrolling: touch;
+}
+
+#workbookPanelAgent .estimation-agent-turn {
+    margin-bottom: 14px;
+    max-width: 100%;
+}
+
+#workbookPanelAgent .estimation-agent-turn-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-50);
+    margin-bottom: 4px;
+}
+
+#workbookPanelAgent .estimation-agent-turn-user .estimation-agent-turn-label {
+    text-align: right;
+}
+
+#workbookPanelAgent .estimation-agent-bubble {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--color-default);
+}
+
+#workbookPanelAgent .estimation-agent-bubble-bot {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-90);
+    border-left: 3px solid var(--color-blue);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+#workbookPanelAgent .estimation-agent-turn-user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#workbookPanelAgent .estimation-agent-bubble-user {
+    background: var(--color-blue-95);
+    border: 1px solid var(--color-blue-80);
+    max-width: 92%;
+    text-align: left;
+}
+
+#workbookPanelAgent .estimation-agent-typing {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0 8px 4px;
+    align-items: center;
+}
+
+#workbookPanelAgent .estimation-agent-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-blue);
+    opacity: 0.35;
+    animation: estimation-agent-dot 1.2s ease-in-out infinite;
+}
+
+#workbookPanelAgent .estimation-agent-typing span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+#workbookPanelAgent .estimation-agent-typing span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes estimation-agent-dot {
+    0%,
+    80%,
+    100% {
+        opacity: 0.25;
+        transform: scale(0.9);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#workbookPanelAgent .estimation-agent-composer {
+    flex-shrink: 0;
+    padding: 10px 12px 12px;
+    background: var(--color-white);
+    border-top: 1px solid var(--color-gray-90);
+}
+
+#workbookPanelAgent .estimation-agent-composer-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+#workbookPanelAgent .estimation-agent-input {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--color-table-border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--color-gray-90);
+    color: var(--color-gray-50);
+    cursor: not-allowed;
+}
+
+#workbookPanelAgent .estimation-agent-send {
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--color-white);
+    background: var(--color-disabled);
+    border: none;
+    border-radius: 6px;
+    cursor: not-allowed;
+    flex-shrink: 0;
+}
+
+#workbookPanelAgent .estimation-agent-forced-hint {
+    margin: 8px 0 0;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--color-gray-50);
+}
+
+#workbookPanelAgent .estimation-agent-forced-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    margin-right: 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #514f4d;
+    background: #ecebea;
+    border: 1px solid var(--color-gray-90);
+    vertical-align: middle;
+}
+
+.content.pricing-estimator-create-active .estimator-workbook {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.content.pricing-estimator-create-active .estimator-workbook-panels {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .estimator-capture-empty {
@@ -1305,6 +1788,66 @@ body {
     line-height: 1.5;
 }
 
+.estimator-menu-tabs {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-right: 2px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--color-background);
+    flex-shrink: 0;
+}
+
+.estimator-menu-tab {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #c9c7c5;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: #ecebea;
+    color: #3e3e3c;
+    padding: 8px 14px 9px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    position: relative;
+    top: 1px;
+}
+
+.estimator-menu-tab:hover {
+    background: #e3f3ff;
+    color: var(--color-text-link);
+}
+
+.estimator-menu-tab-active {
+    background: var(--color-white);
+    color: var(--color-blue-20);
+    border-color: #bdbbb8;
+    z-index: 1;
+}
+
+.estimator-menu-tab:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+}
+
+.estimator-menu-panel {
+    border-top: 1px solid #c9c7c5;
+    padding-top: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
 .estimator-option-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1357,6 +1900,57 @@ body {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
     overflow: hidden;
+}
+
+.estimator-option-tile-image {
+    width: 80.5%;
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0;
+    border: none;
+    object-fit: contain;
+    aspect-ratio: auto;
+    background: transparent;
+    display: block;
+    height: auto;
+}
+
+/* Keep Segment & Target Audiences subtext visible with image present. */
+.estimator-option-tile-desc-segment {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+}
+
+.estimator-option-tile-image-segment {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
+}
+
+.estimator-option-tile-desc-usecase-two {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+}
+
+.estimator-option-tile-image-usecase-two {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
+}
+
+.estimator-option-tile-desc-usecase-three {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+}
+
+.estimator-option-tile-image-usecase-three {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
 }
 
 .estimator-option-tile:hover {
