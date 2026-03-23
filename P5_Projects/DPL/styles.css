@@ -286,6 +286,10 @@ body {
     overflow: hidden;
 }
 
+.content.pricing-estimator-create-active #estimatorMenuPane[hidden] {
+    display: none !important;
+}
+
 /* Only the question form scrolls when an option is open */
 .content.pricing-estimator-create-active #estimatorQuestionsPane {
     flex: 1 1 auto;
@@ -1437,6 +1441,98 @@ body {
     line-height: 1.5;
 }
 
+.deal-notebook-library {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-gray-90);
+}
+
+.deal-notebook-library-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-blue-20);
+}
+
+.deal-notebook-library-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.deal-notebook-library-add-btn {
+    border: 1px solid var(--color-blue);
+    background: var(--color-white);
+    color: var(--color-blue);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.deal-notebook-library-add-btn:hover {
+    background: var(--color-blue-95);
+}
+
+.deal-notebook-file-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.deal-notebook-file-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 6px;
+    border: 1px solid var(--color-gray-90);
+    border-radius: 6px;
+    background: #fafafa;
+    min-height: 88px;
+}
+
+.deal-notebook-file-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #ffffff;
+}
+
+.deal-notebook-file-icon-text {
+    background: #576574;
+}
+
+.deal-notebook-file-icon-sheet {
+    background: #0f8b4c;
+}
+
+.deal-notebook-file-icon-transcript {
+    background: #8a5fd3;
+}
+
+.deal-notebook-file-icon-slack {
+    background: #cf2f92;
+}
+
+.deal-notebook-file-name {
+    width: 100%;
+    font-size: 11px;
+    line-height: 1.25;
+    color: var(--color-default);
+    text-align: center;
+    word-break: break-word;
+}
+
 /*
  * Agentforce-style chat mock — scoped strictly to #workbookPanelAgent (Estimation Agent tab only).
  * Estimate Details / Deal Notebook must not pick up these rules.
@@ -1719,13 +1815,34 @@ body {
     border-radius: 8px;
     padding: 20px 20px 24px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    position: relative;
 }
 
 .estimator-questions-heading {
-    margin: 0 0 20px;
+    margin: 0 36px 20px 0;
     font-size: 18px;
     font-weight: 600;
     color: var(--color-blue-20);
+}
+
+.estimator-questions-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-table-border);
+    border-radius: 50%;
+    background: var(--color-white);
+    color: var(--color-default);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.estimator-questions-close:hover {
+    background: var(--color-blue-95);
+    border-color: var(--color-blue);
 }
 
 .estimator-questions-card .form-group {
@@ -1881,6 +1998,11 @@ body {
     gap: 8px;
 }
 
+/* Capabilities tiles are 50% shorter than default use case tiles. */
+#estimatorMenuCapabilities .estimator-option-tile {
+    aspect-ratio: 40 / 21;
+}
+
 .estimator-option-tile-title {
     font-size: 15px;
     font-weight: 600;
@@ -1948,6 +2070,30 @@ body {
 }
 
 .estimator-option-tile-image-usecase-three {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
+}
+
+.estimator-option-tile-desc-usecase-four {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+}
+
+.estimator-option-tile-image-usecase-four {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
+}
+
+.estimator-option-tile-image-usecase-five {
+    width: 51%;
+    margin-top: auto;
+    margin-bottom: 4px;
+}
+
+.estimator-option-tile-image-usecase-six {
     width: 51%;
     margin-top: auto;
     margin-bottom: 4px;

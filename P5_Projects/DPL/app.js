@@ -802,24 +802,33 @@ function openSavedScratchpads(accountId) {
 
 // ============ Pricing Estimator tab ============
 const ESTIMATOR_OPTION_TITLES = {
-    'uc-1': 'Segment & Target Audiences',
-    'uc-2': 'Use Case Two',
+    'uc-1': 'Agentic Transformation',
+    'uc-2': 'Unified View of my Customer',
     'uc-3': 'Use Case Three',
-    'uc-4': 'Use Case Four',
-    'uc-5': 'Use Case Five',
-    'uc-6': 'Use Case Six',
+    'uc-4': 'Segment & Target Audiences',
+    'uc-5': 'Automate Workflows',
+    'uc-6': 'Agentforce Contact Center',
     'uc-7': 'Use Case Seven',
     'uc-8': 'Use Case Eight',
     'uc-9': 'Use Case Nine',
-    'cap-1': 'Capability One',
-    'cap-2': 'Capability Two',
-    'cap-3': 'Capability Three',
-    'cap-4': 'Capability Four',
-    'cap-5': 'Capability Five',
-    'cap-6': 'Capability Six',
-    'cap-7': 'Capability Seven',
-    'cap-8': 'Capability Eight',
-    'cap-9': 'Capability Nine',
+    'cap-1': 'Customer-Facing Agent',
+    'cap-2': 'Employee Facing Agent',
+    'cap-3': 'System Triggered AI',
+    'cap-4': 'Prompts',
+    'cap-5': 'Speech Foundations: Translate',
+    'cap-6': 'Speech Foundations: Speech to Text',
+    'cap-7': 'Agentforce Vibes',
+    'cap-8': 'Self Learning Knowledge',
+    'cap-9': 'Audit Trail & Feedback',
+    'cap-10': 'Streaming Service',
+    'cap-11': 'Marketing Segmentation',
+    'cap-12': 'Query',
+    'cap-13': 'AI Processing',
+    'cap-14': 'Identity',
+    'cap-15': 'Data Access',
+    'cap-16': 'Data Prep',
+    'cap-17': 'Marketing Activation',
+    'cap-18': 'Sub-Second Real Time',
 };
 
 function getEstimatorOptionTitle(key) {
@@ -1178,6 +1187,11 @@ function addCurrentOptionToEstimate() {
     state.estimatorWorkbookTab = 'details';
     syncEstimatorOptionViews();
     renderEstimatorCaptureAside();
+}
+
+function closeEstimatorQuestionsPane() {
+    state.estimatorActiveOption = null;
+    syncEstimatorOptionViews();
 }
 
 /** Open option-specific questions (same width as 3-across menu) */
