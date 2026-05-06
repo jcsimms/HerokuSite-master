@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data 360 Flex Credits Estimator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="sidebar__brand">
+        <span class="sidebar__logo">SW</span>
+      </div>
+      <nav class="sidebar__nav">
+        <a class="sidebar__item sidebar__item--active" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-8H9v8H4a1 1 0 0 1-1-1v-10.5z"/></svg>
+          </span>
+          <span class="sidebar__label">Home</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <span class="sidebar__label">Demos</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16v12H4z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+          </span>
+          <span class="sidebar__label">Store</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18"/><path d="M17 8l-5-5-5 5"/><path d="M7 16l5 5 5-5"/></svg>
+          </span>
+          <span class="sidebar__label">Deals</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
+          </span>
+          <span class="sidebar__label">View</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 5V3M15 5V3"/></svg>
+          </span>
+          <span class="sidebar__label">Calendar</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+          </span>
+          <span class="sidebar__label">Search</span>
+        </a>
+        <a class="sidebar__item" href="#">
+          <span class="sidebar__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 1 1 3 3v1"/><path d="M12 17h.01"/></svg>
+          </span>
+          <span class="sidebar__label">Help</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="top-tabs">
+        <button type="button" class="top-tabs__tab">Pricing Overview</button>
+        <button type="button" class="top-tabs__tab">Agentforce Estimator</button>
+        <button type="button" class="top-tabs__tab top-tabs__tab--active">Data 360 Estimator</button>
+        <button type="button" class="top-tabs__tab">Add/Remove</button>
+      </header>
+
+      <div class="content-scroll">
+        <section class="page-head">
+          <div class="page-head__row">
+            <div class="page-head__title-block">
+              <span class="page-head__shield" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z" stroke="currentColor" stroke-width="1.6" fill="rgba(255,255,255,0.12)"/><path d="M12 8v6M9.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </span>
+              <h1 class="page-head__title">Data 360 Flex Credits Estimator</h1>
+              <span class="page-head__pill">Advanced Mode</span>
+            </div>
+            <div class="page-head__actions">
+              <label class="case-field">
+                <span class="case-field__label">Case name</span>
+                <input type="text" class="case-field__input" placeholder="" />
+              </label>
+              <button type="button" class="btn btn--gold">Save Data</button>
+            </div>
+          </div>
+
+          <ol class="steps" aria-label="Progress">
+            <li class="steps__item steps__item--active" data-wizard-step="1">
+              <span class="steps__circle">1</span>
+              <span class="steps__label">Getting Started</span>
+            </li>
+            <li class="steps__item" data-wizard-step="2">
+              <span class="steps__circle">2</span>
+              <span class="steps__label">Data Landscape</span>
+            </li>
+            <li class="steps__item" data-wizard-step="3">
+              <span class="steps__circle">3</span>
+              <span class="steps__label">Data Prep</span>
+            </li>
+            <li class="steps__item" data-wizard-step="4">
+              <span class="steps__circle">4</span>
+              <span class="steps__label">Solutions</span>
+            </li>
+            <li class="steps__item" data-wizard-step="5">
+              <span class="steps__circle">5</span>
+              <span class="steps__label">Estimate</span>
+            </li>
+          </ol>
+        </section>
+
+        <section class="summary-bar">
+          <div class="summary-bar__inner">
+            <h2 class="summary-bar__title">Data 360 Pricing Summary for 3 Years</h2>
+            <div class="summary-bar__chips">
+              <span class="chip">$0 Total Pricing</span>
+              <span class="chip">0 Free Credits</span>
+              <span class="chip">0 Profiles</span>
+            </div>
+            <button type="button" class="btn btn--outline-light">Export Questionnaire</button>
+          </div>
+        </section>
+
+        <div class="panel">
+          <div class="panel__step" data-panel-step="1">
+            <p class="intro">
+              The Discovery &amp; Sizing tool Early Estimator feature provides a simple questionnaire that translates a customer’s business inputs into an estimated price range. The price range output is not to be used as a quoting tool but as a way to provide a potential cost to a customer. For more information, watch a
+              <a href="#" class="link">demo</a>.
+            </p>
+
+            <div class="form-grid">
+              <div class="field">
+                <label class="field__label" for="pricing-type">Select pricing type?</label>
+                <div class="select-wrap">
+                  <select id="pricing-type" class="select">
+                    <option>Flex Credits Only</option>
+                    <option>Subscription</option>
+                    <option>Hybrid</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="currency">Currency</label>
+                <div class="select-wrap">
+                  <select id="currency" class="select">
+                    <option>USD ($)</option>
+                    <option>EUR (€)</option>
+                    <option>GBP (£)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field field--full">
+                <label class="field__label" for="starter-kit">Select customer starter kit?</label>
+                <div class="select-wrap">
+                  <select id="starter-kit" class="select">
+                    <option>Data 360 Provisioning SKU</option>
+                    <option>Alternate SKU</option>
+                  </select>
+                </div>
+                <a href="#" class="link link--block">View Starter Details</a>
+                <p class="hint">The credit amount and storage amount will be applied towards the Estimate (deducted from the final total).</p>
+              </div>
+
+              <div class="field field--full contract-block">
+                <h3 class="contract-block__title">Contract period and growth rate</h3>
+                <p class="contract-block__sub">Select the contract period (1–5 years) and the year-over-year growth rate percentage</p>
+                <div class="contract-block__row">
+                  <div class="field field--inline">
+                    <label class="field__label" for="years">Years to estimate</label>
+                    <div class="select-wrap">
+                      <select id="years" class="select">
+                        <option>1 Year</option>
+                        <option>2 Years</option>
+                        <option selected>3 Years</option>
+                        <option>4 Years</option>
+                        <option>5 Years</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field field--inline">
+                    <label class="field__label" for="growth">Annual Growth Rate (%)</label>
+                    <input id="growth" type="text" class="input" value="5%" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel__step" data-panel-step="2" hidden>
+            <h2 class="panel__step-title">Data Landscape</h2>
+            <p class="intro">
+              List each data source that will feed Data 360 and the approximate volume you expect over the contract period. Add as many rows as you need; volumes can be expressed in terabytes, gigabytes, or millions of records depending on how the source is metered.
+            </p>
+
+            <div class="landscape-metrics" role="group" aria-label="Customer scope and capture summary">
+              <div class="landscape-metrics__left landscape-metrics__left--sources">
+                <div class="data-prep-questions__head landscape-metrics__quick-setup">
+                  <span class="data-prep-questions__eyebrow">Quick setup</span>
+                  <p class="data-prep-questions__lede">Set your customer base and source counts by data type. These values drive the Data Sources rows below.</p>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" for="customer-count">How many customers do you have?</label>
+                  <input id="customer-count" type="text" inputmode="numeric" class="input landscape-metric__input js-formatted-number" autocomplete="off" value="10000" placeholder="0" />
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-bulk" for="landscape-count-bulk">How many sources of bulk data do you have?</label>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-bulk">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="bulk" aria-label="Decrease number of bulk data sources">−</button>
+                    <input id="landscape-count-bulk" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="bulk" autocomplete="off" value="3" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="bulk" aria-label="Increase number of bulk data sources">+</button>
+                  </div>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-streaming" for="landscape-count-streaming">How many sources of streaming data do you have?</label>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-streaming">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="streaming" aria-label="Decrease number of streaming data sources">−</button>
+                    <input id="landscape-count-streaming" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="streaming" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="streaming" aria-label="Increase number of streaming data sources">+</button>
+                  </div>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-subsecond" for="landscape-count-subsecond">How many sources of sub-second data do you have?</label>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-subsecond">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="subsecond" aria-label="Decrease number of sub-second data sources">−</button>
+                    <input id="landscape-count-subsecond" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="subsecond" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="subsecond" aria-label="Increase number of sub-second data sources">+</button>
+                  </div>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-unstructured" for="landscape-count-unstructured">How many sources of unstructured data do you have?</label>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-unstructured">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="unstructured" aria-label="Decrease number of unstructured data sources">−</button>
+                    <input id="landscape-count-unstructured" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="unstructured" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="unstructured" aria-label="Increase number of unstructured data sources">+</button>
+                  </div>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-zerocopy" for="landscape-count-zerocopy">How many sources of zero-copy data do you have?</label>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-zerocopy">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="zerocopy" aria-label="Decrease number of zero-copy data sources">−</button>
+                    <input id="landscape-count-zerocopy" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="zerocopy" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="zerocopy" aria-label="Increase number of zero-copy data sources">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="landscape-metrics__right">
+                <p class="landscape-summary__title">Estimated capture by type</p>
+                <dl class="landscape-summary" aria-live="polite">
+                  <div class="landscape-summary__row js-landscape-unified-row">
+                    <dt>Unified Profiles</dt>
+                    <dd class="js-landscape-unified-profiles">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Profile Records</dt>
+                    <dd class="js-landscape-profile-records">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Object Records</dt>
+                    <dd class="js-landscape-object-records">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Streaming Records</dt>
+                    <dd class="js-landscape-streaming-records">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Sub-Second Records</dt>
+                    <dd class="js-landscape-subsecond-records">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Unstructured Data and Documents (MB)</dt>
+                    <dd class="js-landscape-unstructured-mb">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>Zero Copy Records</dt>
+                    <dd class="js-landscape-zerocopy-records">0</dd>
+                  </div>
+                  <div class="landscape-summary__row">
+                    <dt>System Generated Data</dt>
+                    <dd class="js-landscape-system-gen-grand-total">0</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div class="system-gen-data-wrap data-sources-wrap js-data-sources-wrap">
+              <section class="system-gen-data" aria-labelledby="data-sources-bar-heading">
+                <div class="system-gen-data__bar">
+                  <h3 class="system-gen-data__title" id="data-sources-bar-heading">Data Sources</h3>
+                  <div class="system-gen-data__total-wrap">
+                    <span class="system-gen-data__total js-data-sources-row-count" aria-live="polite">0</span>
+                    <span class="system-gen-data__total-suffix">rows</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn--primary btn--compact js-data-sources-details-toggle"
+                    aria-expanded="false"
+                    aria-controls="data-sources-details-panel"
+                  >
+                    Details
+                  </button>
+                </div>
+                <div
+                  id="data-sources-details-panel"
+                  class="system-gen-data__details js-data-sources-details-panel"
+                  hidden
+                >
+                  <div class="source-toolbar">
+                    <button type="button" class="btn btn--secondary js-add-source">+ Add data source</button>
+                  </div>
+
+                  <div class="source-list js-source-list" role="list"></div>
+                </div>
+              </section>
+            </div>
+
+            <template id="source-row-template">
+              <div class="source-row" role="listitem">
+                <div class="source-row__main">
+                  <div class="field source-row__field">
+                    <label class="field__label">Data source name</label>
+                    <input type="text" class="input input--block js-source-name" placeholder="e.g. Salesforce CRM, Snowflake lake, SAP" autocomplete="off" />
+                  </div>
+                  <div class="field source-row__field">
+                    <label class="field__label">Data type</label>
+                    <div class="select-wrap">
+                      <select class="select js-source-category" aria-label="Data type">
+                        <option>Customer Records</option>
+                        <option>Streaming Events</option>
+                        <option>Sub-Second Events</option>
+                        <option>Unstructured Data and Documents</option>
+                        <option>Zero Copy</option>
+                      </select>
+                    </div>
+                  </div>
+                  <fieldset class="field source-row__field source-row__field--counter">
+                    <legend class="field__label">Number of Objects or Streams</legend>
+                    <div class="counter">
+                      <button type="button" class="counter__btn js-counter-dec" aria-label="Decrease number of objects or streams">−</button>
+                      <input type="text" inputmode="numeric" class="input counter__value js-counter-value js-formatted-number" autocomplete="off" value="2" aria-label="Number of objects or streams" />
+                      <button type="button" class="counter__btn js-counter-inc" aria-label="Increase number of objects or streams">+</button>
+                    </div>
+                  </fieldset>
+                  <div class="field source-row__field source-row__field--profiles">
+                    <span class="field__label field__label--ghost" aria-hidden="true">.</span>
+                    <label class="check-row">
+                      <input type="checkbox" class="check-row__input js-profile-check" checked />
+                      <span class="check-row__text">Includes Customer Profiles</span>
+                    </label>
+                  </div>
+                  <div class="field source-row__field source-row__field--records">
+                    <label class="field__label js-record-total-label">Total Rows</label>
+                    <input type="text" inputmode="numeric" class="input input--block js-record-total js-formatted-number" value="100" placeholder="0" readonly aria-readonly="true" title="Row total (computed from object/stream volumes when Edit is used, or total volume in MB for unstructured data)" />
+                  </div>
+                  <div class="field source-row__field source-row__field--actions">
+                    <span class="field__label field__label--ghost" aria-hidden="true">.</span>
+                    <button type="button" class="btn btn--icon js-source-advanced" aria-expanded="false" aria-label="Edit objects and streams for this source">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="field source-row__field source-row__field--remove">
+                    <span class="field__label field__label--ghost" aria-hidden="true">.</span>
+                    <button type="button" class="btn btn--icon js-remove-source" aria-label="Remove this data source">×</button>
+                  </div>
+                </div>
+                <div
+                  class="source-row__advanced js-source-advanced-panel"
+                  hidden
+                  aria-label="Objects and streams for this data source"
+                >
+                  <div
+                    class="detail-list detail-list--boxed js-advanced-detail-list"
+                    role="list"
+                    aria-label="Entries for this data source"
+                  ></div>
+                </div>
+              </div>
+            </template>
+
+            <template id="detail-subrow-template">
+              <div class="detail-subrow" role="listitem">
+                <div class="detail-subrow__cell detail-subrow__cell--name">
+                  <input
+                    type="text"
+                    class="input input--block js-detail-name"
+                    autocomplete="off"
+                    aria-label="Object or stream name"
+                  />
+                </div>
+                <div class="detail-subrow__cell detail-subrow__cell--profiles">
+                  <label class="check-row detail-subrow__profiles-inline">
+                    <input type="checkbox" class="check-row__input js-detail-profiles" aria-label="Includes profiles for this object or stream" />
+                    <span class="check-row__text">Profile</span>
+                  </label>
+                  <label class="check-row detail-subrow__profiles-inline">
+                    <input type="checkbox" class="check-row__input js-detail-engagement" aria-label="Mark this object or stream as engagement" />
+                    <span class="check-row__text">Engagement</span>
+                  </label>
+                  <label class="check-row detail-subrow__profiles-inline">
+                    <input type="checkbox" class="check-row__input js-detail-other" aria-label="Mark this object or stream as other" />
+                    <span class="check-row__text">Other</span>
+                  </label>
+                </div>
+                <div class="detail-subrow__cell detail-subrow__volume">
+                  <input type="text" inputmode="decimal" class="input input--block js-detail-volume js-formatted-number" autocomplete="off" aria-label="Volume" />
+                </div>
+                <div class="detail-subrow__cell detail-subrow__cell--remove">
+                  <button type="button" class="btn btn--icon js-detail-remove" aria-label="Remove this object or stream">×</button>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div class="panel__step" data-panel-step="3" hidden>
+            <h2 class="panel__step-title">Data Prep</h2>
+            <p class="intro">
+              Add identity resolution, transforms, data graphs, and calculated insights jobs. Each row captures volume and cadence; use Edit to expand sizing questions similar to the Data Landscape source editor.
+            </p>
+            <div class="data-prep-questions" role="group" aria-label="Data Prep setup questions">
+              <div class="data-prep-questions__head">
+                <span class="data-prep-questions__eyebrow">Quick setup</span>
+                <p class="data-prep-questions__lede">Turn on each capability, then set how many rows you need. Counts sync to the tables below.</p>
+              </div>
+              <div class="data-prep-questions__list">
+                <div class="data-prep-question" data-prep-kind="identity">
+                  <div class="data-prep-question__main">
+                    <div class="data-prep-question__label" id="data-prep-yesno-identity-label">Do you want to create Identity Resolution of your customer data?</div>
+                    <div class="data-prep-question__controls">
+                      <div id="data-prep-yesno-identity" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-identity-label">
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="identity" data-prep-value="no" aria-pressed="true">No</button>
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="identity" data-prep-value="yes" aria-pressed="false">Yes</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="identity" hidden>
+                    <label class="data-prep-question__followup-label" for="data-prep-count-identity">How many Identity Resolutions do you need?</label>
+                    <div class="counter data-prep-question__counter">
+                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="identity" aria-label="Decrease identity resolution count">−</button>
+                      <input id="data-prep-count-identity" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="identity" value="0" autocomplete="off" />
+                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="identity" aria-label="Increase identity resolution count">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="data-prep-question" data-prep-kind="transforms">
+                  <div class="data-prep-question__main">
+                    <div class="data-prep-question__label" id="data-prep-yesno-transforms-label">Do you want to create Data Transforms?</div>
+                    <div class="data-prep-question__controls">
+                      <div id="data-prep-yesno-transforms" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-transforms-label">
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="transforms" data-prep-value="no" aria-pressed="true">No</button>
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="transforms" data-prep-value="yes" aria-pressed="false">Yes</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="transforms" hidden>
+                    <label class="data-prep-question__followup-label" for="data-prep-count-transforms">How many Data Transforms do you need?</label>
+                    <div class="counter data-prep-question__counter">
+                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="transforms" aria-label="Decrease data transform count">−</button>
+                      <input id="data-prep-count-transforms" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="transforms" value="0" autocomplete="off" />
+                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="transforms" aria-label="Increase data transform count">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="data-prep-question" data-prep-kind="data-graphs">
+                  <div class="data-prep-question__main">
+                    <div class="data-prep-question__label" id="data-prep-yesno-data-graphs-label">Do you want to create Data Graphs?</div>
+                    <div class="data-prep-question__controls">
+                      <div id="data-prep-yesno-data-graphs" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-data-graphs-label">
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="data-graphs" data-prep-value="no" aria-pressed="true">No</button>
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="data-graphs" data-prep-value="yes" aria-pressed="false">Yes</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="data-graphs" hidden>
+                    <label class="data-prep-question__followup-label" for="data-prep-count-data-graphs">How many Data Graphs do you need?</label>
+                    <div class="counter data-prep-question__counter">
+                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="data-graphs" aria-label="Decrease data graph count">−</button>
+                      <input id="data-prep-count-data-graphs" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="data-graphs" value="0" autocomplete="off" />
+                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="data-graphs" aria-label="Increase data graph count">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="data-prep-question" data-prep-kind="insights">
+                  <div class="data-prep-question__main">
+                    <div class="data-prep-question__label" id="data-prep-yesno-insights-label">Do you want to create Calculated Insights?</div>
+                    <div class="data-prep-question__controls">
+                      <div id="data-prep-yesno-insights" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-insights-label">
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="insights" data-prep-value="no" aria-pressed="true">No</button>
+                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="insights" data-prep-value="yes" aria-pressed="false">Yes</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="insights" hidden>
+                    <label class="data-prep-question__followup-label" for="data-prep-count-insights">How many Calculated Insights do you need?</label>
+                    <div class="counter data-prep-question__counter">
+                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="insights" aria-label="Decrease calculated insights count">−</button>
+                      <input id="data-prep-count-insights" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="insights" value="0" autocomplete="off" />
+                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="insights" aria-label="Increase calculated insights count">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="system-gen-data-wrap data-prep-collapsible-wrap js-data-prep-collapsible-wrap">
+              <section class="system-gen-data" aria-labelledby="data-prep-collapsible-heading">
+                <div class="system-gen-data__bar">
+                  <h3 class="system-gen-data__title" id="data-prep-collapsible-heading">Data Prep</h3>
+                  <div class="system-gen-data__total-wrap">
+                    <span class="system-gen-data__total js-data-prep-bar-total" aria-live="polite">0</span>
+                    <span class="system-gen-data__total-suffix">rows</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn--primary btn--compact js-data-prep-details-toggle"
+                    aria-expanded="false"
+                    aria-controls="data-prep-stack-details-panel"
+                  >
+                    Details
+                  </button>
+                </div>
+                <div
+                  id="data-prep-stack-details-panel"
+                  class="system-gen-data__details js-data-prep-details-panel"
+                  hidden
+                >
+                  <div class="data-prep-stack">
+              <section class="data-prep-section" aria-labelledby="data-prep-heading-identity">
+                <div class="data-prep-section__head">
+                  <h3 class="data-prep-section__title" id="data-prep-heading-identity">Identity Resolution</h3>
+                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="identity">
+                    + Add identity resolution
+                  </button>
+                </div>
+                <div class="data-prep-table-scroll">
+                  <table class="data-prep-table data-prep-table--identity">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Profiles Processed</th>
+                        <th scope="col">Frequency</th>
+                        <th scope="col">Daily Change %</th>
+                        <th scope="col">Unified Profiles Created</th>
+                        <th scope="col" class="data-prep-table__th-actions"><span class="sr-only">Edit, clone, or delete row</span></th>
+                      </tr>
+                    </thead>
+                    <tbody class="js-data-prep-tbody-identity"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="data-prep-section" aria-labelledby="data-prep-heading-transforms">
+                <div class="data-prep-section__head">
+                  <h3 class="data-prep-section__title" id="data-prep-heading-transforms">Data Transforms</h3>
+                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="transforms">
+                    + Add transform
+                  </button>
+                </div>
+                <div class="data-prep-table-scroll">
+                  <table class="data-prep-table data-prep-table--transforms">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Rows Processed</th>
+                        <th scope="col">Frequency</th>
+                        <th scope="col">New Object?</th>
+                        <th scope="col">Transform Rows Created</th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Edit</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Clone</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Delete</span></th>
+                      </tr>
+                    </thead>
+                    <tbody class="js-data-prep-tbody-transforms"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="data-prep-section" aria-labelledby="data-prep-heading-data-graphs">
+                <div class="data-prep-section__head">
+                  <h3 class="data-prep-section__title" id="data-prep-heading-data-graphs">Data Graphs</h3>
+                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="data-graphs">
+                    + Add Data Graph
+                  </button>
+                </div>
+                <div class="data-prep-table-scroll">
+                  <table class="data-prep-table data-prep-table--data-graphs">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Rows Processed</th>
+                        <th scope="col">Frequency</th>
+                        <th scope="col">Aggregate Data</th>
+                        <th scope="col">Data Graph Rows Created</th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Edit</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Clone</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Delete</span></th>
+                      </tr>
+                    </thead>
+                    <tbody class="js-data-prep-tbody-data-graphs"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="data-prep-section" aria-labelledby="data-prep-heading-insights">
+                <div class="data-prep-section__head">
+                  <h3 class="data-prep-section__title" id="data-prep-heading-insights">Calculated Insights</h3>
+                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="insights">
+                    + Add calculated insight
+                  </button>
+                </div>
+                <div class="data-prep-table-scroll">
+                  <table class="data-prep-table data-prep-table--insights">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Rows Processed</th>
+                        <th scope="col">Frequency</th>
+                        <th scope="col">Aggregate Data</th>
+                        <th scope="col">Insights Rows Created</th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Edit</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Clone</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Delete</span></th>
+                      </tr>
+                    </thead>
+                    <tbody class="js-data-prep-tbody-insights"></tbody>
+                  </table>
+                </div>
+              </section>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <template id="data-prep-item-template">
+              <tr class="data-prep-item__main">
+                <td>
+                  <input type="text" class="input input--block js-data-prep-name" placeholder="e.g. Normalize addresses" autocomplete="off" aria-label="Name" />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-rows js-formatted-number"
+                    value="0"
+                    autocomplete="off"
+                    aria-label="Rows processed"
+                  />
+                </td>
+                <td>
+                  <div class="select-wrap">
+                    <select class="select js-data-prep-frequency" aria-label="Frequency">
+                      <option>On demand</option>
+                      <option>Daily</option>
+                      <option>Weekly</option>
+                      <option>Monthly</option>
+                      <option>Real-time</option>
+                    </select>
+                  </div>
+                </td>
+                <td class="data-prep-item__cell-aggregate-object">
+                  <div class="select-wrap">
+                    <select class="select js-data-prep-insight-aggregate-object" aria-label="Aggregate data">
+                      <option>Profiles</option>
+                      <option>Unified Profiles</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </td>
+                <td class="data-prep-item__cell-insight-new-rows">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-insight-new-rows js-formatted-number"
+                    value="0"
+                    autocomplete="off"
+                    aria-label="New insights rows"
+                  />
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-edit" aria-expanded="false" aria-label="Edit row details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-clone" aria-label="Clone this calculated insight row">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-delete" aria-label="Delete this calculated insight row">×</button>
+                </td>
+              </tr>
+              <tr class="data-prep-item__advanced" hidden>
+                <td class="data-prep-item__advanced-cell" colspan="8">
+                  <div class="data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel">
+                    <div class="data-prep-subrow data-prep-subrow--last">
+                      <div class="data-prep-transform-sizing" role="group" aria-label="Rows processed sizing for calculated insight">
+                        <div class="data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent">
+                          <label class="data-prep-transform-sizing__header">
+                            <input
+                              type="checkbox"
+                              class="check-row__input js-data-prep-transform-use-percent"
+                              checked
+                              aria-label="Use percent of total data landscape for rows processed"
+                            />
+                            <span class="data-prep-transform-sizing__title">Percent of Total Data Landscape</span>
+                          </label>
+                          <div class="data-prep-transform-sizing__body">
+                            <p class="hint data-prep-transform-sizing__hint">
+                              Rows processed equals this percentage of all row volume across the full Data Landscape.
+                            </p>
+                            <input
+                              type="text"
+                              inputmode="decimal"
+                              class="input input--block js-data-prep-transform-pct-of-landscape"
+                              value="10"
+                              placeholder="e.g. 10"
+                              autocomplete="off"
+                              aria-label="Percent of total data landscape"
+                            />
+                          </div>
+                        </div>
+                        <div class="data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick">
+                          <label class="data-prep-transform-sizing__header">
+                            <input
+                              type="checkbox"
+                              class="check-row__input js-data-prep-transform-use-pick"
+                              aria-label="Use data source selection for rows processed"
+                            />
+                            <span class="data-prep-transform-sizing__title">Data Source Selection</span>
+                          </label>
+                          <div class="data-prep-transform-sizing__body">
+                            <p class="hint landscape-pick__hint">
+                              Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.
+                            </p>
+                            <div class="landscape-pick js-landscape-pick">
+                              <input type="hidden" class="js-landscape-pick-value" value="" autocomplete="off" />
+                              <button
+                                type="button"
+                                class="landscape-pick__toggle js-landscape-pick-toggle"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <span class="landscape-pick__summary js-landscape-pick-summary">Select sources or objects…</span>
+                                <span class="landscape-pick__caret" aria-hidden="true"></span>
+                              </button>
+                              <div class="landscape-pick__menu js-landscape-pick-menu" hidden role="group" aria-label="Data sources and objects"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+
+            <template id="data-prep-item-template-transforms">
+              <tr class="data-prep-item__main">
+                <td>
+                  <input type="text" class="input input--block js-data-prep-name" placeholder="e.g. Normalize addresses" autocomplete="off" aria-label="Name" />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-rows js-formatted-number"
+                    value="0"
+                    autocomplete="off"
+                    aria-label="Rows processed"
+                  />
+                </td>
+                <td>
+                  <div class="select-wrap">
+                    <select class="select js-data-prep-frequency" aria-label="Frequency">
+                      <option>On demand</option>
+                      <option>Daily</option>
+                      <option>Weekly</option>
+                      <option>Monthly</option>
+                      <option>Real-time</option>
+                    </select>
+                  </div>
+                </td>
+                <td class="data-prep-item__cell-new-object">
+                  <input type="checkbox" class="check-row__input js-data-prep-output-new-object" aria-label="Output as new object" title="Output as new object" />
+                </td>
+                <td class="data-prep-item__cell-new-object-rows">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-new-object-rows js-formatted-number"
+                    value="0"
+                    readonly
+                    autocomplete="off"
+                    aria-label="New object rows (enable Output as new object to edit)"
+                  />
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-edit" aria-expanded="false" aria-label="Edit row details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-clone" aria-label="Clone this transform row">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </td>
+                <td class="data-prep-item__cell-action">
+                  <button type="button" class="btn btn--icon js-data-prep-delete" aria-label="Delete this transform row">×</button>
+                </td>
+              </tr>
+              <tr class="data-prep-item__advanced" hidden>
+                <td class="data-prep-item__advanced-cell" colspan="8">
+                  <div class="data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel">
+                    <div class="data-prep-subrow data-prep-subrow--last">
+                      <div class="data-prep-transform-sizing" role="group" aria-label="Rows processed sizing">
+                        <div class="data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent">
+                          <label class="data-prep-transform-sizing__header">
+                            <input
+                              type="checkbox"
+                              class="check-row__input js-data-prep-transform-use-percent"
+                              checked
+                              aria-label="Use percent of total data landscape for rows processed"
+                            />
+                            <span class="data-prep-transform-sizing__title">Percent of Total Data Landscape</span>
+                          </label>
+                          <div class="data-prep-transform-sizing__body">
+                            <p class="hint data-prep-transform-sizing__hint">
+                              Rows processed equals this percentage of all row volume across the full Data Landscape.
+                            </p>
+                            <input
+                              type="text"
+                              inputmode="decimal"
+                              class="input input--block js-data-prep-transform-pct-of-landscape"
+                              value="10"
+                              placeholder="e.g. 10"
+                              autocomplete="off"
+                              aria-label="Percent of total data landscape"
+                            />
+                          </div>
+                        </div>
+                        <div class="data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick">
+                          <label class="data-prep-transform-sizing__header">
+                            <input
+                              type="checkbox"
+                              class="check-row__input js-data-prep-transform-use-pick"
+                              aria-label="Use data source selection for rows processed"
+                            />
+                            <span class="data-prep-transform-sizing__title">Data Source Selection</span>
+                          </label>
+                          <div class="data-prep-transform-sizing__body">
+                            <p class="hint landscape-pick__hint">
+                              Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.
+                            </p>
+                            <div class="landscape-pick js-landscape-pick">
+                              <input type="hidden" class="js-landscape-pick-value" value="" autocomplete="off" />
+                              <button
+                                type="button"
+                                class="landscape-pick__toggle js-landscape-pick-toggle"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <span class="landscape-pick__summary js-landscape-pick-summary">Select sources or objects…</span>
+                                <span class="landscape-pick__caret" aria-hidden="true"></span>
+                              </button>
+                              <div class="landscape-pick__menu js-landscape-pick-menu" hidden role="group" aria-label="Data sources and objects"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+
+            <template id="data-prep-item-template-identity">
+              <tr class="data-prep-item__main">
+                <td>
+                  <input type="text" class="input input--block js-data-prep-name" placeholder="e.g. Identity Resolution 1" autocomplete="off" aria-label="Name" />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-rows js-formatted-number"
+                    value="0"
+                    autocomplete="off"
+                    aria-label="Profiles Processed"
+                  />
+                </td>
+                <td>
+                  <div class="select-wrap">
+                    <select class="select js-data-prep-frequency" aria-label="Frequency">
+                      <option>On demand</option>
+                      <option>Daily</option>
+                      <option>Weekly</option>
+                      <option>Monthly</option>
+                      <option>Real-time</option>
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    class="input input--block js-data-prep-daily-change-pct"
+                    value="2%"
+                    autocomplete="off"
+                    aria-label="Daily change percent"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="input input--block js-data-prep-unified-profile-rows js-formatted-number"
+                    value="0"
+                    autocomplete="off"
+                    aria-label="Expected unified profile rows"
+                  />
+                </td>
+                <td class="data-prep-item__actions">
+                  <button type="button" class="btn btn--icon js-data-prep-edit" aria-expanded="false" aria-label="Edit row details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                  <button type="button" class="btn btn--icon js-data-prep-clone" aria-label="Clone this identity resolution row">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                  <button type="button" class="btn btn--icon js-data-prep-delete" aria-label="Delete this identity resolution row">×</button>
+                </td>
+              </tr>
+              <tr class="data-prep-item__advanced" hidden>
+                <td class="data-prep-item__advanced-cell" colspan="6">
+                  <div class="data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel">
+                    <div class="data-prep-identity-sizing" role="group" aria-label="How Profiles processed is calculated">
+                      <div
+                        class="data-prep-identity-sizing__col data-prep-identity-sizing__col--all js-data-prep-identity-col-all data-prep-identity-sizing__col--active"
+                      >
+                        <label class="data-prep-transform-sizing__header">
+                          <input
+                            type="checkbox"
+                            class="check-row__input js-data-prep-identity-use-all-profiles"
+                            checked
+                            aria-label="Use all profile records from the data landscape"
+                          />
+                          <span class="data-prep-transform-sizing__title">All Profile Records from Data Landscape</span>
+                        </label>
+                        <div class="data-prep-transform-sizing__body">
+                          <p class="hint data-prep-transform-sizing__hint">
+                            Profiles processed is the sum of row volumes for every profile-tagged object in the Data Landscape. It updates when you add, remove, or change profile objects.
+                          </p>
+                        </div>
+                      </div>
+                      <div class="data-prep-identity-sizing__col data-prep-identity-sizing__col--pick js-data-prep-identity-col-pick data-prep-identity-sizing__col--dim">
+                        <label class="data-prep-transform-sizing__header">
+                          <input
+                            type="checkbox"
+                            class="check-row__input js-data-prep-identity-use-pick"
+                            aria-label="Use a custom selection from the data landscape"
+                          />
+                          <span class="data-prep-transform-sizing__title">Primary input data</span>
+                        </label>
+                        <div class="data-prep-transform-sizing__body">
+                          <p class="hint landscape-pick__hint">
+                            Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.
+                          </p>
+                          <div class="landscape-pick js-landscape-pick">
+                            <input type="hidden" class="js-landscape-pick-value" value="" autocomplete="off" />
+                            <button
+                              type="button"
+                              class="landscape-pick__toggle js-landscape-pick-toggle"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                            >
+                              <span class="landscape-pick__summary js-landscape-pick-summary">Select sources or objects…</span>
+                              <span class="landscape-pick__caret" aria-hidden="true"></span>
+                            </button>
+                            <div class="landscape-pick__menu js-landscape-pick-menu" hidden role="group" aria-label="Data sources and objects"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </div>
+
+          <div class="panel__step" data-panel-step="4" hidden>
+            <h2 class="panel__step-title">Solutions</h2>
+            <p class="intro">
+              Add one or more solutions from templates. Each solution captures sizing questions and optional details—expand sections as you work through the estimate.
+            </p>
+
+            <div class="solution-picker-hero">
+              <p class="solution-picker-hero__eyebrow">Templates</p>
+              <h3 class="solution-picker-hero__title">Add a solution</h3>
+              <p class="solution-picker-hero__lead">
+                Pick a template to drop a new solution block below. Mix and match templates as many times as you need.
+              </p>
+              <div class="solution-template-picker js-solution-template-picker">
+                <button
+                  type="button"
+                  class="solution-template-picker__toggle js-solution-template-toggle"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="solution-template-menu"
+                >
+                  <span class="solution-template-picker__toggle-main">
+                    <span class="solution-template-picker__label">Solution template</span>
+                    <span class="solution-template-picker__value js-solution-template-summary">Choose a template to add…</span>
+                  </span>
+                  <span class="solution-template-picker__chevron" aria-hidden="true"></span>
+                </button>
+                <div
+                  id="solution-template-menu"
+                  class="solution-template-picker__menu js-solution-template-menu"
+                  hidden
+                  role="listbox"
+                  aria-label="Solution templates"
+                ></div>
+              </div>
+              <p class="hint solution-picker-hero__hint">Templates show estimated annual Flex Credits. You can rename each solution after it is added.</p>
+            </div>
+
+            <div class="solutions-cards js-solutions-cards" aria-live="polite" aria-relevant="additions"></div>
+
+            <template id="solution-card-template">
+              <article class="solution-card" data-template-id="">
+                <div class="solution-card__head">
+                  <button type="button" class="btn btn--secondary btn--compact js-solution-remove" aria-label="Remove this solution">
+                    Remove
+                  </button>
+                </div>
+                <div class="solution-card__grid solution-card__grid--meta">
+                  <div class="solution-card__meta">
+                    <label class="field__label">Solution name</label>
+                    <input type="text" class="input input--block js-solution-custom-name" autocomplete="off" aria-label="Custom solution name" />
+                  </div>
+                  <div class="solution-card__meta">
+                    <span class="field__label">Template</span>
+                    <p class="solution-card__template-name js-solution-template-name">—</p>
+                    <p class="hint solution-card__template-desc js-solution-template-desc"></p>
+                  </div>
+                  <div class="solution-card__meta solution-card__meta--credits">
+                    <span class="field__label">Annual Flex Credits</span>
+                    <p class="solution-card__credits js-solution-flex-credits" aria-live="polite">0</p>
+                  </div>
+                </div>
+
+                <div class="solution-card__accordion">
+                  <button
+                    type="button"
+                    class="solution-card__accordion-toggle js-solution-accordion-toggle"
+                    aria-expanded="true"
+                  >
+                    <span class="solution-card__accordion-title">Questions</span>
+                    <span class="solution-card__accordion-icon" aria-hidden="true"></span>
+                  </button>
+                  <div class="solution-card__accordion-panel js-solution-questions-panel">
+                    <div class="solution-card__questions js-solution-questions"></div>
+                  </div>
+                </div>
+
+                <div class="solution-card__accordion">
+                  <button
+                    type="button"
+                    class="solution-card__accordion-toggle js-solution-accordion-toggle"
+                    aria-expanded="false"
+                  >
+                    <span class="solution-card__accordion-title">Details</span>
+                    <span class="solution-card__accordion-icon" aria-hidden="true"></span>
+                  </button>
+                  <div class="solution-card__accordion-panel solution-card__accordion-panel--details js-solution-details-panel" hidden>
+                    <p class="hint solution-card__details-hint">
+                      Sizing inputs in the same style as Data Prep. Adjust rows to reflect this solution’s footprint.
+                    </p>
+                    <div class="solution-card__capabilities-stack js-solution-capabilities-stack"></div>
+                  </div>
+                </div>
+              </article>
+            </template>
+          </div>
+
+          <div class="panel__step" data-panel-step="5" hidden>
+            <h2 class="panel__step-title">Estimate</h2>
+            <p class="intro">Review totals in the summary bar above and export the questionnaire when you are ready to share results.</p>
+          </div>
+
+          <div class="system-gen-data-wrap js-system-gen-data-wrap" hidden>
+            <section class="system-gen-data" aria-labelledby="system-gen-data-heading">
+              <div class="system-gen-data__bar">
+                <h3 class="system-gen-data__title" id="system-gen-data-heading">System Generated Data</h3>
+                <div class="system-gen-data__total-wrap">
+                  <span class="system-gen-data__total js-system-gen-total" aria-live="polite">0</span>
+                  <span class="system-gen-data__total-suffix">rows</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--primary btn--compact js-system-gen-details-toggle"
+                  aria-expanded="false"
+                  aria-controls="system-gen-details-panel"
+                >
+                  Details
+                </button>
+              </div>
+              <div id="system-gen-details-panel" class="system-gen-data__details js-system-gen-details-panel" hidden>
+                <div class="system-gen-data__group">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Unified Profiles</span>
+                    <span class="system-gen-data__group-total js-system-gen-unified-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-unified-list" aria-label="Per identity resolution"></ul>
+                </div>
+                <div class="system-gen-data__group">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Data Transform Output Rows</span>
+                    <span class="system-gen-data__group-total js-system-gen-transforms-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-transforms-list" aria-label="Per data transform"></ul>
+                </div>
+                <div class="system-gen-data__group">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Data Graph Rows</span>
+                    <span class="system-gen-data__group-total js-system-gen-data-graphs-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-data-graphs-list" aria-label="Per data graph"></ul>
+                </div>
+                <div class="system-gen-data__group">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Calculated Insights Rows</span>
+                    <span class="system-gen-data__group-total js-system-gen-insights-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-insights-list" aria-label="Per calculated insight"></ul>
+                </div>
+                <div class="system-gen-data__group">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Unstructured Data <span class="system-gen-data__unit-hint">(MB)</span></span>
+                    <span class="system-gen-data__group-total js-system-gen-unstructured-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-unstructured-list" aria-label="Per unstructured segment"></ul>
+                </div>
+                <div class="system-gen-data__group system-gen-data__group--last">
+                  <div class="system-gen-data__group-head">
+                    <span class="system-gen-data__group-title">Segment Membership Rows</span>
+                    <span class="system-gen-data__group-total js-system-gen-segment-total">0</span>
+                  </div>
+                  <ul class="system-gen-data__sublist js-system-gen-segment-list" aria-label="Per segment membership source"></ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="panel__footer">
+            <button type="button" class="btn btn--secondary panel__back" hidden>← Back</button>
+            <button type="button" class="btn btn--primary panel__next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
