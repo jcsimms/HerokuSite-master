@@ -202,21 +202,31 @@
 
             <div class="landscape-metrics" role="group" aria-label="Customer scope and capture summary">
               <div class="landscape-metrics__left landscape-metrics__left--sources">
-                <div class="data-prep-questions__head landscape-metrics__quick-setup">
-                  <span class="data-prep-questions__eyebrow">Quick setup</span>
-                  <p class="data-prep-questions__lede">Set your customer base and source counts by data type. These values drive the Data Sources rows below.</p>
-                </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" for="customer-count">How many customers or other unique individuals do want to include?</label>
+                  <label class="landscape-metric__label" for="customer-count">
+                    How many customers or other unique individuals do want to include?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if you have 1M active customers and 500K known prospects, that counts as 1.5M."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This is the total number of known human or B2B account entities, including active customers, sales prospects, business contacts, and employees, that you want to include in Data 360. For example, if you have 1M active customers and 500K known prospects, that counts as 1.5M.
+                    This is the total number of known human or B2B account entities, including active customers, sales prospects, business contacts, and employees, that you want to include in Data 360.
                   </p>
                   <input id="customer-count" type="text" inputmode="numeric" class="input landscape-metric__input js-formatted-number" autocomplete="off" value="10000" placeholder="0" />
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-bulk" for="landscape-count-bulk">How many Salesforce sources of data do you want to connect?</label>
+                  <label class="landscape-metric__label" id="landscape-q-bulk" for="landscape-count-bulk">
+                    How many Salesforce sources of data do you want to connect?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if your North American team and your European team each have separate Sales Clouds and Marketing Clouds, that counts as four sources."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This is the number of separate Salesforce orgs, including Sales, Service, Commerce, and Marketing, that you want to connect to Data 360. For example, if your North American team and your European team each have separate Sales Clouds and Marketing Clouds, that counts as four sources.
+                    This is the number of separate Salesforce orgs, including Sales, Service, Commerce, and Marketing, that you want to connect to Data 360.
                   </p>
                   <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-bulk">
                     <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="bulk" aria-label="Decrease number of bulk data sources">−</button>
@@ -225,9 +235,16 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-bulk-other" for="landscape-count-bulk-other">How many third-party (non-Salesforce) systems do you want to connect?</label>
+                  <label class="landscape-metric__label" id="landscape-q-bulk-other" for="landscape-count-bulk-other">
+                    How many third-party (non-Salesforce) systems do you want to connect?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if you use SAP for back-office orders, Snowflake for historical data, and Mailchimp for external emails, that counts as three sources."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This is the number of external platforms, including ERPs, data warehouses, external marketing tools, or legacy databases, that you want to sync with Data 360. For example, if you use SAP for back-office orders, Snowflake for historical data, and Mailchimp for external emails, that counts as three sources.
+                    This is the number of external platforms, including ERPs, data warehouses, external marketing tools, or legacy databases, that you want to sync with Data 360.
                   </p>
                   <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-bulk-other">
                     <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="bulk-other" aria-label="Decrease number of other bulk data sources">−</button>
@@ -236,9 +253,16 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-streaming" for="landscape-count-streaming">How many streaming sources (like websites or mobile apps) do you want to track?</label>
+                  <label class="landscape-metric__label" id="landscape-q-streaming" for="landscape-count-streaming">
+                    How many streaming sources (like websites or mobile apps) do you want to track?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if you have one main e-commerce website, a loyalty mobile app, and a customer portal, that counts as three streaming sources."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This is the number of digital storefronts or applications where you want to capture live customer behavior, such as page views, clicks, or cart additions, as they happen. For example, if you have one main e-commerce website, a loyalty mobile app, and a customer portal, that counts as three streaming sources.
+                    This is the number of digital storefronts or applications where you want to capture live customer behavior, such as page views, clicks, or cart additions, as they happen.
                   </p>
                   <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-streaming">
                     <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="streaming" aria-label="Decrease number of streaming data sources">−</button>
@@ -247,9 +271,16 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" for="landscape-subsecond-percent">What percentage of your streaming data requires a sub-second response?</label>
+                  <label class="landscape-metric__label" for="landscape-subsecond-percent">
+                    What percentage of your streaming data requires a sub-second response?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if you want to show a personalized &quot;Limited Time Offer&quot; pop-up the moment a user lands on a specific page."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This is the portion of your live digital activity, including clicks, search terms, and cart additions, that must be processed in under one second to trigger an immediate action. For example, if you want to show a personalized &quot;Limited Time Offer&quot; pop-up the moment a user lands on a specific page.
+                    This is the portion of your live digital activity, including clicks, search terms, and cart additions, that must be processed in under one second to trigger an immediate action.
                   </p>
                   <div class="landscape-metric__input-group">
                     <input
@@ -266,28 +297,45 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" for="landscape-zerocopy-yn">Do you want to connect to a Data Warehouse (like Snowflake, Google BigQuery, or Amazon Redshift) using &quot;Zero Copy&quot; technology?</label>
+                  <label class="landscape-metric__label" id="landscape-q-zerocopy" for="landscape-count-zerocopy">
+                    How many separate Data Warehouse sources do you want to connect via Zero Copy?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if your orders data is in Redshift and your analytics data is in Snowflake, that counts as two sources."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This allows Data 360 to read your data exactly where it lives today without the cost or delay of physically moving and duplicating it. Select Yes if you have massive amounts of historical data, like five or more years of orders or web logs, stored in a central hub that you want to access in real time without the storage headache.
+                    This is the number of zero copy sources, including Snowflake, Google BigQuery, and Amazon Redshift, that you would like to connect to Data 360.
                   </p>
-                  <div class="select-wrap landscape-metric__select-wrap">
-                    <select id="landscape-zerocopy-yn" class="select js-landscape-yn">
-                      <option value="no" selected>No</option>
-                      <option value="yes">Yes</option>
-                    </select>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-zerocopy">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="zerocopy" aria-label="Decrease number of zero copy sources">−</button>
+                    <input id="landscape-count-zerocopy" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="zerocopy" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="zerocopy" aria-label="Increase number of zero copy sources">+</button>
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" for="landscape-unstructured-yn">Do you want to include unstructured data, such as PDFs, knowledge articles, or chat transcripts?</label>
+                  <label class="landscape-metric__label" for="landscape-unstructured-mb">
+                    How many MB of unstructured data do you want to include to power AI and Search?
+                    <span
+                      class="landscape-example-pill"
+                      tabindex="0"
+                      data-example="For example, if you have a knowledge base for customer help articles, estimate the volume in MB to power smarter AI and search capabilities."
+                    >Example</span>
+                  </label>
                   <p class="landscape-metric__help">
-                    This includes your long-form content, including PDFs, knowledge articles, chat logs, and emails, that you want to connect to Data 360. For example, if you have a knowledge base for customer help articles, selecting Yes allows the platform to power smarter AI and search capabilities.
+                    This includes your long-form content, such as PDFs, knowledge articles, chat logs, and emails, that you want to connect to Data 360. As a ballpark,1 MB typically equates to roughly 100 pages of plain text or 10 pages of text with imagery.
                   </p>
-                  <div class="select-wrap landscape-metric__select-wrap">
-                    <select id="landscape-unstructured-yn" class="select js-landscape-yn">
-                      <option value="no" selected>No</option>
-                      <option value="yes">Yes</option>
-                    </select>
-                  </div>
+                  <input
+                    id="landscape-unstructured-mb"
+                    type="text"
+                    inputmode="numeric"
+                    class="input landscape-metric__input js-formatted-number"
+                    autocomplete="off"
+                    value="0"
+                    placeholder="0"
+                    aria-label="Unstructured data volume in MB"
+                  />
                 </div>
               </div>
             </div>
@@ -325,7 +373,6 @@
                       <div class="data-sources-table-scroll js-source-type-table" data-source-type="Customer Records" hidden>
                         <div class="data-sources-table-head" aria-hidden="true">
                           <span>Data source name</span>
-                          <span>Data type</span>
                           <span>Number of Objects or Streams</span>
                           <span>Includes Customer Profiles</span>
                           <span>Total Rows</span>
@@ -346,7 +393,6 @@
                       <div class="data-sources-table-scroll js-source-type-table" data-source-type="Streaming Events" hidden>
                         <div class="data-sources-table-head" aria-hidden="true">
                           <span>Data source name</span>
-                          <span>Data type</span>
                           <span>Number of Objects or Streams</span>
                           <span>Includes Customer Profiles</span>
                           <span>Total Rows</span>
@@ -367,7 +413,6 @@
                       <div class="data-sources-table-scroll js-source-type-table" data-source-type="Sub-Second Events" hidden>
                         <div class="data-sources-table-head" aria-hidden="true">
                           <span>Data source name</span>
-                          <span>Data type</span>
                           <span>Number of Objects or Streams</span>
                           <span>Includes Customer Profiles</span>
                           <span>Total Rows</span>
@@ -388,7 +433,6 @@
                       <div class="data-sources-table-scroll js-source-type-table" data-source-type="Zero Copy" hidden>
                         <div class="data-sources-table-head" aria-hidden="true">
                           <span>Data source name</span>
-                          <span>Data type</span>
                           <span>Number of Objects or Streams</span>
                           <span>Includes Customer Profiles</span>
                           <span>Total Rows</span>
@@ -409,9 +453,8 @@
                       <div class="data-sources-table-scroll js-source-type-table" data-source-type="Unstructured Data and Documents" hidden>
                         <div class="data-sources-table-head" aria-hidden="true">
                           <span>Data source name</span>
-                          <span>Data type</span>
-                          <span>Number of Objects or Streams</span>
-                          <span>Includes Customer Profiles</span>
+                          <span>Unstructured Processing</span>
+                          <span>Intelligent Document Processing</span>
                           <span>Total Rows</span>
                           <span class="sr-only">Edit source details</span>
                           <span class="sr-only">Clone source</span>
@@ -432,18 +475,6 @@
                     <label class="field__label">Data source name</label>
                     <input type="text" class="input input--block js-source-name" placeholder="e.g. Salesforce CRM, Snowflake lake, SAP" autocomplete="off" />
                   </div>
-                  <div class="field source-row__field">
-                    <label class="field__label">Data type</label>
-                    <div class="select-wrap">
-                      <select class="select js-source-category" aria-label="Data type">
-                        <option>Customer Records</option>
-                        <option>Streaming Events</option>
-                        <option>Sub-Second Events</option>
-                        <option>Unstructured Data and Documents</option>
-                        <option>Zero Copy</option>
-                      </select>
-                    </div>
-                  </div>
                   <fieldset class="field source-row__field source-row__field--counter">
                     <legend class="field__label">Number of Objects or Streams</legend>
                     <div class="counter">
@@ -451,12 +482,14 @@
                       <input type="text" inputmode="numeric" class="input counter__value js-counter-value js-formatted-number" autocomplete="off" value="2" aria-label="Number of objects or streams" />
                       <button type="button" class="counter__btn js-counter-inc" aria-label="Increase number of objects or streams">+</button>
                     </div>
+                    <label class="check-row source-row__unstructured-check source-row__unstructured-check--processing" hidden>
+                      <input type="checkbox" class="check-row__input js-unstructured-processing-check" checked aria-label="Enable unstructured processing" />
+                    </label>
                   </fieldset>
                   <div class="field source-row__field source-row__field--profiles">
                     <span class="field__label field__label--ghost" aria-hidden="true">.</span>
                     <label class="check-row">
-                      <input type="checkbox" class="check-row__input js-profile-check" checked />
-                      <span class="check-row__text">Includes Customer Profiles</span>
+                      <input type="checkbox" class="check-row__input js-profile-check" checked aria-label="Enable intelligent document processing" />
                     </label>
                   </div>
                   <div class="field source-row__field source-row__field--records">
@@ -540,23 +573,20 @@
               Add identity resolution, transforms, data graphs, and calculated insights jobs. Each row captures volume and cadence; use Edit to expand sizing questions similar to the Data Landscape source editor.
             </p>
             <div class="data-prep-questions" role="group" aria-label="Data Prep setup questions">
-              <div class="data-prep-questions__head">
-                <span class="data-prep-questions__eyebrow">Quick setup</span>
-                <p class="data-prep-questions__lede">Turn on each capability, then set how many rows you need. Counts sync to the tables below.</p>
-              </div>
               <div class="data-prep-questions__list">
                 <div class="data-prep-question" data-prep-kind="identity">
                   <div class="data-prep-question__main">
-                    <div class="data-prep-question__label" id="data-prep-yesno-identity-label">Do you want to create Identity Resolution of your customer data?</div>
-                    <div class="data-prep-question__controls">
-                      <div id="data-prep-yesno-identity" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-identity-label">
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="identity" data-prep-value="no" aria-pressed="true">No</button>
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="identity" data-prep-value="yes" aria-pressed="false">Yes</button>
-                      </div>
+                    <div class="data-prep-question__label">
+                      How many distinct versions of "Unified Profiles" do you want to create?
+                      <span
+                        class="landscape-example-pill"
+                        tabindex="0"
+                        data-example="For example, if you want one &quot;Golden Record&quot; for your global retail customers and a completely separate set of rules for your corporate business partners, that counts as two versions."
+                      >Example</span>
                     </div>
-                  </div>
-                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="identity" hidden>
-                    <label class="data-prep-question__followup-label" for="data-prep-count-identity">How many Identity Resolutions do you need?</label>
+                    <p class="data-prep-question__help">
+                      This is the number of different ways you want to group and identify people, including customers, sales prospects, and employees, using specific matching rules.
+                    </p>
                     <div class="counter data-prep-question__counter">
                       <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="identity" aria-label="Decrease identity resolution count">−</button>
                       <input id="data-prep-count-identity" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="identity" value="0" autocomplete="off" />
@@ -565,38 +595,19 @@
                   </div>
                 </div>
 
-                <div class="data-prep-question" data-prep-kind="transforms">
-                  <div class="data-prep-question__main">
-                    <div class="data-prep-question__label" id="data-prep-yesno-transforms-label">Do you want to create Data Transforms?</div>
-                    <div class="data-prep-question__controls">
-                      <div id="data-prep-yesno-transforms" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-transforms-label">
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="transforms" data-prep-value="no" aria-pressed="true">No</button>
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="transforms" data-prep-value="yes" aria-pressed="false">Yes</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="transforms" hidden>
-                    <label class="data-prep-question__followup-label" for="data-prep-count-transforms">How many Data Transforms do you need?</label>
-                    <div class="counter data-prep-question__counter">
-                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="transforms" aria-label="Decrease data transform count">−</button>
-                      <input id="data-prep-count-transforms" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="transforms" value="0" autocomplete="off" />
-                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="transforms" aria-label="Increase data transform count">+</button>
-                    </div>
-                  </div>
-                </div>
-
                 <div class="data-prep-question" data-prep-kind="data-graphs">
                   <div class="data-prep-question__main">
-                    <div class="data-prep-question__label" id="data-prep-yesno-data-graphs-label">Do you want to create Data Graphs?</div>
-                    <div class="data-prep-question__controls">
-                      <div id="data-prep-yesno-data-graphs" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-data-graphs-label">
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="data-graphs" data-prep-value="no" aria-pressed="true">No</button>
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="data-graphs" data-prep-value="yes" aria-pressed="false">Yes</button>
-                      </div>
+                    <div class="data-prep-question__label">
+                      How many "Data Graphs" (ready-made data views) do you want to create?
+                      <span
+                        class="landscape-example-pill"
+                        tabindex="0"
+                        data-example="For example, if you need one snapshot specifically for a call center agent to see recent support tickets and another for your marketing team to see recent purchases, that counts as two graphs."
+                      >Example</span>
                     </div>
-                  </div>
-                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="data-graphs" hidden>
-                    <label class="data-prep-question__followup-label" for="data-prep-count-data-graphs">How many Data Graphs do you need?</label>
+                    <p class="data-prep-question__help">
+                      This is the number of pre-calculated snapshots, including 360-degree customer views, order histories, or loyalty summaries, that you want to be instantly available for your AI or service agents.
+                    </p>
                     <div class="counter data-prep-question__counter">
                       <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="data-graphs" aria-label="Decrease data graph count">−</button>
                       <input id="data-prep-count-data-graphs" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="data-graphs" value="0" autocomplete="off" />
@@ -605,18 +616,40 @@
                   </div>
                 </div>
 
-                <div class="data-prep-question" data-prep-kind="insights">
+                <div class="data-prep-question" data-prep-kind="transforms">
                   <div class="data-prep-question__main">
-                    <div class="data-prep-question__label" id="data-prep-yesno-insights-label">Do you want to create Calculated Insights?</div>
-                    <div class="data-prep-question__controls">
-                      <div id="data-prep-yesno-insights" class="data-prep-yesno" role="group" aria-labelledby="data-prep-yesno-insights-label">
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="insights" data-prep-value="no" aria-pressed="true">No</button>
-                        <button type="button" class="data-prep-yesno__btn js-data-prep-yesno" data-prep-kind="insights" data-prep-value="yes" aria-pressed="false">Yes</button>
-                      </div>
+                    <div class="data-prep-question__label">
+                      How many "Data Transforms" (data cleaning sets) do you want to create?
+                      <span
+                        class="landscape-example-pill"
+                        tabindex="0"
+                        data-example="For example, if you need to convert state abbreviations (like &quot;NY&quot;) to full names (&quot;New York&quot;) and also need to convert different currency types into US Dollars, that counts as two transforms."
+                      >Example</span>
+                    </div>
+                    <p class="data-prep-question__help">
+                      This is the number of ways you need to clean, format, or "translate" your raw data, including standardizing address formats, fixing date styles, or merging product codes, so it matches across all systems.
+                    </p>
+                    <div class="counter data-prep-question__counter">
+                      <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="transforms" aria-label="Decrease data transform count">−</button>
+                      <input id="data-prep-count-transforms" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="transforms" value="0" autocomplete="off" />
+                      <button type="button" class="counter__btn js-data-prep-count-inc" data-prep-kind="transforms" aria-label="Increase data transform count">+</button>
                     </div>
                   </div>
-                  <div class="data-prep-question__followup js-data-prep-followup" data-prep-kind="insights" hidden>
-                    <label class="data-prep-question__followup-label" for="data-prep-count-insights">How many Calculated Insights do you need?</label>
+                </div>
+
+                <div class="data-prep-question" data-prep-kind="insights">
+                  <div class="data-prep-question__main">
+                    <div class="data-prep-question__label">
+                      How many "Calculated Insights" (business metrics) do you want to create?
+                      <span
+                        class="landscape-example-pill"
+                        tabindex="0"
+                        data-example="For example, if you want to calculate a &quot;Total Spend&quot; metric and a &quot;Recent Interaction&quot; score for your customers, that counts as two insights."
+                      >Example</span>
+                    </div>
+                    <p class="data-prep-question__help">
+                      This is the number of complex scores or mathematical summaries, including lifetime value (LTV), churn risk, and engagement scores, that you want the platform to track for every individual.
+                    </p>
                     <div class="counter data-prep-question__counter">
                       <button type="button" class="counter__btn js-data-prep-count-dec" data-prep-kind="insights" aria-label="Decrease calculated insights count">−</button>
                       <input id="data-prep-count-insights" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-data-prep-count-input" data-prep-kind="insights" value="0" autocomplete="off" />
@@ -673,32 +706,6 @@
                 </div>
               </section>
 
-              <section class="data-prep-section" aria-labelledby="data-prep-heading-transforms">
-                <div class="data-prep-section__head">
-                  <h3 class="data-prep-section__title" id="data-prep-heading-transforms">Data Transforms</h3>
-                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="transforms">
-                    + Add transform
-                  </button>
-                </div>
-                <div class="data-prep-table-scroll">
-                  <table class="data-prep-table data-prep-table--transforms">
-                    <thead>
-                      <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Rows Processed</th>
-                        <th scope="col">Frequency</th>
-                        <th scope="col">New Object?</th>
-                        <th scope="col">Transform Rows Created</th>
-                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Edit</span></th>
-                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Clone</span></th>
-                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Delete</span></th>
-                      </tr>
-                    </thead>
-                    <tbody class="js-data-prep-tbody-transforms"></tbody>
-                  </table>
-                </div>
-              </section>
-
               <section class="data-prep-section" aria-labelledby="data-prep-heading-data-graphs">
                 <div class="data-prep-section__head">
                   <h3 class="data-prep-section__title" id="data-prep-heading-data-graphs">Data Graphs</h3>
@@ -721,6 +728,32 @@
                       </tr>
                     </thead>
                     <tbody class="js-data-prep-tbody-data-graphs"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="data-prep-section" aria-labelledby="data-prep-heading-transforms">
+                <div class="data-prep-section__head">
+                  <h3 class="data-prep-section__title" id="data-prep-heading-transforms">Data Transforms</h3>
+                  <button type="button" class="btn btn--secondary btn--compact js-data-prep-add" data-prep-add="transforms">
+                    + Add transform
+                  </button>
+                </div>
+                <div class="data-prep-table-scroll">
+                  <table class="data-prep-table data-prep-table--transforms">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Rows Processed</th>
+                        <th scope="col">Frequency</th>
+                        <th scope="col">New Object?</th>
+                        <th scope="col">Transform Rows Created</th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Edit</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Clone</span></th>
+                        <th scope="col" class="data-prep-table__th-action"><span class="sr-only">Delete</span></th>
+                      </tr>
+                    </thead>
+                    <tbody class="js-data-prep-tbody-transforms"></tbody>
                   </table>
                 </div>
               </section>
