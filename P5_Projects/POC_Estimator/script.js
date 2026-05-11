@@ -30,6 +30,7 @@
   var nextBtn = document.querySelector(".panel__next");
   var sourceList = document.querySelector(".js-source-list");
   var addSourceBtn = document.querySelector(".js-add-source");
+  var addSourceByTypeBtns = document.querySelectorAll(".js-add-source-by-type");
   var rowTemplate = document.getElementById("source-row-template");
   var detailSubrowTemplate = document.getElementById("detail-subrow-template");
   var sourceRowUid = 0;
@@ -162,68 +163,259 @@
     return sourceList.querySelectorAll('.source-row[data-landscape-bucket="' + bucketKey + '"]').length;
   }
 
-  function readBucketTargetFromInput(bucketKey) {
-    var el = document.getElementById("landscape-count-" + bucketKey);
+  function readQuickSetupCountById(id, fallback) {
+    var el = document.getElementById(id);
+    if (!el) {
+      return fallback || 0;
+    }
+    var raw = parseLocaleNumber(el.value);
+    if (isNaN(raw)) {
+      return fallback || 0;
+    }
+    return Math.max(0, Math.min(100, Math.floor(raw)));
+  }
+
+  function getSubSecondPercentInputValue() {
+    var el = document.getElementById("landscape-subsecond-percent");
     if (!el) {
       return 0;
     }
     var raw = parseLocaleNumber(el.value);
     if (isNaN(raw)) {
-      return countRowsForBucket(bucketKey);
-    }
-    var n = Math.floor(raw);
-    if (n < 0) {
       return 0;
     }
-    return Math.min(n, 100);
+    return Math.max(0, Math.min(100, raw));
+  }
+
+  function getSubSecondPercentFactor() {
+    return getSubSecondPercentInputValue() / 100;
+  }
+
+  function getLandscapeQuickSetupTargets() {
+    var bulkBase = readQuickSetupCountById("landscape-count-bulk", countRowsForBucket("bulk"));
+    var bulkOther = readQuickSetupCountById("landscape-count-bulk-other", 0);
+    var streaming = readQuickSetupCountById("landscape-count-streaming", countRowsForBucket("streaming"));
+    var subSecondPct = getSubSecondPercentInputValue();
+    var subSecondTarget = subSecondPct > 0 && streaming > 0 ? streaming : 0;
+    var zeroCopyYn = document.getElementById("landscape-zerocopy-yn");
+    var unstructuredYn = document.getElementById("landscape-unstructured-yn");
+    return {
+      bulk: bulkBase + bulkOther,
+      streaming: streaming,
+      subsecond: subSecondTarget,
+      unstructured: unstructuredYn && unstructuredYn.value === "yes" ? 1 : 0,
+      zerocopy: zeroCopyYn && zeroCopyYn.value === "yes" ? 1 : 0,
+    };
+  }
+
+  function getBucketByKey(bucketKey) {
+    for (var i = 0; i < LANDSCAPE_BUCKETS.length; i += 1) {
+      if (LANDSCAPE_BUCKETS[i].key === bucketKey) {
+        return LANDSCAPE_BUCKETS[i];
+      }
+    }
+    return null;
+  }
+
+  function getBucketKeyForCategory(category) {
+    for (var i = 0; i < LANDSCAPE_BUCKETS.length; i += 1) {
+      if (LANDSCAPE_BUCKETS[i].category === category) {
+        return LANDSCAPE_BUCKETS[i].key;
+      }
+    }
+    return null;
+  }
+
+  function getSourceTypeListForCategory(category) {
+    if (!sourceList || !category) {
+      return null;
+    }
+    return sourceList.querySelector('.js-source-type-list[data-source-type="' + category + '"]');
+  }
+
+  function refreshSourceTypeTableVisibility() {
+    if (!sourceList) {
+      return;
+    }
+    sourceList.querySelectorAll(".js-source-type-table").forEach(function (table) {
+      var type = table.getAttribute("data-source-type");
+      var list = type ? getSourceTypeListForCategory(type) : null;
+      var hasRows = !!(list && list.querySelector(".source-row"));
+      if (hasRows) {
+        table.removeAttribute("hidden");
+      } else {
+        table.setAttribute("hidden", "");
+      }
+    });
+  }
+
+  function moveSourceRowToCategoryList(row, category) {
+    if (!row || !sourceList || !category) {
+      return;
+    }
+    var list = getSourceTypeListForCategory(category);
+    if (!list || row.parentElement === list) {
+      return;
+    }
+    list.appendChild(row);
+  }
+
+  function collectSourceRowCloneSnapshot(row) {
+    if (!row) {
+      return null;
+    }
+    var nameIn = row.querySelector(".js-source-name");
+    var countIn = row.querySelector(".js-counter-value");
+    var mainProfiles = row.querySelector(".js-profile-check");
+    var totalIn = row.querySelector(".js-record-total");
+    var detailList = row.querySelector(".js-advanced-detail-list");
+    return {
+      category: getCategoryTypeLabel(row),
+      bucketKey: row.dataset.landscapeBucket || "",
+      name: nameIn ? String(nameIn.value || "") : "",
+      objectCount: countIn ? String(countIn.value || "") : "",
+      includesProfiles: !!(mainProfiles && mainProfiles.checked),
+      totalRows: totalIn ? String(totalIn.value || "") : "",
+      details: collectDetailState(detailList),
+    };
+  }
+
+  function applySourceRowCloneSnapshot(row, snap) {
+    if (!row || !snap) {
+      return;
+    }
+    var nameIn = row.querySelector(".js-source-name");
+    if (nameIn && snap.name != null) {
+      nameIn.value = snap.name;
+    }
+    if (snap.category) {
+      setCategoryByLabel(row, snap.category);
+    }
+    var bucketKey = getBucketKeyForCategory(getCategoryTypeLabel(row));
+    if (bucketKey) {
+      row.dataset.landscapeBucket = bucketKey;
+    }
+    moveSourceRowToCategoryList(row, getCategoryTypeLabel(row));
+    applySourceTypeBehavior(row);
+
+    var countIn = row.querySelector(".js-counter-value");
+    if (countIn && !countIn.disabled && snap.objectCount != null) {
+      countIn.value = snap.objectCount;
+    }
+    var mainProfiles = row.querySelector(".js-profile-check");
+    if (mainProfiles && !mainProfiles.disabled) {
+      mainProfiles.checked = !!snap.includesProfiles;
+    }
+    var totalIn = row.querySelector(".js-record-total");
+    if (totalIn && !totalIn.readOnly && !totalIn.hasAttribute("readonly") && snap.totalRows != null) {
+      totalIn.value = snap.totalRows;
+    }
+
+    if (!row.classList.contains("source-row--segment")) {
+      rebuildAdvancedDetails(row);
+      if (snap.details && snap.details.length) {
+        var rows = row.querySelectorAll(".detail-subrow");
+        rows.forEach(function (sub, idx) {
+          var from = snap.details[idx];
+          if (!from) {
+            return;
+          }
+          var nameEl = sub.querySelector(".js-detail-name");
+          var volEl = sub.querySelector(".js-detail-volume");
+          if (from.classType) {
+            setDetailClassSelection(sub, from.classType);
+          }
+          if (nameEl && from.name != null) {
+            nameEl.value = from.name;
+          }
+          if (volEl && from.volume != null && String(from.volume).trim() !== "") {
+            var parsed = parseLocaleNumber(from.volume);
+            if (!isNaN(parsed)) {
+              volEl.value = formatEnUSNumber(parsed);
+            }
+          }
+        });
+      }
+    }
+    updateRecordTotalForRow(row);
+  }
+
+  function cloneSourceRow(row) {
+    if (!row) {
+      return;
+    }
+    var snap = collectSourceRowCloneSnapshot(row);
+    if (!snap) {
+      return;
+    }
+    var bucketKey = snap.bucketKey || getBucketKeyForCategory(snap.category) || "bulk";
+    var bucket = getBucketByKey(bucketKey);
+    if (!bucket) {
+      return;
+    }
+    var cloned = createAndBindRowForBucket(bucket);
+    if (!cloned) {
+      return;
+    }
+    applySourceRowCloneSnapshot(cloned, snap);
+    syncRemoveButtons();
+    refreshSourceTypeTableVisibility();
+    updateLandscapeBucketInputsFromDom();
+    updateLandscapeSummary();
+  }
+
+  function readBucketTargetFromInput(bucketKey) {
+    var targets = getLandscapeQuickSetupTargets();
+    if (targets.hasOwnProperty(bucketKey)) {
+      return targets[bucketKey];
+    }
+    return 0;
   }
 
   function updateLandscapeBucketInputsFromDom() {
-    LANDSCAPE_BUCKETS.forEach(function (b) {
-      var el = document.getElementById("landscape-count-" + b.key);
-      if (el) {
-        el.value = formatEnUSNumber(countRowsForBucket(b.key));
+    var bulkTotal = countRowsForBucket("bulk");
+    var bulkOtherEl = document.getElementById("landscape-count-bulk-other");
+    var bulkEl = document.getElementById("landscape-count-bulk");
+    if (bulkOtherEl && bulkEl) {
+      var bulkOther = parseLocaleNumber(bulkOtherEl.value);
+      if (isNaN(bulkOther) || bulkOther < 0) {
+        bulkOther = 0;
       }
-    });
+      bulkOther = Math.min(bulkOther, bulkTotal);
+      bulkOtherEl.value = formatEnUSNumber(bulkOther);
+      bulkEl.value = formatEnUSNumber(Math.max(0, bulkTotal - bulkOther));
+    } else if (bulkEl) {
+      bulkEl.value = formatEnUSNumber(bulkTotal);
+    }
+    var streamingEl = document.getElementById("landscape-count-streaming");
+    if (streamingEl) {
+      streamingEl.value = formatEnUSNumber(countRowsForBucket("streaming"));
+    }
+    var zeroCopyYn = document.getElementById("landscape-zerocopy-yn");
+    if (zeroCopyYn) {
+      zeroCopyYn.value = countRowsForBucket("zerocopy") > 0 ? "yes" : "no";
+    }
+    var unstructuredYn = document.getElementById("landscape-unstructured-yn");
+    if (unstructuredYn) {
+      unstructuredYn.value = countRowsForBucket("unstructured") > 0 ? "yes" : "no";
+    }
   }
 
   function appendRowInBucketPosition(row, bucketKey) {
     if (!sourceList) {
       return;
     }
-    var bIndex = -1;
-    for (var i = 0; i < LANDSCAPE_BUCKETS.length; i += 1) {
-      if (LANDSCAPE_BUCKETS[i].key === bucketKey) {
-        bIndex = i;
-        break;
-      }
-    }
-    if (bIndex < 0) {
+    var bucket = getBucketByKey(bucketKey);
+    if (!bucket) {
       sourceList.appendChild(row);
       return;
     }
-    var insertBeforeEl = null;
-    for (var j = bIndex + 1; j < LANDSCAPE_BUCKETS.length; j += 1) {
-      var k = LANDSCAPE_BUCKETS[j].key;
-      var el = sourceList.querySelector('.source-row[data-landscape-bucket="' + k + '"]');
-      if (el) {
-        insertBeforeEl = el;
-        break;
-      }
+    var typeList = getSourceTypeListForCategory(bucket.category);
+    if (typeList) {
+      typeList.appendChild(row);
+      return;
     }
-    var same = sourceList.querySelectorAll('.source-row[data-landscape-bucket="' + bucketKey + '"]');
-    var last = same.length ? same[same.length - 1] : null;
-    if (last) {
-      if (last.nextSibling) {
-        sourceList.insertBefore(row, last.nextSibling);
-      } else {
-        sourceList.appendChild(row);
-      }
-    } else if (insertBeforeEl) {
-      sourceList.insertBefore(row, insertBeforeEl);
-    } else {
-      sourceList.appendChild(row);
-    }
+    sourceList.appendChild(row);
   }
 
   function setCategoryByLabel(row, label) {
@@ -306,12 +498,14 @@
     syncRemoveButtons();
     document.querySelectorAll(".source-row").forEach(updateRecordTotalForRow);
     formatNumericFieldsIn(sourceList);
+    refreshSourceTypeTableVisibility();
     updateDataSourcesBarCount();
     updateLandscapeSummary();
   }
 
   function stepBucketCount(bucketKey, delta) {
-    var el = document.getElementById("landscape-count-" + bucketKey);
+    var inputId = "landscape-count-" + bucketKey;
+    var el = document.getElementById(inputId);
     if (!el) {
       return;
     }
@@ -509,14 +703,17 @@
       n = 0;
     }
     var c = getCustomerCount();
+    var cat = getCategoryTypeLabel(row);
+    var subSecondFactor = cat === SUB_SECOND_EVENTS ? getSubSecondPercentFactor() : 1;
     var mainOn =
       row.querySelector(".js-profile-check") && row.querySelector(".js-profile-check").checked;
     var sum = 0;
     for (var i = 0; i < n; i += 1) {
       var profiles = mainOn ? i === 0 : false;
-      sum += profiles ? c : c * 10;
+      var base = profiles ? c : c * 10;
+      sum += base * subSecondFactor;
     }
-    return sum;
+    return Math.round(sum);
   }
 
   function updateRecordTotalForRow(row) {
@@ -563,6 +760,10 @@
       return;
     }
     var v = volumeForProfiles(profilesChecked);
+    var row = volInput.closest(".source-row");
+    if (row && getCategoryTypeLabel(row) === SUB_SECOND_EVENTS) {
+      v = Math.round(v * getSubSecondPercentFactor());
+    }
     volInput.value = formatEnUSNumber(v);
   }
 
@@ -1069,34 +1270,58 @@
     row.dataset.landscapeSourceId = "lsrc-" + landscapeSourceSeq;
   }
 
-  function defaultUnstructuredSourceTitleForRow(row) {
-    if (!sourceList || !row || !row.classList.contains("source-row--segment")) {
-      return "Source 1";
+  function sourceNamePrefixForCategory(category) {
+    if (category === CUSTOMER_RECORDS) {
+      return "Bulk Source";
+    }
+    if (category === STREAMING_EVENTS) {
+      return "Streaming Source";
+    }
+    if (category === SUB_SECOND_EVENTS) {
+      return "Sub-second Source";
+    }
+    if (category === ZERO_COPY) {
+      return "Zero Copy Source";
+    }
+    if (category === UNSTRUCTURED_CATEGORY) {
+      return "Unstructured Source";
+    }
+    return "Source";
+  }
+
+  function sourceOrdinalWithinCategory(row, category) {
+    if (!sourceList || !row) {
+      return 1;
     }
     var rows = sourceList.querySelectorAll(".source-row");
     var n = 0;
     for (var i = 0; i < rows.length; i += 1) {
+      if (getCategoryTypeLabel(rows[i]) !== category) {
+        continue;
+      }
       n += 1;
       if (rows[i] === row) {
-        return "Source " + n;
+        return n;
       }
     }
-    return "Source " + Math.max(1, n);
+    return Math.max(1, n);
+  }
+
+  function defaultUnstructuredSourceTitleForRow(row) {
+    var category = UNSTRUCTURED_CATEGORY;
+    var prefix = sourceNamePrefixForCategory(category);
+    var ordinal = sourceOrdinalWithinCategory(row, category);
+    return prefix + " " + ordinal;
   }
 
   function defaultDataSourceTitleForRow(row) {
-    if (!sourceList || !row || row.classList.contains("source-row--segment")) {
+    if (!row) {
       return "Source 1";
     }
-    var rows = sourceList.querySelectorAll(".source-row");
-    var n = 0;
-    for (var i = 0; i < rows.length; i += 1) {
-      n += 1;
-      if (rows[i] === row) {
-        return "Source " + n;
-      }
-    }
-    return "Source " + Math.max(1, n);
+    var category = getCategoryTypeLabel(row);
+    var prefix = sourceNamePrefixForCategory(category);
+    var ordinal = sourceOrdinalWithinCategory(row, category);
+    return prefix + " " + ordinal;
   }
 
   function getLandscapeCatalog() {
@@ -2263,6 +2488,19 @@
     attachCommaFormatting(inp);
     inp.addEventListener("input", syncSourceRowsToBucketCounts);
   });
+  var subSecondPctInput = document.getElementById("landscape-subsecond-percent");
+  if (subSecondPctInput) {
+    attachCommaFormatting(subSecondPctInput);
+    subSecondPctInput.addEventListener("input", function () {
+      syncSourceRowsToBucketCounts();
+      refreshAllOpenDetailVolumes();
+      document.querySelectorAll('.source-row[data-landscape-bucket="subsecond"]').forEach(updateRecordTotalForRow);
+      updateLandscapeSummary();
+    });
+  }
+  document.querySelectorAll(".js-landscape-yn").forEach(function (sel) {
+    sel.addEventListener("change", syncSourceRowsToBucketCounts);
+  });
   document.querySelectorAll(".js-landscape-bucket-dec").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var k = btn.getAttribute("data-landscape-bucket");
@@ -2326,8 +2564,16 @@
         }
         row.remove();
         syncRemoveButtons();
+        refreshSourceTypeTableVisibility();
         updateLandscapeBucketInputsFromDom();
         updateLandscapeSummary();
+      });
+    }
+
+    var cloneBtn = row.querySelector(".js-source-clone");
+    if (cloneBtn) {
+      cloneBtn.addEventListener("click", function () {
+        cloneSourceRow(row);
       });
     }
 
@@ -2376,6 +2622,12 @@
         if (row.classList.contains("source-row--segment")) {
           return;
         }
+        var nextCategory = getCategoryTypeLabel(row);
+        var nextBucketKey = getBucketKeyForCategory(nextCategory);
+        if (nextBucketKey) {
+          row.dataset.landscapeBucket = nextBucketKey;
+        }
+        moveSourceRowToCategoryList(row, nextCategory);
         applySourceTypeBehavior(row);
         row.querySelectorAll(".detail-subrow").forEach(function (sub, idx) {
           var ne = sub.querySelector(".js-detail-name");
@@ -2384,6 +2636,8 @@
           }
         });
         updateRecordTotalForRow(row);
+        refreshSourceTypeTableVisibility();
+        updateLandscapeBucketInputsFromDom();
       });
     }
 
@@ -2446,6 +2700,14 @@
     stepBucketCount("bulk", 1);
   }
 
+  function addSourceRowForCategory(category) {
+    var bucketKey = getBucketKeyForCategory(category);
+    if (!bucketKey) {
+      return;
+    }
+    stepBucketCount(bucketKey, 1);
+  }
+
   function ensureDataLandscapeRows() {
     if (dataLandscapeSeeded || !sourceList) {
       return;
@@ -2459,6 +2721,7 @@
       rebuildAdvancedDetails(row);
     });
     formatNumericFieldsIn(sourceList);
+    refreshSourceTypeTableVisibility();
     updateDataSourcesBarCount();
   }
 
@@ -3306,6 +3569,33 @@
       description:
         "Trigger and enrich your process automation workflows in real-time based on unified data changes to eliminate manual tasks and accelerate cross-functional business processes at scale.",
       flexPerYear: 168000,
+      questionFields: [
+        {
+          text: "How many process automation workflows will Data 360 trigger?",
+          subtext:
+            "Changes taking place in Data 360 can trigger process automations like Salesforce Flow. For example, your marketing data triggers a workflow when a high-value prospect engages with pricing content, updating CRM records and alerting the Sales organization",
+          type: "counter",
+          defaultValue: 0,
+        },
+        {
+          text: "On average, how many times per day would such a workflow run?",
+          type: "counter",
+          defaultValue: 0,
+          dividerAfter: true,
+        },
+        {
+          text: "How many process automation workflows will query Data 360?",
+          subtext:
+            "With Data 360, your automated workflows can query the entire unified data model, enabling more intelligent decisions and actions across every touchpoint.",
+          type: "counter",
+          defaultValue: 0,
+        },
+        {
+          text: "On average, how many times per day would such a workflow run?",
+          type: "counter",
+          defaultValue: 0,
+        },
+      ],
       questions: [
         "How many distinct business processes or teams do you intend to automate in the first year?",
         "Roughly how many workflow-triggering events or data changes do you expect per day across those processes?",
@@ -4833,8 +5123,12 @@
     (questions || []).forEach(function (qSpec, idx) {
       var q = typeof qSpec === "string" ? { text: qSpec, type: "textarea" } : qSpec || {};
       var qText = q.text || "";
+      var qSubtext = q.subtext || "";
       var wrap = document.createElement("div");
       wrap.className = "solution-card__question";
+      if (q.dividerAfter) {
+        wrap.classList.add("solution-card__question--divider-after");
+      }
       if (q.type === "counter" || q.type === "select") {
         wrap.classList.add("solution-card__question--inline");
         var row = document.createElement("div");
@@ -4845,6 +5139,12 @@
         labelInline.setAttribute("for", id);
         labelInline.textContent = qText;
         row.appendChild(labelInline);
+        if (qSubtext) {
+          var hintInline = document.createElement("p");
+          hintInline.className = "hint solution-card__question-subtext";
+          hintInline.textContent = qSubtext;
+          row.appendChild(hintInline);
+        }
 
         if (q.type === "counter") {
           var counter = document.createElement("div");
@@ -4915,13 +5215,19 @@
         lab.className = "field__label";
         lab.setAttribute("for", "solution-q-" + uid + "-" + idx);
         lab.textContent = "Question " + (idx + 1);
+        wrap.appendChild(lab);
+        if (qSubtext) {
+          var hint = document.createElement("p");
+          hint.className = "hint solution-card__question-subtext";
+          hint.textContent = qSubtext;
+          wrap.appendChild(hint);
+        }
         var ta = document.createElement("textarea");
         ta.id = "solution-q-" + uid + "-" + idx;
         ta.className = "input input--block solution-card__textarea";
         ta.rows = 3;
         ta.setAttribute("aria-label", qText);
         ta.placeholder = qText;
-        wrap.appendChild(lab);
         wrap.appendChild(ta);
       }
       container.appendChild(wrap);
@@ -5056,6 +5362,242 @@
     );
   }
 
+  function ensureStateCapabilityNode(state, key, label) {
+    if (!state.capabilities || typeof state.capabilities !== "object") {
+      state.capabilities = {};
+    }
+    if (!state.capabilities[key]) {
+      state.capabilities[key] = {
+        capabilityKey: key,
+        capabilityLabel: label || key,
+        totalRows: 0,
+        totalCredits: 0,
+        totalJobsPerYear: 0,
+        enabled: false,
+        instances: [],
+      };
+    }
+    if (!Array.isArray(state.capabilities[key].instances)) {
+      state.capabilities[key].instances = [];
+    }
+    return state.capabilities[key];
+  }
+
+  function capabilityKeyFromTitle(title) {
+    var t = String(title || "").trim();
+    var map = {
+      "Identity Resolution": "identityResolution",
+      "Data Transforms": "batchDataTransform",
+      "Data Graphs": "batchDataGraphs",
+      "Calculated Insights": "batchCalculatedInsights",
+      "Data Queries": "dataQueries",
+      "Segmentation & Activation": "segmentation",
+      "Streaming Actions": "streamingActions",
+      "Streaming Calculated Insights": "streamingCalculatedInsights",
+      "Streaming Data Transforms": "streamingDataTransforms",
+      "Sub-second Real-Time Events and Entities": "subSecondRealTimeEventsAndEntities",
+      "Zero Copy Sharing Rows Accessed": "zeroCopySharingRowsAccessed",
+    };
+    return map[t] || "";
+  }
+
+  function instanceFromCapabilityRow(mainTr, index, capabilityLabel, solutionMeta) {
+    var nameEl = mainTr.querySelector(".js-data-prep-name");
+    var rowsEl = mainTr.querySelector(".js-data-prep-rows");
+    var freqSel = mainTr.querySelector(".js-data-prep-frequency, .js-solution-seg-frequency");
+    var includeLookup = mainTr.querySelector(".js-solution-streaming-include-lookups");
+    var jobsEl = mainTr.querySelector(".js-solution-query-frequency");
+    var idBase = String(capabilityLabel || "capability")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    return {
+      id: idBase + "-instance-" + (index + 1),
+      name: nameEl ? String(nameEl.value || "").trim() : capabilityLabel + " " + (index + 1),
+      solutionId: solutionMeta.solutionId,
+      solutionName: solutionMeta.solutionName,
+      rowsProcessed: parseLocaleNumber(rowsEl && rowsEl.value) || 0,
+      jobsPerYear: parseLocaleNumber(jobsEl && jobsEl.value) || 0,
+      estimatedCredits: 0,
+      includeLookupData: !!(includeLookup && includeLookup.checked),
+      frequency: freqSel ? String(freqSel.value || "") : "",
+      notes: "",
+      sizingMode: "",
+      lookupMode: "",
+      sourceSelection: {
+        dataSourceIds: [],
+        dataObjectIds: [],
+      },
+    };
+  }
+
+  function syncCalculatorStateFromDom() {
+    if (!window.CALCULATOR_STATE) {
+      return;
+    }
+    var state = window.CALCULATOR_STATE;
+
+    var catalog = getLandscapeCatalog();
+    state.dataSources = catalog.map(function (src, idx) {
+      return {
+        sourceId: src.sourceId || "source-" + (idx + 1),
+        sourceName: src.name || "Source " + (idx + 1),
+        dataType: src.dataType || "",
+        isUnstructured: !!src.isSegment,
+        isZeroCopy: src.dataType === ZERO_COPY,
+        totalRows: Number(src.totalRows) || 0,
+        totalVolumeMb: src.dataType === UNSTRUCTURED_CATEGORY ? Number(src.totalRows) || 0 : 0,
+        estimatedCredits: 0,
+        dataObjects: (src.objects || []).map(function (obj, objIdx) {
+          return {
+            objectId: obj.pickId || src.sourceId + "-object-" + (objIdx + 1),
+            objectName: obj.label || "Object " + (objIdx + 1),
+            category: obj.profiles ? "Profile" : "Other",
+            rows: Number(obj.rows) || 0,
+            averageRowSizeKb: 0,
+            includeInLandscape: true,
+            estimatedCredits: 0,
+          };
+        }),
+      };
+    });
+
+    var sys = getSystemGeneratedDataCatalog();
+    state.systemGeneratedData = [
+      {
+        systemDataId: "sys-unified-profiles",
+        systemDataName: "Unified Profiles",
+        sourceCapability: "Identity Resolution",
+        totalRows: Number(sys.unifiedProfiles.total) || 0,
+        totalCredits: 0,
+        objects: (sys.unifiedProfiles.items || []).map(function (it, i) {
+          return {
+            objectId: "sys-unified-profiles-object-" + (i + 1),
+            objectName: it.label || "Unified Profile Record",
+            rows: Number(it.value) || 0,
+            estimatedCredits: 0,
+          };
+        }),
+      },
+      {
+        systemDataId: "sys-data-transform-output",
+        systemDataName: "Data Transform Output Rows",
+        sourceCapability: "Batch Data Transform",
+        totalRows: Number(sys.dataTransformOutputRows.total) || 0,
+        totalCredits: 0,
+        objects: (sys.dataTransformOutputRows.items || []).map(function (it, i) {
+          return {
+            objectId: "sys-data-transform-output-object-" + (i + 1),
+            objectName: it.label || "Transform Output",
+            rows: Number(it.value) || 0,
+            estimatedCredits: 0,
+          };
+        }),
+      },
+      {
+        systemDataId: "sys-calculated-insights",
+        systemDataName: "Calculated Insights",
+        sourceCapability: "Batch Calculated Insights",
+        totalRows: Number(sys.calculatedInsightsRows.total) || 0,
+        totalCredits: 0,
+        objects: (sys.calculatedInsightsRows.items || []).map(function (it, i) {
+          return {
+            objectId: "sys-calculated-insights-object-" + (i + 1),
+            objectName: it.label || "Calculated Insight",
+            rows: Number(it.value) || 0,
+            estimatedCredits: 0,
+          };
+        }),
+      },
+    ];
+
+    var baseKeys = [
+      ["identityResolution", "Identity Resolution"],
+      ["batchDataTransform", "Batch Data Transform"],
+      ["batchDataGraphs", "Batch Data Graphs"],
+      ["batchCalculatedInsights", "Batch Calculated Insights"],
+      ["dataQueries", "Data Queries"],
+      ["segmentation", "Segmentation"],
+      ["activation", "Activation"],
+      ["streamingActions", "Streaming Actions"],
+      ["streamingCalculatedInsights", "Streaming Calculated Insights"],
+      ["streamingDataTransforms", "Streaming Data Transforms"],
+      ["subSecondRealTimeEventsAndEntities", "Sub-second Real-Time Events and Entities"],
+      ["zeroCopySharingRowsAccessed", "Zero Copy Sharing Rows Accessed"],
+    ];
+    baseKeys.forEach(function (pair) {
+      var capNode = ensureStateCapabilityNode(state, pair[0], pair[1]);
+      capNode.instances = [];
+    });
+
+    var dataPrepMap = {
+      ".js-data-prep-tbody-identity": "identityResolution",
+      ".js-data-prep-tbody-transforms": "batchDataTransform",
+      ".js-data-prep-tbody-data-graphs": "batchDataGraphs",
+      ".js-data-prep-tbody-insights": "batchCalculatedInsights",
+    };
+    Object.keys(dataPrepMap).forEach(function (sel) {
+      var key = dataPrepMap[sel];
+      var capNode = ensureStateCapabilityNode(state, key, key);
+      var i = 0;
+      document.querySelectorAll(sel + " tr.data-prep-item__main").forEach(function (mainTr) {
+        capNode.instances.push(instanceFromCapabilityRow(mainTr, i, capNode.capabilityLabel, { solutionId: "", solutionName: "" }));
+        i += 1;
+      });
+    });
+
+    document.querySelectorAll(".solution-capability-section").forEach(function (section) {
+      var titleEl = section.querySelector(".data-prep-section__title");
+      var title = titleEl ? String(titleEl.textContent || "").trim() : "";
+      var key = capabilityKeyFromTitle(title);
+      if (!key) {
+        return;
+      }
+      var capNode = ensureStateCapabilityNode(state, key, title);
+      var article = section.closest("article.solution-card");
+      var solutionTitleEl = article && article.querySelector(".solution-card__title");
+      var solutionName = solutionTitleEl ? String(solutionTitleEl.textContent || "").trim() : "";
+      var solutionId = article && article.id ? article.id : "";
+      var idx = capNode.instances.length;
+      section.querySelectorAll("tbody tr.data-prep-item__main, tbody tr:not(.data-prep-item__advanced)").forEach(function (tr) {
+        if (tr.classList.contains("data-prep-item__advanced")) {
+          return;
+        }
+        capNode.instances.push(
+          instanceFromCapabilityRow(tr, idx, title, {
+            solutionId: solutionId,
+            solutionName: solutionName,
+          })
+        );
+        idx += 1;
+      });
+      if (title === "Segmentation & Activation") {
+        var actNode = ensureStateCapabilityNode(state, "activation", "Activation");
+        capNode.instances.forEach(function (inst, instIdx) {
+          actNode.instances.push({
+            id: "activation-instance-" + (instIdx + 1),
+            name: inst.name,
+            solutionId: inst.solutionId,
+            solutionName: inst.solutionName,
+            rowsProcessed: inst.rowsProcessed,
+            jobsPerYear: inst.jobsPerYear,
+            estimatedCredits: inst.estimatedCredits,
+            includeLookupData: inst.includeLookupData,
+            frequency: inst.frequency,
+            notes: inst.notes,
+            sizingMode: inst.sizingMode,
+            lookupMode: inst.lookupMode,
+            sourceSelection: inst.sourceSelection,
+          });
+        });
+      }
+    });
+
+    if (typeof window.recomputeStateTotals === "function") {
+      window.recomputeStateTotals(state);
+    }
+  }
+
   if (sourceList) {
     sourceList.addEventListener("input", refreshAllLandscapePicks);
     sourceList.addEventListener("change", refreshAllLandscapePicks);
@@ -5066,6 +5608,17 @@
       addSourceRow();
     });
   }
+
+  if (addSourceByTypeBtns && addSourceByTypeBtns.length) {
+    addSourceByTypeBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var category = btn.getAttribute("data-source-type");
+        addSourceRowForCategory(category);
+      });
+    });
+  }
+
+  refreshSourceTypeTableVisibility();
 
   if (nextBtn) {
     nextBtn.addEventListener("click", function () {
@@ -5182,4 +5735,7 @@
 
   goToStep(1);
   updateLandscapeSummary();
+  syncCalculatorStateFromDom();
+  document.addEventListener("input", syncCalculatorStateFromDom);
+  document.addEventListener("change", syncCalculatorStateFromDom);
 })();

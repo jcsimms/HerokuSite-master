@@ -1707,6 +1707,17 @@ body {
     width: 100%;
     max-width: none;
   }
+
+  .solution-card__question-row .solution-card__question-subtext,
+  .solution-card__question-row .solution-card__question-counter,
+  .solution-card__question-row .solution-card__question-select-wrap {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .solution-card__question-subtext {
+    max-width: none;
+  }
 }
 
 .solution-card__meta .field__label {
@@ -1820,6 +1831,32 @@ body {
 .solution-card__question-label {
   font-size: 12px;
   line-height: 1.35;
+}
+
+.solution-card__question-subtext {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.solution-card__question-row .solution-card__question-subtext {
+  grid-column: 1 / 2;
+  margin-top: 2px;
+}
+
+.solution-card__question-row .solution-card__question-counter,
+.solution-card__question-row .solution-card__question-select-wrap {
+  grid-column: 2 / 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.solution-card__question--divider-after {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8ecf1;
+  margin-bottom: 4px;
 }
 
 .solution-card__question-counter {
@@ -2053,7 +2090,7 @@ body {
 
 .landscape-metrics {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 390px);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px 12px;
   align-items: start;
   margin-bottom: 22px;
@@ -2068,14 +2105,16 @@ body {
   min-width: 0;
   max-width: none;
   width: 100%;
+  --landscape-control-width: 140px;
 }
 
 .landscape-metrics__left--sources {
-  max-height: min(48vh, 380px);
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
+  overflow-x: hidden;
   margin-top: 22px;
   padding: 8px 10px;
-  margin-right: -2px;
+  margin-right: 0;
   border: 1px solid #e1e7ee;
   border-radius: 8px;
   background: var(--white);
@@ -2084,6 +2123,7 @@ body {
 
 .landscape-metrics__quick-setup {
   margin: -8px -10px 6px;
+  font-size: 15px;
 }
 
 /* Questions (left) + controls (right) within the scope block */
@@ -2091,21 +2131,33 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(128px, 188px);
   align-items: center;
-  column-gap: 12px;
+  column-gap: 18px;
   row-gap: 2px;
   margin: 0;
-  padding: 5px 6px;
+  padding: 7px 8px;
   border-radius: 6px;
   border: none;
   background: transparent;
 }
 
 .landscape-metrics__left .landscape-metric--stacked .landscape-metric__label {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
   align-self: center;
-  font-size: 12px;
-  line-height: 1.15;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 600;
   color: var(--navy-800);
+}
+
+.landscape-metrics__left .landscape-metric--stacked .landscape-metric__help {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-muted);
 }
 
 .landscape-metrics__left .landscape-metric--stacked .landscape-metric__input {
@@ -2115,27 +2167,48 @@ body {
 }
 
 .landscape-metrics__left .landscape-metric--stacked .landscape-metric__counter {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   justify-self: end;
   align-self: center;
+  width: var(--landscape-control-width);
+  max-width: var(--landscape-control-width);
+}
+
+.landscape-metrics__left .landscape-metric--stacked .landscape-metric__input-group,
+.landscape-metrics__left .landscape-metric--stacked .landscape-metric__select-wrap {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+  width: var(--landscape-control-width);
+  max-width: var(--landscape-control-width);
+}
+
+.landscape-metrics__left .landscape-metric--stacked .landscape-metric__input {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+  width: var(--landscape-control-width);
+  max-width: var(--landscape-control-width);
 }
 
 .landscape-metrics__left--sources .counter__btn {
-  width: 28px;
-  min-width: 28px;
-  height: 26px;
-  font-size: 14px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 16px;
 }
 
 .landscape-metrics__left--sources .counter__value {
-  height: 26px;
-  max-width: 82px;
-  min-width: 44px;
-  font-size: 12px;
+  height: 32px;
+  max-width: 92px;
+  min-width: 54px;
+  font-size: 14px;
 }
 
 .landscape-metrics__left--sources .landscape-metric__input {
-  height: 26px;
-  font-size: 12px;
+  height: 32px;
+  font-size: 14px;
 }
 
 .landscape-metric {
@@ -2185,6 +2258,35 @@ body {
 
 .landscape-metric__counter {
   flex: 0 0 auto;
+}
+
+.landscape-metric__input-group {
+  position: relative;
+  display: block;
+}
+
+.landscape-metric__input-suffix {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.landscape-metric__input-group .landscape-metric__input {
+  width: 100%;
+  max-width: 100%;
+  padding-right: 24px;
+}
+
+.landscape-metrics__left .landscape-metric__input-group .landscape-metric__input.input {
+  width: 100%;
+  min-width: 0;
+  max-width: var(--landscape-control-width);
+  box-sizing: border-box;
 }
 
 .landscape-metric__counter .counter__value {
@@ -2286,6 +2388,51 @@ body {
   gap: 0;
 }
 
+.data-sources-section {
+  padding-top: 14px;
+}
+
+.data-sources-section:first-child {
+  padding-top: 0;
+}
+
+.data-sources-table-scroll {
+  margin-top: 12px;
+  overflow-x: auto;
+  border: 1px solid #e1e7ee;
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.data-sources-table-head {
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1.25fr)
+    minmax(140px, 1fr)
+    minmax(150px, auto)
+    minmax(140px, 1fr)
+    minmax(96px, 0.85fr)
+    auto
+    auto
+    40px;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 12px;
+  background: var(--gray-panel);
+  border-bottom: 1px solid #e1e7ee;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy-800);
+}
+
+.data-sources-section__list .source-row {
+  padding: 10px 12px;
+}
+
+.data-sources-section__list .source-row:first-child {
+  padding-top: 10px;
+}
+
 .source-row {
   padding: 10px 0;
   border-bottom: 1px solid #e1e7ee;
@@ -2337,6 +2484,7 @@ body {
     minmax(140px, 1fr)
     minmax(96px, 0.85fr)
     auto
+    auto
     40px;
   gap: 8px 8px;
   align-items: end;
@@ -2367,6 +2515,16 @@ fieldset.field.source-row__field legend {
   font-size: 11px;
   line-height: 1.15;
   margin-bottom: 3px;
+}
+
+.data-sources-section__list .source-row .field__label,
+.data-sources-section__list .source-row fieldset.field.source-row__field legend,
+.data-sources-section__list .source-row .field__label--ghost {
+  display: none;
+}
+
+.data-sources-section__list .source-row__main {
+  align-items: center;
 }
 
 .field__label--ghost {
@@ -2719,7 +2877,7 @@ fieldset.field.source-row__field legend {
 
 /* Data Landscape: bar sits directly under metrics (metrics block already has bottom border). */
 .data-sources-wrap {
-  margin-top: 20px;
+  margin-top: 30px;
   padding-top: 0;
   border-top: none;
 }
@@ -2924,7 +3082,15 @@ fieldset.field.source-row__field legend {
     justify-self: end;
   }
 
+  .source-row__field--clone .btn--icon {
+    justify-self: end;
+  }
+
   .source-row__field--remove {
+    justify-items: end;
+  }
+
+  .source-row__field--clone {
     justify-items: end;
   }
 
@@ -2952,10 +3118,22 @@ fieldset.field.source-row__field legend {
   }
 
   .landscape-metrics__left .landscape-metric--stacked .landscape-metric__input,
-  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__counter {
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__counter,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__input-group,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__select-wrap {
     justify-self: stretch;
     width: 100%;
     max-width: none;
+  }
+
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__label,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__help,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__input,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__counter,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__input-group,
+  .landscape-metrics__left .landscape-metric--stacked .landscape-metric__select-wrap {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .data-prep-question__main {

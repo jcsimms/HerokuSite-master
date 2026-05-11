@@ -207,11 +207,17 @@
                   <p class="data-prep-questions__lede">Set your customer base and source counts by data type. These values drive the Data Sources rows below.</p>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" for="customer-count">How many customers do you have?</label>
+                  <label class="landscape-metric__label" for="customer-count">How many customers or other unique individuals do want to include?</label>
+                  <p class="landscape-metric__help">
+                    This is the total number of known human or B2B account entities, including active customers, sales prospects, business contacts, and employees, that you want to include in Data 360. For example, if you have 1M active customers and 500K known prospects, that counts as 1.5M.
+                  </p>
                   <input id="customer-count" type="text" inputmode="numeric" class="input landscape-metric__input js-formatted-number" autocomplete="off" value="10000" placeholder="0" />
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-bulk" for="landscape-count-bulk">How many sources of bulk data do you have?</label>
+                  <label class="landscape-metric__label" id="landscape-q-bulk" for="landscape-count-bulk">How many Salesforce sources of data do you want to connect?</label>
+                  <p class="landscape-metric__help">
+                    This is the number of separate Salesforce orgs, including Sales, Service, Commerce, and Marketing, that you want to connect to Data 360. For example, if your North American team and your European team each have separate Sales Clouds and Marketing Clouds, that counts as four sources.
+                  </p>
                   <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-bulk">
                     <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="bulk" aria-label="Decrease number of bulk data sources">−</button>
                     <input id="landscape-count-bulk" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="bulk" autocomplete="off" value="3" />
@@ -219,7 +225,21 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-streaming" for="landscape-count-streaming">How many sources of streaming data do you have?</label>
+                  <label class="landscape-metric__label" id="landscape-q-bulk-other" for="landscape-count-bulk-other">How many third-party (non-Salesforce) systems do you want to connect?</label>
+                  <p class="landscape-metric__help">
+                    This is the number of external platforms, including ERPs, data warehouses, external marketing tools, or legacy databases, that you want to sync with Data 360. For example, if you use SAP for back-office orders, Snowflake for historical data, and Mailchimp for external emails, that counts as three sources.
+                  </p>
+                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-bulk-other">
+                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="bulk-other" aria-label="Decrease number of other bulk data sources">−</button>
+                    <input id="landscape-count-bulk-other" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="bulk-other" autocomplete="off" value="0" />
+                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="bulk-other" aria-label="Increase number of other bulk data sources">+</button>
+                  </div>
+                </div>
+                <div class="landscape-metric landscape-metric--stacked">
+                  <label class="landscape-metric__label" id="landscape-q-streaming" for="landscape-count-streaming">How many streaming sources (like websites or mobile apps) do you want to track?</label>
+                  <p class="landscape-metric__help">
+                    This is the number of digital storefronts or applications where you want to capture live customer behavior, such as page views, clicks, or cart additions, as they happen. For example, if you have one main e-commerce website, a loyalty mobile app, and a customer portal, that counts as three streaming sources.
+                  </p>
                   <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-streaming">
                     <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="streaming" aria-label="Decrease number of streaming data sources">−</button>
                     <input id="landscape-count-streaming" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="streaming" autocomplete="off" value="0" />
@@ -227,66 +247,48 @@
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-subsecond" for="landscape-count-subsecond">How many sources of sub-second data do you have?</label>
-                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-subsecond">
-                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="subsecond" aria-label="Decrease number of sub-second data sources">−</button>
-                    <input id="landscape-count-subsecond" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="subsecond" autocomplete="off" value="0" />
-                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="subsecond" aria-label="Increase number of sub-second data sources">+</button>
+                  <label class="landscape-metric__label" for="landscape-subsecond-percent">What percentage of your streaming data requires a sub-second response?</label>
+                  <p class="landscape-metric__help">
+                    This is the portion of your live digital activity, including clicks, search terms, and cart additions, that must be processed in under one second to trigger an immediate action. For example, if you want to show a personalized &quot;Limited Time Offer&quot; pop-up the moment a user lands on a specific page.
+                  </p>
+                  <div class="landscape-metric__input-group">
+                    <input
+                      id="landscape-subsecond-percent"
+                      type="text"
+                      inputmode="decimal"
+                      class="input landscape-metric__input js-formatted-number js-landscape-subsecond-percent"
+                      autocomplete="off"
+                      value="0"
+                      placeholder="0"
+                      aria-label="Percent of streaming data that is sub-second"
+                    />
+                    <span class="landscape-metric__input-suffix">%</span>
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-unstructured" for="landscape-count-unstructured">How many sources of unstructured data do you have?</label>
-                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-unstructured">
-                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="unstructured" aria-label="Decrease number of unstructured data sources">−</button>
-                    <input id="landscape-count-unstructured" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="unstructured" autocomplete="off" value="0" />
-                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="unstructured" aria-label="Increase number of unstructured data sources">+</button>
+                  <label class="landscape-metric__label" for="landscape-zerocopy-yn">Do you want to connect to a Data Warehouse (like Snowflake, Google BigQuery, or Amazon Redshift) using &quot;Zero Copy&quot; technology?</label>
+                  <p class="landscape-metric__help">
+                    This allows Data 360 to read your data exactly where it lives today without the cost or delay of physically moving and duplicating it. Select Yes if you have massive amounts of historical data, like five or more years of orders or web logs, stored in a central hub that you want to access in real time without the storage headache.
+                  </p>
+                  <div class="select-wrap landscape-metric__select-wrap">
+                    <select id="landscape-zerocopy-yn" class="select js-landscape-yn">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
                   </div>
                 </div>
                 <div class="landscape-metric landscape-metric--stacked">
-                  <label class="landscape-metric__label" id="landscape-q-zerocopy" for="landscape-count-zerocopy">How many sources of zero-copy data do you have?</label>
-                  <div class="counter landscape-metric__counter" role="group" aria-labelledby="landscape-q-zerocopy">
-                    <button type="button" class="counter__btn js-landscape-bucket-dec" data-landscape-bucket="zerocopy" aria-label="Decrease number of zero-copy data sources">−</button>
-                    <input id="landscape-count-zerocopy" type="text" inputmode="numeric" class="input counter__value js-formatted-number js-landscape-bucket-count" data-landscape-bucket="zerocopy" autocomplete="off" value="0" />
-                    <button type="button" class="counter__btn js-landscape-bucket-inc" data-landscape-bucket="zerocopy" aria-label="Increase number of zero-copy data sources">+</button>
+                  <label class="landscape-metric__label" for="landscape-unstructured-yn">Do you want to include unstructured data, such as PDFs, knowledge articles, or chat transcripts?</label>
+                  <p class="landscape-metric__help">
+                    This includes your long-form content, including PDFs, knowledge articles, chat logs, and emails, that you want to connect to Data 360. For example, if you have a knowledge base for customer help articles, selecting Yes allows the platform to power smarter AI and search capabilities.
+                  </p>
+                  <div class="select-wrap landscape-metric__select-wrap">
+                    <select id="landscape-unstructured-yn" class="select js-landscape-yn">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
                   </div>
                 </div>
-              </div>
-              <div class="landscape-metrics__right">
-                <p class="landscape-summary__title">Estimated capture by type</p>
-                <dl class="landscape-summary" aria-live="polite">
-                  <div class="landscape-summary__row js-landscape-unified-row">
-                    <dt>Unified Profiles</dt>
-                    <dd class="js-landscape-unified-profiles">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Profile Records</dt>
-                    <dd class="js-landscape-profile-records">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Object Records</dt>
-                    <dd class="js-landscape-object-records">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Streaming Records</dt>
-                    <dd class="js-landscape-streaming-records">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Sub-Second Records</dt>
-                    <dd class="js-landscape-subsecond-records">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Unstructured Data and Documents (MB)</dt>
-                    <dd class="js-landscape-unstructured-mb">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>Zero Copy Records</dt>
-                    <dd class="js-landscape-zerocopy-records">0</dd>
-                  </div>
-                  <div class="landscape-summary__row">
-                    <dt>System Generated Data</dt>
-                    <dd class="js-landscape-system-gen-grand-total">0</dd>
-                  </div>
-                </dl>
               </div>
             </div>
 
@@ -312,11 +314,113 @@
                   class="system-gen-data__details js-data-sources-details-panel"
                   hidden
                 >
-                  <div class="source-toolbar">
-                    <button type="button" class="btn btn--secondary js-add-source">+ Add data source</button>
+                  <div class="source-list js-source-list">
+                    <section class="data-prep-section data-sources-section" aria-labelledby="data-sources-heading-customer-records">
+                      <div class="data-prep-section__head">
+                        <h3 class="data-prep-section__title" id="data-sources-heading-customer-records">Customer Records</h3>
+                        <button type="button" class="btn btn--secondary btn--compact js-add-source-by-type" data-source-type="Customer Records">
+                          + Add Customer Record Source
+                        </button>
+                      </div>
+                      <div class="data-sources-table-scroll js-source-type-table" data-source-type="Customer Records" hidden>
+                        <div class="data-sources-table-head" aria-hidden="true">
+                          <span>Data source name</span>
+                          <span>Data type</span>
+                          <span>Number of Objects or Streams</span>
+                          <span>Includes Customer Profiles</span>
+                          <span>Total Rows</span>
+                          <span class="sr-only">Edit source details</span>
+                          <span class="sr-only">Clone source</span>
+                          <span class="sr-only">Remove source</span>
+                        </div>
+                        <div class="data-sources-section__list js-source-type-list" data-source-type="Customer Records" role="list"></div>
+                      </div>
+                    </section>
+                    <section class="data-prep-section data-sources-section" aria-labelledby="data-sources-heading-streaming-events">
+                      <div class="data-prep-section__head">
+                        <h3 class="data-prep-section__title" id="data-sources-heading-streaming-events">Streaming Events</h3>
+                        <button type="button" class="btn btn--secondary btn--compact js-add-source-by-type" data-source-type="Streaming Events">
+                          + Add Streaming Event Source
+                        </button>
+                      </div>
+                      <div class="data-sources-table-scroll js-source-type-table" data-source-type="Streaming Events" hidden>
+                        <div class="data-sources-table-head" aria-hidden="true">
+                          <span>Data source name</span>
+                          <span>Data type</span>
+                          <span>Number of Objects or Streams</span>
+                          <span>Includes Customer Profiles</span>
+                          <span>Total Rows</span>
+                          <span class="sr-only">Edit source details</span>
+                          <span class="sr-only">Clone source</span>
+                          <span class="sr-only">Remove source</span>
+                        </div>
+                        <div class="data-sources-section__list js-source-type-list" data-source-type="Streaming Events" role="list"></div>
+                      </div>
+                    </section>
+                    <section class="data-prep-section data-sources-section" aria-labelledby="data-sources-heading-subsecond-events">
+                      <div class="data-prep-section__head">
+                        <h3 class="data-prep-section__title" id="data-sources-heading-subsecond-events">Sub-second Events</h3>
+                        <button type="button" class="btn btn--secondary btn--compact js-add-source-by-type" data-source-type="Sub-Second Events">
+                          + Add Sub-second Event Source
+                        </button>
+                      </div>
+                      <div class="data-sources-table-scroll js-source-type-table" data-source-type="Sub-Second Events" hidden>
+                        <div class="data-sources-table-head" aria-hidden="true">
+                          <span>Data source name</span>
+                          <span>Data type</span>
+                          <span>Number of Objects or Streams</span>
+                          <span>Includes Customer Profiles</span>
+                          <span>Total Rows</span>
+                          <span class="sr-only">Edit source details</span>
+                          <span class="sr-only">Clone source</span>
+                          <span class="sr-only">Remove source</span>
+                        </div>
+                        <div class="data-sources-section__list js-source-type-list" data-source-type="Sub-Second Events" role="list"></div>
+                      </div>
+                    </section>
+                    <section class="data-prep-section data-sources-section" aria-labelledby="data-sources-heading-zero-copy">
+                      <div class="data-prep-section__head">
+                        <h3 class="data-prep-section__title" id="data-sources-heading-zero-copy">Zero Copy</h3>
+                        <button type="button" class="btn btn--secondary btn--compact js-add-source-by-type" data-source-type="Zero Copy">
+                          + Add Zero Copy Source
+                        </button>
+                      </div>
+                      <div class="data-sources-table-scroll js-source-type-table" data-source-type="Zero Copy" hidden>
+                        <div class="data-sources-table-head" aria-hidden="true">
+                          <span>Data source name</span>
+                          <span>Data type</span>
+                          <span>Number of Objects or Streams</span>
+                          <span>Includes Customer Profiles</span>
+                          <span>Total Rows</span>
+                          <span class="sr-only">Edit source details</span>
+                          <span class="sr-only">Clone source</span>
+                          <span class="sr-only">Remove source</span>
+                        </div>
+                        <div class="data-sources-section__list js-source-type-list" data-source-type="Zero Copy" role="list"></div>
+                      </div>
+                    </section>
+                    <section class="data-prep-section data-sources-section" aria-labelledby="data-sources-heading-unstructured">
+                      <div class="data-prep-section__head">
+                        <h3 class="data-prep-section__title" id="data-sources-heading-unstructured">Unstructured Data and Documents</h3>
+                        <button type="button" class="btn btn--secondary btn--compact js-add-source-by-type" data-source-type="Unstructured Data and Documents">
+                          + Add Unstructured Data Source
+                        </button>
+                      </div>
+                      <div class="data-sources-table-scroll js-source-type-table" data-source-type="Unstructured Data and Documents" hidden>
+                        <div class="data-sources-table-head" aria-hidden="true">
+                          <span>Data source name</span>
+                          <span>Data type</span>
+                          <span>Number of Objects or Streams</span>
+                          <span>Includes Customer Profiles</span>
+                          <span>Total Rows</span>
+                          <span class="sr-only">Edit source details</span>
+                          <span class="sr-only">Clone source</span>
+                          <span class="sr-only">Remove source</span>
+                        </div>
+                        <div class="data-sources-section__list js-source-type-list" data-source-type="Unstructured Data and Documents" role="list"></div>
+                      </div>
+                    </section>
                   </div>
-
-                  <div class="source-list js-source-list" role="list"></div>
                 </div>
               </section>
             </div>
@@ -365,6 +469,15 @@
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="field source-row__field source-row__field--clone">
+                    <span class="field__label field__label--ghost" aria-hidden="true">.</span>
+                    <button type="button" class="btn btn--icon js-source-clone" aria-label="Clone this data source">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                       </svg>
                     </button>
                   </div>
@@ -1188,6 +1301,7 @@
       </div>
     </div>
   </div>
+  <script src="state.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
