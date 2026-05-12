@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var MAX_STEP = 5;
+  var BASE_ESTIMATE_STEP = 5;
   var currentStep = 1;
   var dataLandscapeSeeded = false;
 
@@ -24,8 +24,7 @@
     });
   }
 
-  var stepItems = document.querySelectorAll(".steps__item");
-  var panelSteps = document.querySelectorAll(".panel__step");
+  var stepsListEl = document.querySelector(".steps");
   var backBtn = document.querySelector(".panel__back");
   var nextBtn = document.querySelector(".panel__next");
   var panelFooter = document.querySelector(".panel__footer");
@@ -2584,19 +2583,78 @@
   });
 
   function setStepIndicators(step) {
-    stepItems.forEach(function (li) {
+    var items = Array.prototype.slice.call(document.querySelectorAll(".steps__item"));
+    var activeIdx = -1;
+    items.forEach(function (li, idx) {
       var n = parseInt(li.getAttribute("data-wizard-step"), 10);
+      if (n === step) {
+        activeIdx = idx;
+      }
+    });
+    items.forEach(function (li, idx) {
       li.classList.remove("steps__item--active", "steps__item--complete");
-      if (n < step) {
+      if (idx < activeIdx) {
         li.classList.add("steps__item--complete");
-      } else if (n === step) {
+      } else if (idx === activeIdx) {
         li.classList.add("steps__item--active");
       }
     });
   }
 
+  function getMaxStep() {
+    var max = BASE_ESTIMATE_STEP;
+    document.querySelectorAll(".steps__item").forEach(function (li) {
+      var n = parseInt(li.getAttribute("data-wizard-step"), 10);
+      if (!isNaN(n) && n > max) {
+        max = n;
+      }
+    });
+    return max;
+  }
+
+  function getOrderedWizardSteps() {
+    var ordered = [];
+    document.querySelectorAll(".steps__item").forEach(function (li) {
+      var n = parseInt(li.getAttribute("data-wizard-step"), 10);
+      if (isNaN(n)) {
+        return;
+      }
+      if (!ordered.includes(n)) {
+        ordered.push(n);
+      }
+    });
+    return ordered;
+  }
+
+  function isLastOrderedStep(step) {
+    var ordered = getOrderedWizardSteps();
+    if (!ordered.length) {
+      return step >= getMaxStep();
+    }
+    return ordered[ordered.length - 1] === step;
+  }
+
+  function getAdjacentOrderedStep(step, direction) {
+    var ordered = getOrderedWizardSteps();
+    if (!ordered.length) {
+      return step + direction;
+    }
+    var idx = ordered.indexOf(step);
+    if (idx < 0) {
+      return direction > 0 ? ordered[0] : ordered[ordered.length - 1];
+    }
+    var nextIdx = idx + direction;
+    if (nextIdx < 0) {
+      nextIdx = 0;
+    }
+    if (nextIdx >= ordered.length) {
+      nextIdx = ordered.length - 1;
+    }
+    return ordered[nextIdx];
+  }
+
   function setVisiblePanel(step) {
-    panelSteps.forEach(function (el) {
+    document.querySelectorAll(".panel__step").forEach(function (el) {
       var s = parseInt(el.getAttribute("data-panel-step"), 10);
       if (s === step) {
         el.removeAttribute("hidden");
@@ -2604,6 +2662,19 @@
         el.setAttribute("hidden", "");
       }
     });
+  }
+
+  function scrollCurrentStepToTop(step) {
+    var scroller = document.querySelector(".content-scroll");
+    if (scroller) {
+      scroller.scrollTop = 0;
+    }
+    if (document.scrollingElement) {
+      document.scrollingElement.scrollTop = 0;
+    }
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
   }
 
   function updateFooter(step) {
@@ -2615,12 +2686,21 @@
       }
     }
     if (nextBtn) {
-      nextBtn.textContent = step >= MAX_STEP ? "Finish" : "Next →";
+      nextBtn.textContent = isLastOrderedStep(step) ? "Finish" : "Next →";
     }
   }
 
   function placeFooterForStep(step) {
     if (!panelFooter || !panelFooterHomeParent) {
+      return;
+    }
+    var dynamicStepPanel = document.querySelector('.panel__step--solution-dynamic[data-panel-step="' + step + '"]');
+    if (dynamicStepPanel) {
+      var dynamicCard = dynamicStepPanel.querySelector(".solution-card");
+      var detailsAccordion = dynamicCard && dynamicCard.querySelector(".solution-card__accordion--detailsbar");
+      if (dynamicCard && detailsAccordion && panelFooter.parentElement !== dynamicCard) {
+        dynamicCard.insertBefore(panelFooter, detailsAccordion);
+      }
       return;
     }
     if (step === 2) {
@@ -2813,11 +2893,12 @@
   }
 
   function goToStep(step) {
+    var maxStep = getMaxStep();
     if (step < 1) {
       step = 1;
     }
-    if (step > MAX_STEP) {
-      step = MAX_STEP;
+    if (step > maxStep) {
+      step = maxStep;
     }
     currentStep = step;
     setStepIndicators(step);
@@ -2854,6 +2935,7 @@
       ensureDataLandscapeRows();
     }
     updateSystemGeneratedData();
+    scrollCurrentStepToTop(step);
   }
 
   function collectIdentityResolutionSnapshot(mainTr, advTr) {
@@ -5258,6 +5340,337 @@
     });
   }
 
+  function shortSolutionStepLabel(fullName) {
+    var name = String(fullName || "").trim().toLowerCase();
+    if (name.indexOf("automate") >= 0) {
+      return "Automate";
+    }
+    if (name.indexOf("real-time") >= 0 || name.indexOf("real time") >= 0) {
+      return "Real-time";
+    }
+    if (!fullName) {
+      return "Solution";
+    }
+    return String(fullName).split(/\s+/).slice(0, 1).join("");
+  }
+
+  function getSolutionCardsOrdered() {
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".solution-card[data-solution-uid]:not(.solution-card--summary)"));
+    cards.sort(function (a, b) {
+      var aUid = parseInt(a.getAttribute("data-solution-uid"), 10);
+      var bUid = parseInt(b.getAttribute("data-solution-uid"), 10);
+      if (isNaN(aUid)) {
+        aUid = 0;
+      }
+      if (isNaN(bUid)) {
+        bUid = 0;
+      }
+      return aUid - bUid;
+    });
+    return cards;
+  }
+
+  function syncSolutionNameAcrossViews(uid, value, sourceEl) {
+    var normalized = String(value || "");
+    document.querySelectorAll(".js-solution-custom-name[data-solution-uid=\"" + uid + "\"]").forEach(function (el) {
+      if (sourceEl && el === sourceEl) {
+        return;
+      }
+      el.value = normalized;
+    });
+  }
+
+  function bindSolutionNameSync(input, uid) {
+    if (!input) {
+      return;
+    }
+    input.setAttribute("data-solution-uid", String(uid));
+    input.addEventListener("input", function () {
+      syncSolutionNameAcrossViews(uid, input.value, input);
+      updateDynamicSolutionPanelTitleForUid(uid);
+    });
+  }
+
+  function removeSolutionByUid(uid) {
+    var selector = ".solution-card[data-solution-uid=\"" + uid + "\"]";
+    document.querySelectorAll(selector).forEach(function (card) {
+      card.remove();
+    });
+    renderSolutionStepPanelsAndProgress();
+  }
+
+  function buildSolutionHeaderSummaryCard(fullCard, idx) {
+    if (!fullCard) {
+      return null;
+    }
+    var uid = String(fullCard.getAttribute("data-solution-uid") || "");
+    var templateId = String(fullCard.getAttribute("data-template-id") || "");
+    var nameIn = fullCard.querySelector(".js-solution-custom-name");
+    var templateNameEl = fullCard.querySelector(".js-solution-template-name");
+    var templateDescEl = fullCard.querySelector(".js-solution-template-desc");
+    var creditsEl = fullCard.querySelector(".js-solution-flex-credits");
+    var nameVal = nameIn ? String(nameIn.value || "").trim() : "Solution " + (idx + 1);
+    var templateName = templateNameEl ? String(templateNameEl.textContent || "").trim() : "";
+    var templateDesc = templateDescEl ? String(templateDescEl.textContent || "").trim() : "";
+    var creditsVal = "0";
+
+    var article = document.createElement("article");
+    article.className = "solution-card solution-card--summary";
+    article.setAttribute("data-template-id", templateId);
+    article.setAttribute("data-solution-uid", uid);
+    article.innerHTML =
+      "<div class=\"solution-card__grid solution-card__grid--meta\">" +
+      "<div class=\"solution-card__meta\">" +
+      "<label class=\"field__label\" for=\"solution-summary-name-" + uid + "\">Solution " + (idx + 1) + "</label>" +
+      "<input id=\"solution-summary-name-" + uid + "\" type=\"text\" class=\"input input--block js-solution-custom-name\" autocomplete=\"off\" aria-label=\"Custom solution name\" />" +
+      "</div>" +
+      "<div class=\"solution-card__meta\">" +
+      "<p class=\"field__label\">Template</p>" +
+      "<p class=\"solution-card__template-name js-solution-template-name\"></p>" +
+      "<p class=\"hint solution-card__template-desc js-solution-template-desc\"></p>" +
+      "</div>" +
+      "<div class=\"solution-card__meta solution-card__meta--credits\">" +
+      "<p class=\"field__label\">Flex Credits / Yr</p>" +
+      "<p class=\"solution-card__credits js-solution-flex-credits\" aria-live=\"polite\">0</p>" +
+      "</div>" +
+      "<div class=\"solution-card__meta solution-card__meta--remove\">" +
+      "<button type=\"button\" class=\"btn btn--secondary btn--compact js-solution-remove\" aria-label=\"Remove this solution\">Remove</button>" +
+      "</div>" +
+      "</div>";
+
+    var summaryNameIn = article.querySelector(".js-solution-custom-name");
+    var summaryTemplateName = article.querySelector(".js-solution-template-name");
+    var summaryTemplateDesc = article.querySelector(".js-solution-template-desc");
+    var summaryCredits = article.querySelector(".js-solution-flex-credits");
+    if (summaryNameIn) {
+      summaryNameIn.value = nameVal;
+      bindSolutionNameSync(summaryNameIn, uid);
+    }
+    if (summaryTemplateName) {
+      summaryTemplateName.textContent = templateName;
+    }
+    if (summaryTemplateDesc) {
+      summaryTemplateDesc.textContent = templateDesc;
+    }
+    if (summaryCredits) {
+      summaryCredits.textContent = creditsVal;
+    }
+    var summaryRemove = article.querySelector(".js-solution-remove");
+    if (summaryRemove) {
+      summaryRemove.addEventListener("click", function () {
+        removeSolutionByUid(uid);
+      });
+    }
+    return article;
+  }
+
+  function renderSolutionsHeaderSummaries(cardsContainer, fullCards) {
+    if (!cardsContainer) {
+      return;
+    }
+    cardsContainer.textContent = "";
+    (fullCards || []).forEach(function (card, idx) {
+      var summaryCard = buildSolutionHeaderSummaryCard(card, idx);
+      if (summaryCard) {
+        cardsContainer.appendChild(summaryCard);
+      }
+    });
+  }
+
+  function getSelectedSolutionsMeta() {
+    var out = [];
+    getSolutionCardsOrdered().forEach(function (card, idx) {
+      var nameEl = card.querySelector(".js-solution-template-name");
+      var customNameEl = card.querySelector(".js-solution-custom-name");
+      var customName = customNameEl ? String(customNameEl.value || "").trim() : "";
+      var fullName = nameEl ? String(nameEl.textContent || "").trim() : "";
+      out.push({
+        uid: String(card.getAttribute("data-solution-uid") || ""),
+        index: idx + 1,
+        fullName: fullName || "Solution " + (idx + 1),
+        displayName: customName || fullName || "Solution " + (idx + 1),
+        shortName: shortSolutionStepLabel(fullName || "Solution"),
+      });
+    });
+    return out;
+  }
+
+  function updateDynamicSolutionPanelTitleForUid(uid) {
+    if (!uid) {
+      return;
+    }
+    var summaryInput = document.querySelector(".solution-card--summary .js-solution-custom-name[data-solution-uid=\"" + uid + "\"]");
+    var displayName = summaryInput ? String(summaryInput.value || "").trim() : "";
+    var panel = document.querySelector(".panel__step--solution-dynamic[data-solution-uid=\"" + uid + "\"]");
+    if (!panel) {
+      return;
+    }
+    var titleEl = panel.querySelector(".panel__step-title");
+    if (!titleEl) {
+      return;
+    }
+    var stepIndex = parseInt(panel.getAttribute("data-solution-index"), 10);
+    if (isNaN(stepIndex)) {
+      stepIndex = 1;
+    }
+    titleEl.textContent = "Solution " + stepIndex + ": " + (displayName || ("Solution " + stepIndex));
+  }
+
+  function bindStepCircleNavigation() {
+    document.querySelectorAll(".steps__item").forEach(function (li) {
+      var circle = li.querySelector(".steps__circle");
+      if (!circle) {
+        return;
+      }
+      var stepNum = parseInt(li.getAttribute("data-wizard-step"), 10);
+      if (isNaN(stepNum)) {
+        return;
+      }
+      var labelSpan = li.querySelector(".steps__label");
+      var labelText = labelSpan ? String(labelSpan.textContent || "").trim() : "";
+      circle.setAttribute("role", "button");
+      circle.setAttribute("tabindex", "0");
+      circle.setAttribute("aria-label", labelText ? "Go to " + labelText + " (step " + stepNum + ")" : "Go to step " + stepNum);
+      circle.onclick = function () {
+        goToStep(stepNum);
+      };
+      circle.onkeydown = function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          goToStep(stepNum);
+        }
+      };
+    });
+  }
+
+  function renderSolutionStepPanelsAndProgress() {
+    var estimatePanel = Array.prototype.find.call(document.querySelectorAll(".panel__step"), function (panel) {
+      var title = panel.querySelector(".panel__step-title");
+      return title && String(title.textContent || "").trim() === "Estimate";
+    });
+    if (!estimatePanel) {
+      return;
+    }
+
+    var cardsContainer = document.querySelector(".js-solutions-cards");
+    document.querySelectorAll(".panel__step--solution-dynamic .solution-card").forEach(function (card) {
+      if (cardsContainer) {
+        cardsContainer.appendChild(card);
+      }
+    });
+
+    document.querySelectorAll(".panel__step--solution-dynamic").forEach(function (el) {
+      el.remove();
+    });
+
+    var cards = getSolutionCardsOrdered();
+    var selected = getSelectedSolutionsMeta();
+    selected.forEach(function (meta, idx) {
+      var stepNum = BASE_ESTIMATE_STEP + idx;
+      var panel = document.createElement("div");
+      panel.className = "panel__step panel__step--solution-dynamic";
+      panel.setAttribute("data-panel-step", String(stepNum));
+      panel.setAttribute("data-solution-uid", meta.uid || "");
+      panel.setAttribute("data-solution-index", String(meta.index));
+      panel.setAttribute("hidden", "");
+      panel.innerHTML =
+        "<h2 class=\"panel__step-title\">Solution " + meta.index + ": " + meta.displayName + "</h2>";
+      if (cards[idx]) {
+        var card = cards[idx];
+        var grid = card.querySelector(".solution-card__grid--meta");
+        var head = card.querySelector(".solution-card__head");
+        var accordions = card.querySelectorAll(".solution-card__accordion");
+        var questionsAcc = accordions && accordions.length ? accordions[0] : null;
+        var detailsAcc = accordions && accordions.length > 1 ? accordions[1] : null;
+        if (questionsAcc) {
+          var qToggle = questionsAcc.querySelector(".js-solution-accordion-toggle");
+          var qPanel = questionsAcc.querySelector(".js-solution-questions-panel");
+          if (qToggle) {
+            qToggle.remove();
+          }
+          if (qPanel) {
+            qPanel.removeAttribute("hidden");
+          }
+        }
+        if (detailsAcc) {
+          detailsAcc.classList.add("solution-card__accordion--detailsbar");
+          var dToggle = detailsAcc.querySelector(".js-solution-accordion-toggle");
+          var dPanel = detailsAcc.querySelector(".js-solution-details-panel");
+          var detailsBar = detailsAcc.querySelector(".solution-details-bar");
+          if (dToggle && !detailsBar) {
+            var totalWrap = document.createElement("div");
+            totalWrap.className = "system-gen-data__total-wrap";
+            var totalValue = document.createElement("span");
+            totalValue.className = "system-gen-data__total";
+            totalValue.textContent = "0";
+            var totalSuffix = document.createElement("span");
+            totalSuffix.className = "system-gen-data__total-suffix";
+            totalSuffix.textContent = "rows";
+            totalWrap.appendChild(totalValue);
+            totalWrap.appendChild(totalSuffix);
+
+            detailsBar = document.createElement("div");
+            detailsBar.className = "system-gen-data__bar solution-details-bar";
+            var title = document.createElement("h3");
+            title.className = "system-gen-data__title";
+            title.textContent = "Details";
+            dToggle.className = "btn btn--primary btn--compact js-solution-accordion-toggle solution-details-bar__button";
+            dToggle.textContent = "Details";
+            detailsBar.appendChild(title);
+            detailsBar.appendChild(totalWrap);
+            detailsBar.appendChild(dToggle);
+            detailsAcc.insertBefore(detailsBar, dPanel || null);
+          }
+        }
+        if (grid) {
+          var existingInlineRemove = grid.querySelector(".solution-card__meta--remove-inline");
+          if (!existingInlineRemove && head) {
+            var removeBtn = head.querySelector(".js-solution-remove");
+            if (removeBtn) {
+              var removeWrap = document.createElement("div");
+              removeWrap.className = "solution-card__meta solution-card__meta--remove-inline";
+              removeWrap.appendChild(removeBtn);
+              grid.appendChild(removeWrap);
+              head.setAttribute("hidden", "");
+            }
+          }
+        }
+        panel.appendChild(card);
+      }
+      estimatePanel.parentElement.insertBefore(panel, estimatePanel);
+    });
+
+    estimatePanel.setAttribute("data-panel-step", String(BASE_ESTIMATE_STEP + selected.length));
+
+    if (stepsListEl) {
+      var estimateStepNum = BASE_ESTIMATE_STEP + selected.length;
+      var html = "";
+      html += "<li class=\"steps__item\" data-wizard-step=\"1\"><span class=\"steps__circle\">1</span><span class=\"steps__label\">Getting Started</span></li>";
+      html += "<li class=\"steps__item\" data-wizard-step=\"4\"><span class=\"steps__circle\">2</span><span class=\"steps__label\">Solutions</span></li>";
+      html += "<li class=\"steps__item\" data-wizard-step=\"2\"><span class=\"steps__circle\">3</span><span class=\"steps__label\">Data Landscape</span></li>";
+      html += "<li class=\"steps__item\" data-wizard-step=\"3\"><span class=\"steps__circle\">4</span><span class=\"steps__label\">Data Prep</span></li>";
+      selected.forEach(function (meta) {
+        var stepNum = BASE_ESTIMATE_STEP + (meta.index - 1);
+        html += "<li class=\"steps__item steps__item--solution-dynamic\" data-wizard-step=\"" + stepNum + "\">" +
+          "<span class=\"steps__circle\">S" + meta.index + "</span>" +
+          "<span class=\"steps__label\">S" + meta.index + " - " + meta.shortName + "</span>" +
+          "</li>";
+      });
+      html += "<li class=\"steps__item\" data-wizard-step=\"" + estimateStepNum + "\"><span class=\"steps__circle\">" + (selected.length + 5) + "</span><span class=\"steps__label\">Estimate</span></li>";
+      stepsListEl.innerHTML = html;
+    }
+    renderSolutionsHeaderSummaries(cardsContainer, cards);
+
+    bindStepCircleNavigation();
+    if (currentStep > getMaxStep()) {
+      currentStep = getMaxStep();
+    }
+    setStepIndicators(currentStep);
+    setVisiblePanel(currentStep);
+    updateFooter(currentStep);
+    placeFooterForStep(currentStep);
+  }
+
   function addSolutionFromTemplate(templateId) {
     var tpl = null;
     for (var i = 0; i < SOLUTION_TEMPLATES.length; i += 1) {
@@ -5287,6 +5700,7 @@
     var nameIn = article.querySelector(".js-solution-custom-name");
     if (nameIn) {
       nameIn.value = tpl.name + " " + (list.querySelectorAll(".solution-card").length + 1);
+      bindSolutionNameSync(nameIn, uid);
     }
     var tName = article.querySelector(".js-solution-template-name");
     if (tName) {
@@ -5298,11 +5712,7 @@
     }
     var cred = article.querySelector(".js-solution-flex-credits");
     if (cred) {
-      if (tpl.isCreateYourOwn) {
-        cred.textContent = "—";
-      } else {
-        cred.textContent = formatEnUSNumber(Math.round(tpl.flexPerYear));
-      }
+      cred.textContent = "0";
     }
 
     var qWrap = article.querySelector(".js-solution-questions");
@@ -5318,12 +5728,13 @@
     var removeBtn = article.querySelector(".js-solution-remove");
     if (removeBtn) {
       removeBtn.addEventListener("click", function () {
-        article.remove();
+        removeSolutionByUid(uid);
       });
     }
 
     list.appendChild(article);
     formatNumericFieldsIn(article);
+    renderSolutionStepPanelsAndProgress();
   }
 
   function initSolutionsPage() {
@@ -5384,6 +5795,8 @@
       },
       true
     );
+
+    renderSolutionStepPanelsAndProgress();
   }
 
   function ensureStateCapabilityNode(state, key, label) {
@@ -5646,7 +6059,7 @@
 
   if (nextBtn) {
     nextBtn.addEventListener("click", function () {
-      if (currentStep >= MAX_STEP) {
+      if (isLastOrderedStep(currentStep)) {
         nextBtn.disabled = true;
         var t = nextBtn.textContent;
         nextBtn.textContent = "Complete";
@@ -5656,13 +6069,13 @@
         }, 900);
         return;
       }
-      goToStep(currentStep + 1);
+      goToStep(getAdjacentOrderedStep(currentStep, 1));
     });
   }
 
   if (backBtn) {
     backBtn.addEventListener("click", function () {
-      goToStep(currentStep - 1);
+      goToStep(getAdjacentOrderedStep(currentStep, -1));
     });
   }
 
@@ -5727,33 +6140,7 @@
     });
   }
 
-  stepItems.forEach(function (li) {
-    var circle = li.querySelector(".steps__circle");
-    if (!circle) {
-      return;
-    }
-    var stepNum = parseInt(li.getAttribute("data-wizard-step"), 10);
-    if (isNaN(stepNum)) {
-      return;
-    }
-    var labelSpan = li.querySelector(".steps__label");
-    var labelText = labelSpan ? String(labelSpan.textContent || "").trim() : "";
-    circle.setAttribute("role", "button");
-    circle.setAttribute("tabindex", "0");
-    circle.setAttribute(
-      "aria-label",
-      labelText ? "Go to " + labelText + " (step " + stepNum + ")" : "Go to step " + stepNum
-    );
-    circle.addEventListener("click", function () {
-      goToStep(stepNum);
-    });
-    circle.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        ev.preventDefault();
-        goToStep(stepNum);
-      }
-    });
-  });
+  bindStepCircleNavigation();
 
   document.querySelectorAll(".js-landscape-pick").forEach(initLandscapePick);
 

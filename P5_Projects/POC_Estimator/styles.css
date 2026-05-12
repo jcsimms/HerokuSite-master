@@ -343,6 +343,17 @@ body {
   color: var(--navy-800);
 }
 
+.steps__item--solution-dynamic .steps__circle {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+}
+
+.steps__item--solution-dynamic .steps__label {
+  font-size: 10px;
+  max-width: 96px;
+}
+
 /* ----- Summary bar ----- */
 .summary-bar {
   background: var(--navy-800);
@@ -1510,7 +1521,7 @@ body {
 
 /* — Solutions page: template hero + picker — */
 .solution-picker-hero {
-  margin-top: 8px;
+  margin-top: 0;
   padding: 28px 28px 32px;
   border-radius: 14px;
   border: 1px solid #c5d4eb;
@@ -1563,7 +1574,7 @@ body {
   justify-content: space-between;
   gap: 16px;
   width: 100%;
-  padding: 16px 18px;
+  padding: 11px 18px;
   text-align: left;
   border: 2px solid #9ec5f0;
   border-radius: 12px;
@@ -1762,6 +1773,206 @@ body {
   font-weight: 800;
   color: var(--navy-800);
   letter-spacing: -0.02em;
+}
+
+.solution-card--summary .solution-card__grid--meta {
+  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.35fr) minmax(120px, 0.5fr) auto;
+  gap: 10px 20px;
+  padding: 14px 16px;
+  border-bottom: 0;
+  align-items: start;
+}
+
+.solution-card--summary .solution-card__meta .field__label {
+  margin: 0 0 5px;
+  font-size: 11px;
+  min-height: 16px;
+}
+
+.solution-card--summary .solution-card__template-name {
+  margin: 0 0 3px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.solution-card--summary .solution-card__template-desc {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.solution-card--summary .solution-card__meta--credits .solution-card__credits {
+  font-size: 16px;
+}
+
+.solution-card--summary .solution-card__meta--remove {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-top: 1px;
+}
+
+.panel__step--solution-dynamic .solution-card__grid--meta {
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 0.42fr) auto;
+  padding: 20px 18px 16px;
+  align-items: start;
+  border: 1px solid #c5d4eb;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0f6ff 0%, #ffffff 48%, #eef6fb 100%);
+  box-shadow: 0 8px 28px rgba(3, 45, 96, 0.08);
+  margin-bottom: 14px;
+}
+
+.panel__step--solution-dynamic .solution-card__grid--meta > .solution-card__meta:first-child {
+  display: none;
+}
+
+.panel__step--solution-dynamic .solution-card__head {
+  padding-top: 6px;
+  padding-bottom: 0;
+}
+
+.panel__step--solution-dynamic .solution-card__meta--remove-inline {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.panel__step--solution-dynamic .solution-card__meta--credits {
+  justify-self: center;
+  text-align: center;
+}
+
+.panel__step--solution-dynamic .solution-card {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  margin-bottom: 14px;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion:last-of-type {
+  margin-bottom: 0;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion-toggle {
+  background: #f4f6f9;
+  border: 1px solid #d8e1ec;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion-panel {
+  background: transparent;
+  padding: 0;
+}
+
+.panel__step--solution-dynamic .solution-card__questions {
+  gap: 0;
+  padding-top: 15px;
+}
+
+.panel__step--solution-dynamic .solution-card__question {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 12px 8px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-row {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  gap: 2px 30px;
+  align-items: center;
+}
+
+.panel__step--solution-dynamic .solution-card__question-label {
+  font-size: 14px;
+  line-height: 1.35;
+  color: rgb(3, 45, 96);
+  padding-left: 20px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-subtext {
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  padding-left: 20px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-counter,
+.panel__step--solution-dynamic .solution-card__question-select-wrap,
+.panel__step--solution-dynamic .solution-card__question-select {
+  width: 168px;
+  max-width: 168px;
+  justify-self: center;
+}
+
+.panel__step--solution-dynamic .solution-card__question-counter .counter__btn,
+.panel__step--solution-dynamic .solution-card__question-counter .counter__value,
+.panel__step--solution-dynamic .solution-card__question-select {
+  height: var(--landscape-control-height);
+}
+
+.panel__step--solution-dynamic .solution-card__question-counter {
+  min-width: 168px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-counter .counter__btn {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-counter .counter__value {
+  height: 38px;
+  min-width: 92px;
+  max-width: 92px;
+  font-size: 13px;
+}
+
+.panel__step--solution-dynamic .solution-card__question-select {
+  width: 168px;
+  min-width: 168px;
+  max-width: 168px;
+  height: 38px;
+}
+
+.panel__step--solution-dynamic .solution-card__details-hint {
+  margin: 10px 0 10px;
+}
+
+.panel__step--solution-dynamic .solution-card__capabilities-stack {
+  border-top: none;
+  padding-top: 0;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion:first-of-type .solution-card__accordion-toggle {
+  display: none;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion:first-of-type .solution-card__accordion-panel {
+  display: block !important;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion:first-of-type .solution-card__question--divider-after {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 12px;
+}
+
+.panel__step--solution-dynamic .solution-card .panel__footer {
+  margin: 14px 0 18px;
+}
+
+.panel__step--solution-dynamic .solution-card__accordion--detailsbar .solution-card__accordion-panel {
+  padding-top: 10px;
 }
 
 .solution-card__accordion {
@@ -3188,6 +3399,22 @@ fieldset.field.source-row__field legend {
 
 .panel__footer:has(.panel__back:not([hidden])) {
   justify-content: space-between;
+}
+
+.panel__footer .panel__back,
+.panel__footer .panel__next {
+  width: 120px;
+  min-width: 120px;
+  height: 36px;
+  background: rgb(18, 122, 207);
+  border-color: rgb(18, 122, 207);
+  color: #fff;
+}
+
+.panel__footer .panel__back:hover,
+.panel__footer .panel__next:hover {
+  background: rgb(13, 108, 185);
+  border-color: rgb(13, 108, 185);
 }
 
 .panel__step[data-panel-step="3"] > .panel__footer {
