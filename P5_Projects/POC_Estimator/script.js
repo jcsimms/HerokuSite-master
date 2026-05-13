@@ -4088,40 +4088,16 @@
     refreshSolutionCapabilitySectionVisibility(sectionRoot);
   }
 
-  function syncSolutionSegPublishEditable(mainTr) {
-    if (!mainTr) {
-      return;
-    }
-    var chk = mainTr.querySelector(".js-solution-seg-publish-attrs");
-    var pop = mainTr.querySelector(".js-solution-seg-publish-pop");
-    if (!chk || !pop) {
-      return;
-    }
-    if (chk.checked) {
-      pop.readOnly = false;
-      pop.removeAttribute("aria-disabled");
-      pop.setAttribute("aria-label", "Estimated publish population");
-      attachCommaFormatting(pop);
-    } else {
-      pop.readOnly = true;
-      pop.setAttribute("aria-disabled", "true");
-      pop.setAttribute("aria-label", "Estimated publish population (enable publish related attributes to edit)");
-      pop.value = formatEnUSNumber(0);
-    }
-  }
-
   function collectSolutionSegmentationSnapshot(mainTr, advTr) {
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var pct = panel && panel.querySelector(".js-data-prep-transform-pct-of-landscape");
     var usePct = panel && panel.querySelector(".js-data-prep-transform-use-percent");
     var pickHidden = panel && panel.querySelector(".js-landscape-pick-value");
     var freq = mainTr.querySelector(".js-solution-seg-frequency");
-    var publish = mainTr.querySelector(".js-solution-seg-publish-attrs");
     return {
       name: (mainTr.querySelector(".js-data-prep-name") || {}).value || "",
       rows: (mainTr.querySelector(".js-data-prep-rows") || {}).value || "",
       freqValue: (freq && freq.value) || "daily",
-      publishAttrs: !!(publish && publish.checked),
       estPopulation: (mainTr.querySelector(".js-solution-seg-publish-pop") || {}).value || "",
       usePercent: !!(usePct && usePct.checked),
       pct: (pct && pct.value) || "10",
@@ -4137,7 +4113,6 @@
     var nameEl = mainTr.querySelector(".js-data-prep-name");
     var rowsEl = mainTr.querySelector(".js-data-prep-rows");
     var freqEl = mainTr.querySelector(".js-solution-seg-frequency");
-    var pubChk = mainTr.querySelector(".js-solution-seg-publish-attrs");
     var estPopEl = mainTr.querySelector(".js-solution-seg-publish-pop");
     if (nameEl && snap.name != null) {
       nameEl.value = snap.name;
@@ -4148,13 +4123,9 @@
     if (freqEl && snap.freqValue != null) {
       freqEl.value = snap.freqValue;
     }
-    if (pubChk) {
-      pubChk.checked = !!snap.publishAttrs;
-    }
     if (estPopEl && snap.estPopulation != null && String(snap.estPopulation).trim() !== "") {
       estPopEl.value = snap.estPopulation;
     }
-    syncSolutionSegPublishEditable(mainTr);
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var usePct = panel && panel.querySelector(".js-data-prep-transform-use-percent");
     var usePick = panel && panel.querySelector(".js-data-prep-transform-use-pick");
@@ -4201,18 +4172,11 @@
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var rowsIn = mainTr.querySelector(".js-data-prep-rows");
     var estPopIn = mainTr.querySelector(".js-solution-seg-publish-pop");
-    var pubChk = mainTr.querySelector(".js-solution-seg-publish-attrs");
     if (rowsIn) {
       attachCommaFormatting(rowsIn);
     }
     if (estPopIn) {
       attachCommaFormatting(estPopIn);
-    }
-    if (pubChk) {
-      pubChk.addEventListener("change", function () {
-        syncSolutionSegPublishEditable(mainTr);
-      });
-      syncSolutionSegPublishEditable(mainTr);
     }
     if (panel) {
       var pickRoot = panel.querySelector(".js-landscape-pick");
@@ -4263,7 +4227,6 @@
       "<td><input type=\"text\" class=\"input input--block js-data-prep-name\" autocomplete=\"off\" aria-label=\"Name\" /></td>" +
       "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-data-prep-rows js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Rows Processed\" /></td>" +
       "<td><div class=\"select-wrap\"><select class=\"select js-solution-seg-frequency\" aria-label=\"Frequency\"><option value=\"daily\">Daily</option><option value=\"hourly\">Hourly</option></select></div></td>" +
-      "<td class=\"data-prep-item__cell-seg-publish\"><input type=\"checkbox\" class=\"check-row__input js-solution-seg-publish-attrs\" aria-label=\"Publish related attributes\" /></td>" +
       "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-solution-seg-publish-pop js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Estimated publish population\" /></td>" +
       "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-edit\" aria-expanded=\"false\" aria-label=\"Edit row details\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\" /></svg></button></td>" +
       "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-clone\" aria-label=\"Duplicate this segmentation row\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\" /><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" /></svg></button></td>" +
@@ -4272,7 +4235,7 @@
     advTr.className = "data-prep-item__advanced";
     advTr.setAttribute("hidden", "");
     advTr.innerHTML =
-      "<td class=\"data-prep-item__advanced-cell\" colspan=\"8\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"7\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
     if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
       var ref = insertAfterAdvancedTr.nextSibling;
       tbody.insertBefore(mainTr, ref);
@@ -4311,11 +4274,49 @@
     return sum / n;
   }
 
+  function getAverageAnyObjectRows() {
+    var cat = getLandscapeCatalog();
+    var sum = 0;
+    var n = 0;
+    cat.forEach(function (src) {
+      if (!src) {
+        return;
+      }
+      (src.objects || []).forEach(function (obj) {
+        sum += Number(obj.rows) || 0;
+        n += 1;
+      });
+    });
+    if (n === 0) {
+      return 0;
+    }
+    return sum / n;
+  }
+
   function getStreamingObjectsCatalog() {
     var cat = getLandscapeCatalog();
     var out = [];
     cat.forEach(function (src) {
       if (!src || src.dataType !== STREAMING_EVENTS) {
+        return;
+      }
+      (src.objects || []).forEach(function (obj) {
+        out.push({
+          id: obj.pickId,
+          sourceName: src.name,
+          objectName: obj.label,
+          rows: Number(obj.rows) || 0,
+        });
+      });
+    });
+    return out;
+  }
+
+  function getAnyObjectsCatalog() {
+    var cat = getLandscapeCatalog();
+    var out = [];
+    cat.forEach(function (src) {
+      if (!src) {
         return;
       }
       (src.objects || []).forEach(function (obj) {
@@ -4372,6 +4373,29 @@
     selectEl.value = hasCurrent ? current : "";
   }
 
+  function refreshAnyObjectSelect(selectEl) {
+    if (!selectEl) {
+      return;
+    }
+    var current = String(selectEl.value || "");
+    var objs = getAnyObjectsCatalog();
+    selectEl.innerHTML = "";
+    var placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = objs.length > 0 ? "Select one object" : "No objects available";
+    selectEl.appendChild(placeholder);
+    objs.forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o.id;
+      opt.textContent = o.sourceName + " - " + o.objectName;
+      selectEl.appendChild(opt);
+    });
+    var hasCurrent = objs.some(function (o) {
+      return o.id === current;
+    });
+    selectEl.value = hasCurrent ? current : "";
+  }
+
   function refreshCustomerObjectSelect(selectEl) {
     if (!selectEl) {
       return;
@@ -4395,6 +4419,38 @@
     selectEl.value = hasCurrent ? current : "";
   }
 
+  function getSelectedLandscapePickRowsTotal(hiddenInput) {
+    if (!hiddenInput) {
+      return 0;
+    }
+    var cat = getLandscapeCatalog();
+    var ids = normalizePickList(readPickIdsFromHidden(hiddenInput), cat);
+    if (!ids.length) {
+      return 0;
+    }
+    var selected = {};
+    ids.forEach(function (id) {
+      selected[id] = true;
+    });
+    var sum = 0;
+    cat.forEach(function (src) {
+      if (!src) {
+        return;
+      }
+      var wholeId = String(src.sourceId || "") + ":whole";
+      if (selected[wholeId]) {
+        sum += Number(src.totalRows) || 0;
+        return;
+      }
+      (src.objects || []).forEach(function (obj) {
+        if (selected[obj.pickId]) {
+          sum += Number(obj.rows) || 0;
+        }
+      });
+    });
+    return sum;
+  }
+
   function syncSolutionStreamingRowsForMode(mainTr, advTr) {
     if (!mainTr || !advTr) {
       return;
@@ -4408,6 +4464,7 @@
       return;
     }
     var isTransformsPanel = panel.classList.contains("js-solution-streaming-transforms-advanced");
+    var useAnyObjectCatalog = panel.classList.contains("js-solution-streaming-any-object");
     var useAvg = panel.querySelector(".js-solution-streaming-use-avg");
     var usePick = panel.querySelector(".js-solution-streaming-use-pick");
     var pickSel = panel.querySelector(".js-solution-streaming-object-pick");
@@ -4418,11 +4475,11 @@
 
     function getTriggerValue() {
       if (useAvg && useAvg.checked) {
-        return getAverageStreamingObjectRows();
+        return useAnyObjectCatalog ? getAverageAnyObjectRows() : getAverageStreamingObjectRows();
       }
       if (usePick && usePick.checked) {
         var id = pickSel ? String(pickSel.value || "") : "";
-        var objs = getStreamingObjectsCatalog();
+        var objs = useAnyObjectCatalog ? getAnyObjectsCatalog() : getStreamingObjectsCatalog();
         var picked = objs.find(function (o) {
           return o.id === id;
         });
@@ -4434,6 +4491,27 @@
     function getEnrichmentValue() {
       if (!includeLookup || !includeLookup.checked) {
         return 1;
+      }
+      if (!isTransformsPanel) {
+        var lookupUsePct = panel.querySelector(".js-solution-actions-lookup-use-percent");
+        var lookupUsePick = panel.querySelector(".js-solution-actions-lookup-use-pick");
+        var lookupPctIn = panel.querySelector(".js-solution-actions-lookup-pct");
+        var lookupPickHidden = panel.querySelector(".js-solution-actions-lookup-pick .js-landscape-pick-value");
+        if (lookupUsePct && lookupUsePct.checked) {
+          var pct = parseLocaleNumber(lookupPctIn && lookupPctIn.value);
+          if (isNaN(pct) || pct <= 0) {
+            return 0;
+          }
+          var total = 0;
+          getLandscapeCatalog().forEach(function (src) {
+            total += Number(src.totalRows) || 0;
+          });
+          return total * (Math.max(0, pct) / 100);
+        }
+        if (lookupUsePick && lookupUsePick.checked) {
+          return getSelectedLandscapePickRowsTotal(lookupPickHidden);
+        }
+        return 0;
       }
       if (useCustomerAvg && useCustomerAvg.checked) {
         var cObjsAvg = getCustomerRecordObjectsCatalog();
@@ -4464,13 +4542,8 @@
       return;
     }
 
-    if (!isTransformsPanel && useCustomer && useCustomer.checked) {
-      var cid = customerSel ? String(customerSel.value || "") : "";
-      var cObjs = getCustomerRecordObjectsCatalog();
-      var cPicked = cObjs.find(function (o) {
-        return o.id === cid;
-      });
-      rowsEl.value = formatEnUSNumber(Math.round(cPicked ? cPicked.rows : 0));
+    if (!isTransformsPanel && includeLookup && includeLookup.checked) {
+      rowsEl.value = formatEnUSNumber(Math.round(triggerVal * getEnrichmentValue()));
       return;
     }
     rowsEl.value = formatEnUSNumber(Math.round(triggerVal));
@@ -4485,7 +4558,11 @@
         }
         var sel = advTr.querySelector(".js-solution-streaming-object-pick");
         if (sel) {
-          refreshStreamingObjectSelect(sel);
+          if (advTr.querySelector(".js-solution-streaming-any-object")) {
+            refreshAnyObjectSelect(sel);
+          } else {
+            refreshStreamingObjectSelect(sel);
+          }
         }
         var cSel = advTr.querySelector(".js-solution-customer-object-pick");
         if (cSel) {
@@ -4570,6 +4647,83 @@
     updateSolutionStreamingColumnsVisual(panel);
   }
 
+  function updateSolutionActionsLookupColumnsVisual(panel) {
+    if (!panel) {
+      return;
+    }
+    var colPct = panel.querySelector(".js-solution-actions-lookup-col-percent");
+    var colPick = panel.querySelector(".js-solution-actions-lookup-col-pick");
+    var usePct = panel.querySelector(".js-solution-actions-lookup-use-percent");
+    var usePick = panel.querySelector(".js-solution-actions-lookup-use-pick");
+    var pctActive = !!(usePct && usePct.checked);
+    var pickActive = !!(usePick && usePick.checked);
+    if (colPct) {
+      colPct.classList.toggle("data-prep-transform-sizing__col--active", pctActive);
+      colPct.classList.toggle("data-prep-transform-sizing__col--dim", !pctActive);
+    }
+    if (colPick) {
+      colPick.classList.toggle("data-prep-transform-sizing__col--active", pickActive);
+      colPick.classList.toggle("data-prep-transform-sizing__col--dim", !pickActive);
+    }
+  }
+
+  function syncSolutionStreamingActionsEnrichmentState(mainTr, advTr, forceDefaultWhenEnabled) {
+    if (!mainTr || !advTr) {
+      return;
+    }
+    var includeLookup = mainTr.querySelector(".js-solution-streaming-include-lookups");
+    var panel = advTr.querySelector(".js-solution-streaming-advanced");
+    if (!panel || panel.classList.contains("js-solution-streaming-transforms-advanced")) {
+      return;
+    }
+    var group = panel.querySelector(".js-solution-actions-enrichment-group");
+    var usePct = panel.querySelector(".js-solution-actions-lookup-use-percent");
+    var usePick = panel.querySelector(".js-solution-actions-lookup-use-pick");
+    var pctInput = panel.querySelector(".js-solution-actions-lookup-pct");
+    var pickRoot = panel.querySelector(".js-solution-actions-lookup-pick");
+    var pickToggle = pickRoot && pickRoot.querySelector(".js-landscape-pick-toggle");
+    var enabled = !!(includeLookup && includeLookup.checked);
+
+    if (group) {
+      group.classList.toggle("solution-streaming-edit-group--disabled", !enabled);
+      group.setAttribute("aria-disabled", enabled ? "false" : "true");
+    }
+    if (usePct) {
+      usePct.disabled = !enabled;
+    }
+    if (usePick) {
+      usePick.disabled = !enabled;
+    }
+    if (pctInput) {
+      pctInput.disabled = !enabled || !(usePct && usePct.checked);
+    }
+    if (pickToggle) {
+      pickToggle.disabled = !enabled || !(usePick && usePick.checked);
+    }
+
+    if (!enabled) {
+      if (usePct) {
+        usePct.checked = false;
+      }
+      if (usePick) {
+        usePick.checked = false;
+      }
+    } else {
+      var shouldDefault = !!forceDefaultWhenEnabled;
+      if (usePct && usePick && (shouldDefault || (!usePct.checked && !usePick.checked))) {
+        usePct.checked = true;
+        usePick.checked = false;
+      }
+    }
+    if (pctInput) {
+      pctInput.disabled = !enabled || !(usePct && usePct.checked);
+    }
+    if (pickToggle) {
+      pickToggle.disabled = !enabled || !(usePick && usePick.checked);
+    }
+    updateSolutionActionsLookupColumnsVisual(panel);
+  }
+
   function collectSolutionStreamingSnapshot(mainTr, advTr) {
     var panel = advTr.querySelector(".js-solution-streaming-advanced");
     var useAvg = panel && panel.querySelector(".js-solution-streaming-use-avg");
@@ -4577,6 +4731,10 @@
     var useCustomer = panel && panel.querySelector(".js-solution-streaming-use-customer");
     var useCustomerAvg = panel && panel.querySelector(".js-solution-streaming-use-customer-avg");
     var customerSel = panel && panel.querySelector(".js-solution-customer-object-pick");
+    var lookupUsePct = panel && panel.querySelector(".js-solution-actions-lookup-use-percent");
+    var lookupUsePick = panel && panel.querySelector(".js-solution-actions-lookup-use-pick");
+    var lookupPctIn = panel && panel.querySelector(".js-solution-actions-lookup-pct");
+    var lookupPickHidden = panel && panel.querySelector(".js-solution-actions-lookup-pick .js-landscape-pick-value");
     var includeLookup = mainTr.querySelector(".js-solution-streaming-include-lookups");
     return {
       name: (mainTr.querySelector(".js-data-prep-name") || {}).value || "",
@@ -4587,6 +4745,10 @@
       useCustomer: !!(useCustomer && useCustomer.checked),
       useCustomerAvg: !!(useCustomerAvg && useCustomerAvg.checked),
       pickedCustomerObject: (customerSel && customerSel.value) || "",
+      lookupUsePercent: !!(lookupUsePct && lookupUsePct.checked),
+      lookupUsePick: !!(lookupUsePick && lookupUsePick.checked),
+      lookupPercent: (lookupPctIn && lookupPctIn.value) || "10",
+      lookupPickJson: (lookupPickHidden && lookupPickHidden.value) || "",
       expanded: !advTr.hasAttribute("hidden"),
     };
   }
@@ -4614,8 +4776,36 @@
     var useCustomerAvg = panel && panel.querySelector(".js-solution-streaming-use-customer-avg");
     var pickSel = panel && panel.querySelector(".js-solution-streaming-object-pick");
     var customerSel = panel && panel.querySelector(".js-solution-customer-object-pick");
+    var lookupUsePct = panel && panel.querySelector(".js-solution-actions-lookup-use-percent");
+    var lookupUsePick = panel && panel.querySelector(".js-solution-actions-lookup-use-pick");
+    var lookupPctIn = panel && panel.querySelector(".js-solution-actions-lookup-pct");
+    var lookupPickRoot = panel && panel.querySelector(".js-solution-actions-lookup-pick");
+    var lookupPickHidden = lookupPickRoot && lookupPickRoot.querySelector(".js-landscape-pick-value");
+    if (lookupPickRoot) {
+      initLandscapePick(lookupPickRoot);
+    }
+    if (lookupUsePct && lookupUsePick) {
+      lookupUsePct.checked = snap.lookupUsePercent !== false;
+      lookupUsePick.checked = !!snap.lookupUsePick && !lookupUsePct.checked;
+      if (!lookupUsePct.checked && !lookupUsePick.checked) {
+        lookupUsePct.checked = true;
+      }
+    }
+    if (lookupPctIn && snap.lookupPercent != null) {
+      lookupPctIn.value = snap.lookupPercent;
+    }
+    if (lookupPickHidden && snap.lookupPickJson != null && String(snap.lookupPickJson).trim()) {
+      lookupPickHidden.value = snap.lookupPickJson;
+      if (typeof lookupPickRoot._landscapePickRefresh === "function") {
+        lookupPickRoot._landscapePickRefresh();
+      }
+    }
     if (pickSel) {
-      refreshStreamingObjectSelect(pickSel);
+      if (panel && panel.classList.contains("js-solution-streaming-any-object")) {
+        refreshAnyObjectSelect(pickSel);
+      } else {
+        refreshStreamingObjectSelect(pickSel);
+      }
       if (snap.pickedObject != null) {
         pickSel.value = snap.pickedObject;
       }
@@ -4644,6 +4834,7 @@
       }
     }
     syncSolutionStreamingTransformsEnrichmentState(mainTr, advTr, false);
+    syncSolutionStreamingActionsEnrichmentState(mainTr, advTr, false);
     updateSolutionStreamingColumnsVisual(panel);
     syncSolutionStreamingRowsForMode(mainTr, advTr);
     var editBtn = mainTr.querySelector(".js-data-prep-edit");
@@ -4674,13 +4865,28 @@
     var useAvg = panel && panel.querySelector(".js-solution-streaming-use-avg");
     var usePick = panel && panel.querySelector(".js-solution-streaming-use-pick");
     var pickSel = panel && panel.querySelector(".js-solution-streaming-object-pick");
+    var includeLookup = mainTr.querySelector(".js-solution-streaming-include-lookups");
+    var lookupUsePct = panel && panel.querySelector(".js-solution-actions-lookup-use-percent");
+    var lookupUsePick = panel && panel.querySelector(".js-solution-actions-lookup-use-pick");
+    var lookupPctIn = panel && panel.querySelector(".js-solution-actions-lookup-pct");
+    var lookupPickRoot = panel && panel.querySelector(".js-solution-actions-lookup-pick");
     if (pickSel) {
-      refreshStreamingObjectSelect(pickSel);
+      if (panel && panel.classList.contains("js-solution-streaming-any-object")) {
+        refreshAnyObjectSelect(pickSel);
+      } else {
+        refreshStreamingObjectSelect(pickSel);
+      }
       pickSel.addEventListener("change", function () {
         if (usePick && usePick.checked) {
           syncSolutionStreamingRowsForMode(mainTr, advTr);
         }
       });
+    }
+    if (lookupPctIn) {
+      attachCommaFormatting(lookupPctIn);
+    }
+    if (lookupPickRoot) {
+      initLandscapePick(lookupPickRoot);
     }
     function onModeChange() {
       updateSolutionStreamingColumnsVisual(panel);
@@ -4704,6 +4910,48 @@
         onModeChange();
       });
     }
+    function onLookupModeChange() {
+      syncSolutionStreamingActionsEnrichmentState(mainTr, advTr, false);
+      syncSolutionStreamingRowsForMode(mainTr, advTr);
+    }
+    if (lookupUsePct && lookupUsePick) {
+      lookupUsePct.addEventListener("change", function () {
+        if (lookupUsePct.checked) {
+          lookupUsePick.checked = false;
+        } else if (!lookupUsePick.checked) {
+          lookupUsePick.checked = true;
+        }
+        onLookupModeChange();
+      });
+      lookupUsePick.addEventListener("change", function () {
+        if (lookupUsePick.checked) {
+          lookupUsePct.checked = false;
+        } else if (!lookupUsePct.checked) {
+          lookupUsePct.checked = true;
+        }
+        onLookupModeChange();
+      });
+    }
+    if (includeLookup) {
+      includeLookup.addEventListener("change", function () {
+        syncSolutionStreamingActionsEnrichmentState(mainTr, advTr, includeLookup.checked);
+        syncSolutionStreamingRowsForMode(mainTr, advTr);
+      });
+    }
+    if (lookupPctIn) {
+      lookupPctIn.addEventListener("input", function () {
+        syncSolutionStreamingRowsForMode(mainTr, advTr);
+      });
+    }
+    if (lookupPickRoot) {
+      lookupPickRoot.addEventListener("change", function () {
+        syncSolutionStreamingRowsForMode(mainTr, advTr);
+      });
+      lookupPickRoot.addEventListener("input", function () {
+        syncSolutionStreamingRowsForMode(mainTr, advTr);
+      });
+    }
+    syncSolutionStreamingActionsEnrichmentState(mainTr, advTr, false);
     onModeChange();
     if (editBtn) {
       editBtn.addEventListener("click", function () {
@@ -4754,7 +5002,7 @@
     advTr.className = "data-prep-item__advanced";
     advTr.setAttribute("hidden", "");
     advTr.innerHTML =
-      "<td class=\"data-prep-item__advanced-cell\" colspan=\"6\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-solution-streaming-advanced\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-solution-streaming-col-avg\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-streaming-use-avg\" checked aria-label=\"Use average number of records for one Streaming Events object\" /><span class=\"data-prep-transform-sizing__title\">Average number of records for one Streaming Events object</span></label></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-solution-streaming-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-streaming-use-pick\" aria-label=\"Use one streaming events object from data landscape\" /><span class=\"data-prep-transform-sizing__title\">Select one Streaming Events object</span></label><div class=\"data-prep-transform-sizing__body\"><div class=\"select-wrap\"><select class=\"select js-solution-streaming-object-pick\" aria-label=\"Streaming events object\"></select></div></div></div></div></div></div></td>";
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"6\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-solution-streaming-advanced js-solution-streaming-any-object\"><div class=\"data-prep-subrow data-prep-subrow--last\"><section class=\"solution-streaming-edit-group\" aria-label=\"Trigger source for action jobs\"><h4 class=\"solution-streaming-edit-group__title\">Trigger Source</h4><p class=\"hint solution-streaming-edit-group__hint\">Choose how streaming action jobs are triggered. Select one option.</p><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Streaming action trigger source\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-solution-streaming-col-avg\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-streaming-use-avg\" checked aria-label=\"Use average number of records for one object of any type\" /><span class=\"data-prep-transform-sizing__title\">Average number of records for one object (of any type)</span></label></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-solution-streaming-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-streaming-use-pick\" aria-label=\"Use one object from data landscape\" /><span class=\"data-prep-transform-sizing__title\">Select one object</span></label><div class=\"data-prep-transform-sizing__body\"><div class=\"select-wrap\"><select class=\"select js-solution-streaming-object-pick\" aria-label=\"Data landscape object\"></select></div></div></div></div></section><section class=\"solution-streaming-edit-group solution-streaming-edit-group--optional js-solution-actions-enrichment-group\" aria-label=\"Optional data enrichment\"><h4 class=\"solution-streaming-edit-group__title\">Optional Data Enrichment</h4><p class=\"hint solution-streaming-edit-group__hint\">Use this only when action jobs must enrich from broader Data Landscape context.</p><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Optional data enrichment source\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-solution-actions-lookup-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-actions-lookup-use-percent\" checked aria-label=\"Use percent of data landscape\" /><span class=\"data-prep-transform-sizing__title\">Percent of Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-solution-actions-lookup-pct js-formatted-number\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-solution-actions-lookup-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-actions-lookup-use-pick\" aria-label=\"Use data source selection\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick js-solution-actions-lookup-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></section></div></div></td>";
     if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
       var ref = insertAfterAdvancedTr.nextSibling;
       tbody.insertBefore(mainTr, ref);
@@ -5088,7 +5336,7 @@
         capability === "Data Queries"
           ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Queries per Year</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
           : capability === "Segmentation & Activation"
-            ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Frequency</th><th scope=\"col\">Publish Related Attributes?</th><th scope=\"col\">Est. Publish Population</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+            ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Frequency</th><th scope=\"col\">Est. Publish Population</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
             : capability === "Streaming Actions"
               ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Include Lookups?</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
               : capability === "Streaming Calculated Insights"
@@ -5338,6 +5586,105 @@
       }
       container.appendChild(wrap);
     });
+  }
+
+  function getSolutionQuestionNumericValue(article, uid, questionIndex) {
+    if (!article) {
+      return 0;
+    }
+    var input = article.querySelector("#solution-q-" + uid + "-" + questionIndex);
+    if (!input) {
+      return 0;
+    }
+    var v = parseLocaleNumber(input.value);
+    if (isNaN(v)) {
+      return 0;
+    }
+    return Math.max(0, Math.floor(v));
+  }
+
+  function getSolutionCapabilityMainRows(tbody) {
+    if (!tbody) {
+      return [];
+    }
+    return Array.prototype.slice.call(tbody.querySelectorAll("tr.data-prep-item__main"));
+  }
+
+  function removeSolutionRowPair(mainTr) {
+    if (!mainTr) {
+      return;
+    }
+    var advTr = mainTr.nextElementSibling;
+    if (advTr && advTr.classList.contains("data-prep-item__advanced")) {
+      advTr.remove();
+    }
+    mainTr.remove();
+  }
+
+  function syncSolutionCapabilityMainRowCount(tbody, targetCount, addRowFn) {
+    if (!tbody || typeof addRowFn !== "function") {
+      return;
+    }
+    var desired = Math.max(0, Math.floor(targetCount || 0));
+    var sectionRoot = tbody.closest(".js-solution-capabilities-stack");
+    var uidRaw = sectionRoot && sectionRoot.closest(".solution-card")
+      ? sectionRoot.closest(".solution-card").getAttribute("data-solution-uid")
+      : "";
+    var uid = parseInt(uidRaw, 10);
+    if (isNaN(uid)) {
+      uid = 0;
+    }
+    var rows = getSolutionCapabilityMainRows(tbody);
+    while (rows.length < desired) {
+      addRowFn(tbody, uid, sectionRoot);
+      rows = getSolutionCapabilityMainRows(tbody);
+    }
+    while (rows.length > desired) {
+      removeSolutionRowPair(rows[rows.length - 1]);
+      rows = getSolutionCapabilityMainRows(tbody);
+    }
+    refreshSolutionCapabilitySectionVisibility(sectionRoot);
+  }
+
+  function syncAutomateWorkflowsQuestionsToDetails(article, uid) {
+    if (!article) {
+      return;
+    }
+    var q1Count = getSolutionQuestionNumericValue(article, uid, 0);
+    var streamingActionsTbody = article.querySelector(".js-solution-streaming-tbody");
+    syncSolutionCapabilityMainRowCount(streamingActionsTbody, q1Count, addSolutionStreamingRow);
+  }
+
+  function bindAutomateWorkflowsQuestionMapping(article, uid) {
+    if (!article) {
+      return;
+    }
+    var q1Input = article.querySelector("#solution-q-" + uid + "-0");
+    if (!q1Input) {
+      return;
+    }
+    function runSync() {
+      syncAutomateWorkflowsQuestionsToDetails(article, uid);
+    }
+    q1Input.addEventListener("input", runSync);
+    q1Input.addEventListener("change", runSync);
+    q1Input.addEventListener("blur", runSync);
+    var q1Row = q1Input.closest(".solution-card__question-row");
+    if (q1Row) {
+      q1Row.querySelectorAll(".counter__btn").forEach(function (btn) {
+        btn.addEventListener("click", runSync);
+      });
+    }
+    runSync();
+  }
+
+  function bindTemplateQuestionMappings(article, tpl, uid) {
+    if (!article || !tpl) {
+      return;
+    }
+    if (tpl.id === "automate-workflows-teams") {
+      bindAutomateWorkflowsQuestionMapping(article, uid);
+    }
   }
 
   function shortSolutionStepLabel(fullName) {
@@ -5722,6 +6069,7 @@
       buildSolutionQuestionFields(qWrap, tpl.questionFields || tpl.questions, uid);
     }
     renderSolutionCapabilitySections(article.querySelector(".js-solution-details-panel"), uid);
+    bindTemplateQuestionMappings(article, tpl, uid);
 
     bindSolutionAccordionToggles(article, uid);
 
