@@ -1910,6 +1910,60 @@
         syncDataPrepRowsFromLandscapePick(pickRoot);
       }
     }
+    applyDataQueryRowsMultiplier(mainTr);
+    applySegmentationFrequencyRowsMultiplier(mainTr);
+  }
+
+  function applyDataQueryRowsMultiplier(mainTr) {
+    if (!mainTr) {
+      return;
+    }
+    var qpyEl = mainTr.querySelector(".js-solution-query-frequency");
+    var rowsEl = mainTr.querySelector(".js-data-prep-rows");
+    if (!qpyEl || !rowsEl) {
+      return;
+    }
+    var baseRows = parseLocaleNumber(rowsEl.value);
+    if (isNaN(baseRows)) {
+      baseRows = 0;
+    }
+    var qpy = parseLocaleNumber(qpyEl.value);
+    if (isNaN(qpy)) {
+      qpy = 0;
+    }
+    var computed = Math.round(baseRows * Math.max(0, qpy));
+    rowsEl.value = formatEnUSNumber(computed);
+  }
+
+  function frequencyPerYearMultiplier(freqValue) {
+    var v = String(freqValue || "").trim().toLowerCase();
+    if (v === "every-hour" || v === "hourly") {
+      return 24 * 365;
+    }
+    if (v === "every-4-hours") {
+      return 6 * 365;
+    }
+    if (v === "every-12-hours") {
+      return 2 * 365;
+    }
+    return 365; // daily fallback
+  }
+
+  function applySegmentationFrequencyRowsMultiplier(mainTr) {
+    if (!mainTr) {
+      return;
+    }
+    var freqEl = mainTr.querySelector(".js-solution-seg-frequency");
+    var rowsEl = mainTr.querySelector(".js-data-prep-rows");
+    if (!freqEl || !rowsEl) {
+      return;
+    }
+    var baseRows = parseLocaleNumber(rowsEl.value);
+    if (isNaN(baseRows)) {
+      baseRows = 0;
+    }
+    var multiplier = frequencyPerYearMultiplier(freqEl.value);
+    rowsEl.value = formatEnUSNumber(Math.round(baseRows * multiplier));
   }
 
   function syncAllDualSizingPercentRows() {
@@ -3796,7 +3850,8 @@
   ];
   var SOLUTION_DETAIL_CAPABILITIES = [
     "Data Queries",
-    "Segmentation & Activation",
+    "Segmentation",
+    "Activation",
     "Streaming Actions",
     "Streaming Calculated Insights",
     "Streaming Data Transforms",
@@ -4006,9 +4061,18 @@
 
     if (rowsIn) {
       attachCommaFormatting(rowsIn);
+      rowsIn.readOnly = true;
+      rowsIn.setAttribute("aria-readonly", "true");
+      rowsIn.setAttribute("title", "Computed from Edit settings and Queries per Year");
     }
     if (qpyIn) {
       attachCommaFormatting(qpyIn);
+      qpyIn.addEventListener("input", function () {
+        syncTransformRowsForCurrentMode(mainTr, advTr);
+      });
+      qpyIn.addEventListener("blur", function () {
+        syncTransformRowsForCurrentMode(mainTr, advTr);
+      });
     }
     if (panel) {
       var pickRoot = panel.querySelector(".js-landscape-pick");
@@ -4017,18 +4081,30 @@
       }
       bindDataPrepDualSizingAdvanced(mainTr, advTr);
     }
+    function toggleEditPanel() {
+      if (!editBtn) {
+        return;
+      }
+      var expanded = editBtn.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        advTr.setAttribute("hidden", "");
+        editBtn.setAttribute("aria-expanded", "false");
+        mainTr.classList.remove("data-prep-item--expanded");
+      } else {
+        advTr.removeAttribute("hidden");
+        editBtn.setAttribute("aria-expanded", "true");
+        mainTr.classList.add("data-prep-item--expanded");
+      }
+    }
+
     if (editBtn) {
       editBtn.addEventListener("click", function () {
-        var expanded = editBtn.getAttribute("aria-expanded") === "true";
-        if (expanded) {
-          advTr.setAttribute("hidden", "");
-          editBtn.setAttribute("aria-expanded", "false");
-          mainTr.classList.remove("data-prep-item--expanded");
-        } else {
-          advTr.removeAttribute("hidden");
-          editBtn.setAttribute("aria-expanded", "true");
-          mainTr.classList.add("data-prep-item--expanded");
-        }
+        toggleEditPanel();
+      });
+    }
+    if (rowsIn) {
+      rowsIn.addEventListener("click", function () {
+        toggleEditPanel();
       });
     }
     if (cloneBtn) {
@@ -4098,7 +4174,6 @@
       name: (mainTr.querySelector(".js-data-prep-name") || {}).value || "",
       rows: (mainTr.querySelector(".js-data-prep-rows") || {}).value || "",
       freqValue: (freq && freq.value) || "daily",
-      estPopulation: (mainTr.querySelector(".js-solution-seg-publish-pop") || {}).value || "",
       usePercent: !!(usePct && usePct.checked),
       pct: (pct && pct.value) || "10",
       pickJson: (pickHidden && pickHidden.value) || "",
@@ -4113,7 +4188,6 @@
     var nameEl = mainTr.querySelector(".js-data-prep-name");
     var rowsEl = mainTr.querySelector(".js-data-prep-rows");
     var freqEl = mainTr.querySelector(".js-solution-seg-frequency");
-    var estPopEl = mainTr.querySelector(".js-solution-seg-publish-pop");
     if (nameEl && snap.name != null) {
       nameEl.value = snap.name;
     }
@@ -4122,9 +4196,6 @@
     }
     if (freqEl && snap.freqValue != null) {
       freqEl.value = snap.freqValue;
-    }
-    if (estPopEl && snap.estPopulation != null && String(snap.estPopulation).trim() !== "") {
-      estPopEl.value = snap.estPopulation;
     }
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var usePct = panel && panel.querySelector(".js-data-prep-transform-use-percent");
@@ -4171,12 +4242,27 @@
     var delBtn = mainTr.querySelector(".js-data-prep-delete");
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var rowsIn = mainTr.querySelector(".js-data-prep-rows");
-    var estPopIn = mainTr.querySelector(".js-solution-seg-publish-pop");
+    var freqIn = mainTr.querySelector(".js-solution-seg-frequency");
+    var nameIn = mainTr.querySelector(".js-data-prep-name");
     if (rowsIn) {
       attachCommaFormatting(rowsIn);
+      rowsIn.readOnly = true;
+      rowsIn.setAttribute("aria-readonly", "true");
+      rowsIn.setAttribute("title", "Computed from Edit settings and Frequency");
     }
-    if (estPopIn) {
-      attachCommaFormatting(estPopIn);
+    if (freqIn) {
+      freqIn.addEventListener("change", function () {
+        syncTransformRowsForCurrentMode(mainTr, advTr);
+        syncActivationRowsInStack(sectionRoot);
+      });
+    }
+    if (nameIn) {
+      nameIn.addEventListener("input", function () {
+        syncActivationRowsInStack(sectionRoot);
+      });
+      nameIn.addEventListener("blur", function () {
+        syncActivationRowsInStack(sectionRoot);
+      });
     }
     if (panel) {
       var pickRoot = panel.querySelector(".js-landscape-pick");
@@ -4185,25 +4271,36 @@
       }
       bindDataPrepDualSizingAdvanced(mainTr, advTr);
     }
+    function toggleEditPanel() {
+      if (!editBtn) {
+        return;
+      }
+      var expanded = editBtn.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        advTr.setAttribute("hidden", "");
+        editBtn.setAttribute("aria-expanded", "false");
+        mainTr.classList.remove("data-prep-item--expanded");
+      } else {
+        advTr.removeAttribute("hidden");
+        editBtn.setAttribute("aria-expanded", "true");
+        mainTr.classList.add("data-prep-item--expanded");
+      }
+    }
     if (editBtn) {
       editBtn.addEventListener("click", function () {
-        var expanded = editBtn.getAttribute("aria-expanded") === "true";
-        if (expanded) {
-          advTr.setAttribute("hidden", "");
-          editBtn.setAttribute("aria-expanded", "false");
-          mainTr.classList.remove("data-prep-item--expanded");
-        } else {
-          advTr.removeAttribute("hidden");
-          editBtn.setAttribute("aria-expanded", "true");
-          mainTr.classList.add("data-prep-item--expanded");
-        }
+        toggleEditPanel();
+      });
+    }
+    if (rowsIn) {
+      rowsIn.addEventListener("click", function () {
+        toggleEditPanel();
       });
     }
     if (cloneBtn) {
       cloneBtn.addEventListener("click", function () {
         var snap = collectSolutionSegmentationSnapshot(mainTr, advTr);
         var base = String(snap.name || "").trim();
-        snap.name = (base ? base : "Segmentation & Activation 1") + " (2)";
+        snap.name = (base ? base : "Segment 1") + " (2)";
         addSolutionSegmentationRow(tbody, uid, sectionRoot, snap, advTr);
       });
     }
@@ -4226,8 +4323,7 @@
     mainTr.innerHTML =
       "<td><input type=\"text\" class=\"input input--block js-data-prep-name\" autocomplete=\"off\" aria-label=\"Name\" /></td>" +
       "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-data-prep-rows js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Rows Processed\" /></td>" +
-      "<td><div class=\"select-wrap\"><select class=\"select js-solution-seg-frequency\" aria-label=\"Frequency\"><option value=\"daily\">Daily</option><option value=\"hourly\">Hourly</option></select></div></td>" +
-      "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-solution-seg-publish-pop js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Estimated publish population\" /></td>" +
+      "<td><div class=\"select-wrap\"><select class=\"select js-solution-seg-frequency\" aria-label=\"Frequency\"><option value=\"every-hour\">Every Hour</option><option value=\"every-4-hours\">Every 4 Hours</option><option value=\"every-12-hours\">Every 12 Hours</option><option value=\"daily\" selected>Daily</option></select></div></td>" +
       "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-edit\" aria-expanded=\"false\" aria-label=\"Edit row details\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\" /></svg></button></td>" +
       "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-clone\" aria-label=\"Duplicate this segmentation row\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\" /><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" /></svg></button></td>" +
       "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-delete\" aria-label=\"Delete this segmentation row\">×</button></td>";
@@ -4235,7 +4331,7 @@
     advTr.className = "data-prep-item__advanced";
     advTr.setAttribute("hidden", "");
     advTr.innerHTML =
-      "<td class=\"data-prep-item__advanced-cell\" colspan=\"7\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"6\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
     if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
       var ref = insertAfterAdvancedTr.nextSibling;
       tbody.insertBefore(mainTr, ref);
@@ -4246,7 +4342,7 @@
     }
     var nameIn = mainTr.querySelector(".js-data-prep-name");
     if (nameIn && !snapshot) {
-      nameIn.value = "Segmentation & Activation " + n;
+      nameIn.value = "Segment " + n;
     }
     bindSolutionSegmentationRowPair(mainTr, advTr, tbody, uid, sectionRoot);
     if (snapshot) {
@@ -4254,6 +4350,415 @@
     }
     formatNumericFieldsIn(mainTr);
     refreshSolutionCapabilitySectionVisibility(sectionRoot);
+    syncActivationRowsInStack(sectionRoot);
+  }
+
+  function getSegmentationOptionsInStack(stackRoot) {
+    if (!stackRoot) {
+      return [];
+    }
+    var out = [];
+    var rows = stackRoot.querySelectorAll(".js-solution-segmentation-tbody tr.data-prep-item__main");
+    rows.forEach(function (row, idx) {
+      var id = "seg-" + (idx + 1);
+      var nameEl = row.querySelector(".js-data-prep-name");
+      var freqEl = row.querySelector(".js-solution-seg-frequency");
+      out.push({
+        id: id,
+        name: (nameEl ? String(nameEl.value || "").trim() : "") || ("Segment " + (idx + 1)),
+        frequency: (freqEl && String(freqEl.value || "").trim()) || "daily",
+      });
+    });
+    return out;
+  }
+
+  function refreshActivationSegmentSelect(selectEl, options) {
+    if (!selectEl) {
+      return;
+    }
+    var current = String(selectEl.value || "");
+    selectEl.innerHTML = "";
+    var placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = options.length > 0 ? "Select a segment" : "No segments available";
+    selectEl.appendChild(placeholder);
+    options.forEach(function (opt) {
+      var el = document.createElement("option");
+      el.value = opt.id;
+      el.textContent = opt.name;
+      selectEl.appendChild(el);
+    });
+    var hasCurrent = options.some(function (opt) {
+      return opt.id === current;
+    });
+    selectEl.value = hasCurrent ? current : (options[0] ? options[0].id : "");
+  }
+
+  function getActivationEnrichmentRows(mainTr, advTr) {
+    if (!mainTr || !advTr) {
+      return 0;
+    }
+    var relatedEl = mainTr.querySelector(".js-solution-activation-include-related");
+    if (!(relatedEl && relatedEl.checked)) {
+      return 1;
+    }
+    var panel = advTr.querySelector(".js-solution-activation-advanced");
+    if (!panel) {
+      return 0;
+    }
+    var usePct = panel.querySelector(".js-solution-activation-use-percent");
+    var usePick = panel.querySelector(".js-solution-activation-use-pick");
+    var pctIn = panel.querySelector(".js-solution-activation-pct-of-landscape");
+    var pickHidden = panel.querySelector(".js-solution-activation-pick .js-landscape-pick-value");
+    if (usePct && usePct.checked) {
+      var pct = parseLocaleNumber(pctIn && pctIn.value);
+      if (isNaN(pct) || pct <= 0) {
+        return 0;
+      }
+      var total = 0;
+      getLandscapeCatalog().forEach(function (src) {
+        total += Number(src.totalRows) || 0;
+      });
+      return total * (Math.max(0, pct) / 100);
+    }
+    if (usePick && usePick.checked) {
+      return getSelectedLandscapePickRowsTotal(pickHidden);
+    }
+    return 0;
+  }
+
+  function syncActivationMainRow(mainTr, options, advTr) {
+    if (!mainTr) {
+      return;
+    }
+    var segmentSel = mainTr.querySelector(".js-solution-activation-segment");
+    var freqEl = mainTr.querySelector(".js-solution-activation-frequency");
+    var popEl = mainTr.querySelector(".js-solution-activation-population");
+    var rowsEl = mainTr.querySelector(".js-solution-activation-rows");
+    if (!segmentSel || !freqEl || !popEl || !rowsEl) {
+      return;
+    }
+    refreshActivationSegmentSelect(segmentSel, options || []);
+    var chosen = (options || []).find(function (opt) {
+      return opt.id === String(segmentSel.value || "");
+    });
+    freqEl.value = chosen ? chosen.frequency : "";
+    var pop = parseLocaleNumber(popEl.value);
+    if (isNaN(pop) || pop < 0) {
+      pop = 0;
+    }
+    var rowValue = pop;
+    var resolvedAdvTr = advTr || (mainTr.nextElementSibling && mainTr.nextElementSibling.classList.contains("data-prep-item__advanced")
+      ? mainTr.nextElementSibling
+      : null);
+    var relatedEl = mainTr.querySelector(".js-solution-activation-include-related");
+    if (relatedEl && relatedEl.checked) {
+      rowValue = pop * getActivationEnrichmentRows(mainTr, resolvedAdvTr);
+    }
+    rowsEl.value = formatEnUSNumber(Math.round(rowValue));
+  }
+
+  function syncActivationRowsInStack(stackRoot) {
+    if (!stackRoot) {
+      return;
+    }
+    var options = getSegmentationOptionsInStack(stackRoot);
+    stackRoot.querySelectorAll(".js-solution-activation-tbody tr.data-prep-item__main").forEach(function (row) {
+      var advTr = row.nextElementSibling && row.nextElementSibling.classList.contains("data-prep-item__advanced")
+        ? row.nextElementSibling
+        : null;
+      syncActivationMainRow(row, options, advTr);
+    });
+  }
+
+  function collectSolutionActivationSnapshot(mainTr, advTr) {
+    var panel = advTr && advTr.querySelector(".js-solution-activation-advanced");
+    var usePct = panel && panel.querySelector(".js-solution-activation-use-percent");
+    var pctIn = panel && panel.querySelector(".js-solution-activation-pct-of-landscape");
+    var pickHidden = panel && panel.querySelector(".js-landscape-pick-value");
+    return {
+      name: (mainTr.querySelector(".js-data-prep-name") || {}).value || "",
+      segmentId: (mainTr.querySelector(".js-solution-activation-segment") || {}).value || "",
+      frequency: (mainTr.querySelector(".js-solution-activation-frequency") || {}).value || "",
+      population: (mainTr.querySelector(".js-solution-activation-population") || {}).value || "",
+      includeRelated: !!((mainTr.querySelector(".js-solution-activation-include-related") || {}).checked),
+      rowsProcessed: (mainTr.querySelector(".js-solution-activation-rows") || {}).value || "",
+      usePercent: !!(usePct && usePct.checked),
+      pct: (pctIn && pctIn.value) || "10",
+      pickJson: (pickHidden && pickHidden.value) || "",
+      expanded: !!(advTr && !advTr.hasAttribute("hidden")),
+    };
+  }
+
+  function applySolutionActivationSnapshot(mainTr, advTr, snap, stackRoot) {
+    if (!mainTr || !snap) {
+      return;
+    }
+    var nameEl = mainTr.querySelector(".js-data-prep-name");
+    var segmentEl = mainTr.querySelector(".js-solution-activation-segment");
+    var popEl = mainTr.querySelector(".js-solution-activation-population");
+    var relatedEl = mainTr.querySelector(".js-solution-activation-include-related");
+    var editBtn = mainTr.querySelector(".js-solution-activation-edit");
+    var panel = advTr && advTr.querySelector(".js-solution-activation-advanced");
+    var usePct = panel && panel.querySelector(".js-solution-activation-use-percent");
+    var usePick = panel && panel.querySelector(".js-solution-activation-use-pick");
+    var pctIn = panel && panel.querySelector(".js-solution-activation-pct-of-landscape");
+    var pickRoot = panel && panel.querySelector(".js-solution-activation-pick");
+    var pickHidden = pickRoot && pickRoot.querySelector(".js-landscape-pick-value");
+    var options = getSegmentationOptionsInStack(stackRoot);
+    if (nameEl && snap.name != null) {
+      nameEl.value = snap.name;
+    }
+    if (segmentEl) {
+      refreshActivationSegmentSelect(segmentEl, options);
+      if (snap.segmentId != null) {
+        segmentEl.value = snap.segmentId;
+      }
+    }
+    if (popEl && snap.population != null && String(snap.population).trim() !== "") {
+      popEl.value = snap.population;
+    }
+    if (relatedEl) {
+      relatedEl.checked = !!snap.includeRelated;
+    }
+    if (usePct && usePick) {
+      usePct.checked = snap.usePercent !== false;
+      usePick.checked = !usePct.checked;
+    }
+    if (pctIn && snap.pct != null) {
+      pctIn.value = snap.pct;
+    }
+    if (pickHidden && snap.pickJson != null && String(snap.pickJson).trim()) {
+      pickHidden.value = snap.pickJson;
+      if (pickRoot && typeof pickRoot._landscapePickRefresh === "function") {
+        pickRoot._landscapePickRefresh();
+      }
+    }
+    syncActivationMainRow(mainTr, options);
+    syncActivationEnrichmentState(mainTr, advTr, false);
+    if (editBtn && advTr) {
+      if (snap.expanded) {
+        advTr.removeAttribute("hidden");
+        editBtn.setAttribute("aria-expanded", "true");
+        mainTr.classList.add("data-prep-item--expanded");
+      } else {
+        advTr.setAttribute("hidden", "");
+        editBtn.setAttribute("aria-expanded", "false");
+        mainTr.classList.remove("data-prep-item--expanded");
+      }
+    }
+  }
+
+  function syncActivationEnrichmentState(mainTr, advTr, forceDefaultWhenEnabled) {
+    if (!mainTr || !advTr) {
+      return;
+    }
+    var relatedEl = mainTr.querySelector(".js-solution-activation-include-related");
+    var panel = advTr.querySelector(".js-solution-activation-advanced");
+    if (!panel) {
+      return;
+    }
+    var usePct = panel.querySelector(".js-solution-activation-use-percent");
+    var usePick = panel.querySelector(".js-solution-activation-use-pick");
+    var pctIn = panel.querySelector(".js-solution-activation-pct-of-landscape");
+    var pickRoot = panel.querySelector(".js-solution-activation-pick");
+    var pickToggle = pickRoot && pickRoot.querySelector(".js-landscape-pick-toggle");
+    var enabled = !!(relatedEl && relatedEl.checked);
+    if (panel) {
+      panel.classList.toggle("solution-streaming-edit-group--disabled", !enabled);
+      panel.setAttribute("aria-disabled", enabled ? "false" : "true");
+    }
+    if (usePct) {
+      usePct.disabled = !enabled;
+    }
+    if (usePick) {
+      usePick.disabled = !enabled;
+    }
+    if (!enabled) {
+      if (usePct) {
+        usePct.checked = false;
+      }
+      if (usePick) {
+        usePick.checked = false;
+      }
+    } else {
+      var shouldDefault = !!forceDefaultWhenEnabled;
+      if (usePct && usePick && (shouldDefault || (!usePct.checked && !usePick.checked))) {
+        usePct.checked = true;
+        usePick.checked = false;
+      }
+    }
+    if (pctIn) {
+      pctIn.disabled = !enabled || !(usePct && usePct.checked);
+    }
+    if (pickToggle) {
+      pickToggle.disabled = !enabled || !(usePick && usePick.checked);
+    }
+    updateTransformSizingColumnsVisual(panel);
+  }
+
+  function bindSolutionActivationRowPair(mainTr, advTr, tbody, stackRoot) {
+    var editBtn = mainTr.querySelector(".js-solution-activation-edit");
+    var cloneBtn = mainTr.querySelector(".js-data-prep-clone");
+    var delBtn = mainTr.querySelector(".js-data-prep-delete");
+    var segmentEl = mainTr.querySelector(".js-solution-activation-segment");
+    var popEl = mainTr.querySelector(".js-solution-activation-population");
+    var rowsEl = mainTr.querySelector(".js-solution-activation-rows");
+    var relatedEl = mainTr.querySelector(".js-solution-activation-include-related");
+    var panel = advTr && advTr.querySelector(".js-solution-activation-advanced");
+    var usePct = panel && panel.querySelector(".js-solution-activation-use-percent");
+    var usePick = panel && panel.querySelector(".js-solution-activation-use-pick");
+    var pctIn = panel && panel.querySelector(".js-solution-activation-pct-of-landscape");
+    var pickRoot = panel && panel.querySelector(".js-solution-activation-pick");
+    if (popEl) {
+      attachCommaFormatting(popEl);
+      popEl.addEventListener("input", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+      popEl.addEventListener("blur", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    if (rowsEl) {
+      rowsEl.readOnly = true;
+      rowsEl.setAttribute("aria-readonly", "true");
+    }
+    if (segmentEl) {
+      segmentEl.addEventListener("change", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    if (pctIn) {
+      attachCommaFormatting(pctIn);
+    }
+    if (pickRoot) {
+      initLandscapePick(pickRoot);
+    }
+    if (usePct && usePick) {
+      usePct.addEventListener("change", function () {
+        if (usePct.checked) {
+          usePick.checked = false;
+        } else if (!usePick.checked) {
+          usePick.checked = true;
+        }
+        syncActivationEnrichmentState(mainTr, advTr, false);
+        syncActivationRowsInStack(stackRoot);
+      });
+      usePick.addEventListener("change", function () {
+        if (usePick.checked) {
+          usePct.checked = false;
+        } else if (!usePct.checked) {
+          usePct.checked = true;
+        }
+        syncActivationEnrichmentState(mainTr, advTr, false);
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    if (relatedEl) {
+      relatedEl.addEventListener("change", function () {
+        syncActivationEnrichmentState(mainTr, advTr, relatedEl.checked);
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    if (pctIn) {
+      pctIn.addEventListener("input", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+      pctIn.addEventListener("blur", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    if (pickRoot) {
+      pickRoot.addEventListener("input", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+      pickRoot.addEventListener("change", function () {
+        syncActivationRowsInStack(stackRoot);
+      });
+    }
+    function toggleEditPanel() {
+      if (!editBtn || !advTr) {
+        return;
+      }
+      var expanded = editBtn.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        advTr.setAttribute("hidden", "");
+        editBtn.setAttribute("aria-expanded", "false");
+        mainTr.classList.remove("data-prep-item--expanded");
+      } else {
+        advTr.removeAttribute("hidden");
+        editBtn.setAttribute("aria-expanded", "true");
+        mainTr.classList.add("data-prep-item--expanded");
+      }
+    }
+    if (editBtn) {
+      editBtn.addEventListener("click", function () {
+        toggleEditPanel();
+      });
+    }
+    if (cloneBtn) {
+      cloneBtn.addEventListener("click", function () {
+        var snap = collectSolutionActivationSnapshot(mainTr, advTr);
+        var base = String(snap.name || "").trim();
+        snap.name = (base ? base : "Activation 1") + " (2)";
+        addSolutionActivationRow(tbody, 0, stackRoot, snap, advTr);
+      });
+    }
+    if (delBtn) {
+      delBtn.addEventListener("click", function () {
+        if (advTr) {
+          advTr.remove();
+        }
+        mainTr.remove();
+        refreshSolutionCapabilitySectionVisibility(stackRoot);
+      });
+    }
+    syncActivationEnrichmentState(mainTr, advTr, false);
+  }
+
+  function addSolutionActivationRow(tbody, uid, stackRoot, snapshot, insertAfterAdvancedTr) {
+    if (!tbody) {
+      return;
+    }
+    var n = tbody.querySelectorAll("tr.data-prep-item__main").length + 1;
+    var avgProfileRows = getAverageProfileObjectRowSize();
+    var defaultPopulation = Math.round(Math.max(0, avgProfileRows * 0.1));
+    var mainTr = document.createElement("tr");
+    mainTr.className = "data-prep-item__main";
+    mainTr.innerHTML =
+      "<td><input type=\"text\" class=\"input input--block js-data-prep-name\" autocomplete=\"off\" aria-label=\"Name\" /></td>" +
+      "<td><div class=\"select-wrap\"><select class=\"select js-solution-activation-segment\" aria-label=\"Segment\"></select></div></td>" +
+      "<td><input type=\"text\" class=\"input input--block js-solution-activation-frequency\" value=\"daily\" autocomplete=\"off\" aria-label=\"Frequency\" readonly aria-readonly=\"true\" /></td>" +
+      "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-solution-activation-population js-formatted-number\" value=\"" + formatEnUSNumber(defaultPopulation) + "\" autocomplete=\"off\" aria-label=\"Population\" /></td>" +
+      "<td class=\"data-prep-item__cell-streaming-lookup\"><input type=\"checkbox\" class=\"check-row__input js-solution-activation-include-related\" aria-label=\"Include related attributes\" /></td>" +
+      "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-solution-activation-rows js-formatted-number\" value=\"" + formatEnUSNumber(defaultPopulation) + "\" autocomplete=\"off\" aria-label=\"Rows Processed\" readonly aria-readonly=\"true\" /></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-solution-activation-edit\" aria-expanded=\"false\" aria-label=\"Edit row details\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-clone\" aria-label=\"Duplicate this activation row\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\" /><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-delete\" aria-label=\"Delete this activation row\">×</button></td>";
+    var advTr = document.createElement("tr");
+    advTr.className = "data-prep-item__advanced";
+    advTr.setAttribute("hidden", "");
+    advTr.innerHTML =
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"9\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-solution-activation-advanced solution-streaming-edit-group solution-streaming-edit-group--optional\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Activation related attributes sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-activation-use-percent\" checked aria-label=\"Use percent of total data landscape\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-solution-activation-pct-of-landscape js-formatted-number\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-solution-activation-use-pick\" aria-label=\"Use data source selection\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick js-solution-activation-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
+    if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
+      var ref = insertAfterAdvancedTr.nextSibling;
+      tbody.insertBefore(mainTr, ref);
+      tbody.insertBefore(advTr, mainTr.nextSibling);
+    } else {
+      tbody.appendChild(mainTr);
+      tbody.appendChild(advTr);
+    }
+    var nameIn = mainTr.querySelector(".js-data-prep-name");
+    if (nameIn && !snapshot) {
+      nameIn.value = "Activation " + n;
+    }
+    bindSolutionActivationRowPair(mainTr, advTr, tbody, stackRoot);
+    if (snapshot) {
+      applySolutionActivationSnapshot(mainTr, advTr, snapshot, stackRoot);
+    } else {
+      syncActivationRowsInStack(stackRoot);
+    }
+    refreshSolutionCapabilitySectionVisibility(stackRoot);
   }
 
   function getAverageStreamingObjectRows() {
@@ -5322,8 +5827,10 @@
         "data-prep-table " +
         (capability === "Data Queries"
           ? "data-prep-table--solution-data-query"
-          : capability === "Segmentation & Activation"
+          : capability === "Segmentation"
             ? "data-prep-table--solution-seg-activation"
+            : capability === "Activation"
+              ? "data-prep-table--solution-seg-activation"
             : capability === "Streaming Actions"
               ? "data-prep-table--solution-streaming-actions"
               : capability === "Streaming Calculated Insights"
@@ -5335,8 +5842,10 @@
       thead.innerHTML =
         capability === "Data Queries"
           ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Queries per Year</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
-          : capability === "Segmentation & Activation"
-            ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Frequency</th><th scope=\"col\">Est. Publish Population</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+          : capability === "Segmentation"
+            ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Frequency</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+            : capability === "Activation"
+              ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Segment</th><th scope=\"col\">Frequency</th><th scope=\"col\">Population</th><th scope=\"col\">Include Related Attributes</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
             : capability === "Streaming Actions"
               ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Include Lookups?</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
               : capability === "Streaming Calculated Insights"
@@ -5348,8 +5857,10 @@
       tbody.className =
         capability === "Data Queries"
           ? "js-solution-data-query-tbody"
-          : capability === "Segmentation & Activation"
+          : capability === "Segmentation"
             ? "js-solution-segmentation-tbody"
+            : capability === "Activation"
+              ? "js-solution-activation-tbody"
             : capability === "Streaming Actions"
               ? "js-solution-streaming-tbody"
               : capability === "Streaming Calculated Insights"
@@ -5366,8 +5877,10 @@
       addBtn.addEventListener("click", function () {
         if (capability === "Data Queries") {
           addSolutionDataQueryRow(tbody, uid, stack);
-        } else if (capability === "Segmentation & Activation") {
+        } else if (capability === "Segmentation") {
           addSolutionSegmentationRow(tbody, uid, stack);
+        } else if (capability === "Activation") {
+          addSolutionActivationRow(tbody, uid, stack);
         } else if (capability === "Streaming Actions") {
           addSolutionStreamingRow(tbody, uid, stack);
         } else if (capability === "Streaming Calculated Insights") {
@@ -5381,6 +5894,9 @@
       });
       var obs = new MutationObserver(function () {
         refreshSolutionCapabilitySectionVisibility(stack);
+        if (capability === "Segmentation" || capability === "Activation") {
+          syncActivationRowsInStack(stack);
+        }
       });
       obs.observe(tbody, { childList: true });
       if (capIdx === SOLUTION_DETAIL_CAPABILITIES.length - 1) {
@@ -6176,6 +6692,8 @@
       "Data Graphs": "batchDataGraphs",
       "Calculated Insights": "batchCalculatedInsights",
       "Data Queries": "dataQueries",
+      Segmentation: "segmentation",
+      Activation: "activation",
       "Segmentation & Activation": "segmentation",
       "Streaming Actions": "streamingActions",
       "Streaming Calculated Insights": "streamingCalculatedInsights",
@@ -6189,8 +6707,9 @@
   function instanceFromCapabilityRow(mainTr, index, capabilityLabel, solutionMeta) {
     var nameEl = mainTr.querySelector(".js-data-prep-name");
     var rowsEl = mainTr.querySelector(".js-data-prep-rows");
-    var freqSel = mainTr.querySelector(".js-data-prep-frequency, .js-solution-seg-frequency");
+    var freqSel = mainTr.querySelector(".js-data-prep-frequency, .js-solution-seg-frequency, .js-solution-activation-frequency");
     var includeLookup = mainTr.querySelector(".js-solution-streaming-include-lookups");
+    var includeRelated = mainTr.querySelector(".js-solution-activation-include-related");
     var jobsEl = mainTr.querySelector(".js-solution-query-frequency");
     var idBase = String(capabilityLabel || "capability")
       .toLowerCase()
@@ -6204,7 +6723,7 @@
       rowsProcessed: parseLocaleNumber(rowsEl && rowsEl.value) || 0,
       jobsPerYear: parseLocaleNumber(jobsEl && jobsEl.value) || 0,
       estimatedCredits: 0,
-      includeLookupData: !!(includeLookup && includeLookup.checked),
+      includeLookupData: !!((includeLookup && includeLookup.checked) || (includeRelated && includeRelated.checked)),
       frequency: freqSel ? String(freqSel.value || "") : "",
       notes: "",
       sizingMode: "",
@@ -6356,26 +6875,6 @@
         );
         idx += 1;
       });
-      if (title === "Segmentation & Activation") {
-        var actNode = ensureStateCapabilityNode(state, "activation", "Activation");
-        capNode.instances.forEach(function (inst, instIdx) {
-          actNode.instances.push({
-            id: "activation-instance-" + (instIdx + 1),
-            name: inst.name,
-            solutionId: inst.solutionId,
-            solutionName: inst.solutionName,
-            rowsProcessed: inst.rowsProcessed,
-            jobsPerYear: inst.jobsPerYear,
-            estimatedCredits: inst.estimatedCredits,
-            includeLookupData: inst.includeLookupData,
-            frequency: inst.frequency,
-            notes: inst.notes,
-            sizingMode: inst.sizingMode,
-            lookupMode: inst.lookupMode,
-            sourceSelection: inst.sourceSelection,
-          });
-        });
-      }
     });
 
     if (typeof window.recomputeStateTotals === "function") {
