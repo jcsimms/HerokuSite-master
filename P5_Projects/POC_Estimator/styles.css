@@ -908,6 +908,62 @@ body {
   padding-right: 4px;
 }
 
+.data-prep-table--solution-activation {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.data-prep-table--solution-activation .data-prep-table__th-action,
+.data-prep-table--solution-activation .data-prep-item__cell-action,
+.data-prep-table--solution-activation .data-prep-item__cell-streaming-lookup {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(1) {
+  width: 18%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(2) {
+  width: 16%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(3) {
+  width: 11%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(4) {
+  width: 13%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(5) {
+  width: 11%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(6) {
+  width: 16%;
+}
+
+.data-prep-table--solution-activation thead th:nth-child(7),
+.data-prep-table--solution-activation thead th:nth-child(8),
+.data-prep-table--solution-activation thead th:nth-child(9),
+.data-prep-table--solution-activation .data-prep-item__cell-action {
+  width: 5%;
+  min-width: 44px;
+  max-width: 54px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.data-prep-table--solution-activation .js-solution-activation-frequency,
+.data-prep-table--solution-activation .js-solution-activation-population {
+  max-width: 116px;
+}
+
+.data-prep-table--solution-activation .js-solution-activation-rows {
+  min-width: 140px;
+}
+
 .data-prep-table--solution-streaming-actions {
   table-layout: fixed;
   width: 100%;

@@ -17,6 +17,9 @@
   var saveBtn = document.querySelector(".btn--gold");
   if (saveBtn) {
     saveBtn.addEventListener("click", function () {
+      queueSalesforceInteractionEvent("Save Data Clicked", {
+        stepNumber: currentStep,
+      });
       saveBtn.textContent = "Saved";
       window.setTimeout(function () {
         saveBtn.textContent = "Save Data";
@@ -62,6 +65,118 @@
     "Row total (computed from object/stream volumes when Edit is used, or total volume in MB for unstructured data)";
   var RECORD_TOTAL_UNSTRUCTURED_TITLE =
     "Total volume in megabytes (enter manually for this source)";
+  var SALESFORCE_INTERACTIONS_INIT_MAX_ATTEMPTS = 60;
+  var SALESFORCE_INTERACTIONS_INIT_RETRY_MS = 250;
+  var sfInteractionsReady = false;
+  var sfInteractionsInitStarted = false;
+  var sfInteractionsQueue = [];
+
+  function getSalesforceInteractionsSdk() {
+    var sdk = window.SalesforceInteractions;
+    return sdk && typeof sdk.sendEvent === "function" ? sdk : null;
+  }
+
+  function flushSalesforceInteractionsQueue() {
+    var sdk = getSalesforceInteractionsSdk();
+    if (!sdk || !sfInteractionsReady || !sfInteractionsQueue.length) {
+      return;
+    }
+    while (sfInteractionsQueue.length) {
+      var payload = sfInteractionsQueue.shift();
+      try {
+        sdk.sendEvent(payload);
+      } catch (err) {
+        // Keep the app functional if tracking encounters transient SDK issues.
+      }
+    }
+  }
+
+  function queueSalesforceInteractionEvent(interactionName, attributes) {
+    if (!interactionName) {
+      return;
+    }
+    var payload = {
+      interaction: {
+        name: interactionName,
+      },
+    };
+    if (attributes && typeof attributes === "object" && Object.keys(attributes).length) {
+      payload.interaction.attributes = attributes;
+    }
+    sfInteractionsQueue.push(payload);
+    flushSalesforceInteractionsQueue();
+  }
+
+  function getTrackingConsentPayload(sdk) {
+    var purpose =
+      sdk && sdk.ConsentPurpose && sdk.ConsentPurpose.Tracking ? sdk.ConsentPurpose.Tracking : "Tracking";
+    var status = sdk && sdk.ConsentStatus && sdk.ConsentStatus.OptIn ? sdk.ConsentStatus.OptIn : "Opt In";
+    return [
+      {
+        provider: "POC Calculator",
+        purpose: purpose,
+        status: status,
+      },
+    ];
+  }
+
+  function onSalesforceInteractionsReady(sdk) {
+    sfInteractionsReady = true;
+    try {
+      if (
+        window.location &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1" ||
+          window.location.protocol === "file:")
+      ) {
+        sdk.setLoggingLevel && sdk.setLoggingLevel(4);
+      }
+    } catch (err) {
+      // Ignore debug logger setup errors.
+    }
+    flushSalesforceInteractionsQueue();
+  }
+
+  function initializeSalesforceInteractions() {
+    if (sfInteractionsInitStarted) {
+      return;
+    }
+    sfInteractionsInitStarted = true;
+    var attempts = 0;
+
+    function tryInit() {
+      var sdk = getSalesforceInteractionsSdk();
+      if (!sdk) {
+        attempts += 1;
+        if (attempts < SALESFORCE_INTERACTIONS_INIT_MAX_ATTEMPTS) {
+          window.setTimeout(tryInit, SALESFORCE_INTERACTIONS_INIT_RETRY_MS);
+        }
+        return;
+      }
+
+      try {
+        var initResult = sdk.init({
+          consents: getTrackingConsentPayload(sdk),
+        });
+        if (initResult && typeof initResult.then === "function") {
+          initResult
+            .then(function () {
+              onSalesforceInteractionsReady(sdk);
+            })
+            .catch(function () {
+              // Continue without blocking UX if tracking init fails.
+            });
+          return;
+        }
+        onSalesforceInteractionsReady(sdk);
+      } catch (err) {
+        // Some SDK versions can throw if init was already called; still allow sends.
+        onSalesforceInteractionsReady(sdk);
+      }
+    }
+
+    tryInit();
+  }
 
   /** Sum of each source's Total Rows (excludes unstructured / MB-only rows and segment rows). */
   function sumRowTotalsFromDataSources() {
@@ -4164,6 +4279,221 @@
     refreshSolutionCapabilitySectionVisibility(sectionRoot);
   }
 
+  function collectSolutionSubSecondSnapshot(mainTr, advTr) {
+    var panel = advTr.querySelector(".js-data-prep-advanced-panel");
+    var pct = panel && panel.querySelector(".js-data-prep-transform-pct-of-landscape");
+    var usePct = panel && panel.querySelector(".js-data-prep-transform-use-percent");
+    var pickHidden = panel && panel.querySelector(".js-landscape-pick-value");
+    return {
+      name: (mainTr.querySelector(".js-data-prep-name") || {}).value || "",
+      rows: (mainTr.querySelector(".js-data-prep-rows") || {}).value || "",
+      usePercent: !!(usePct && usePct.checked),
+      pct: (pct && pct.value) || "10",
+      pickJson: (pickHidden && pickHidden.value) || "",
+      expanded: !advTr.hasAttribute("hidden"),
+    };
+  }
+
+  function applySolutionSubSecondSnapshot(mainTr, advTr, snap) {
+    if (!snap) {
+      return;
+    }
+    var nameEl = mainTr.querySelector(".js-data-prep-name");
+    var rowsEl = mainTr.querySelector(".js-data-prep-rows");
+    if (nameEl && snap.name != null) {
+      nameEl.value = snap.name;
+    }
+    if (rowsEl && snap.rows != null) {
+      rowsEl.value = snap.rows;
+    }
+    var panel = advTr.querySelector(".js-data-prep-advanced-panel");
+    var usePct = panel && panel.querySelector(".js-data-prep-transform-use-percent");
+    var usePick = panel && panel.querySelector(".js-data-prep-transform-use-pick");
+    var pctIn = panel && panel.querySelector(".js-data-prep-transform-pct-of-landscape");
+    var pickHidden = panel && panel.querySelector(".js-landscape-pick-value");
+    if (usePct && usePick) {
+      usePct.checked = snap.usePercent !== false;
+      usePick.checked = !usePct.checked;
+    }
+    if (pctIn && snap.pct != null) {
+      pctIn.value = snap.pct;
+    }
+    if (pickHidden && snap.pickJson != null && String(snap.pickJson).trim()) {
+      pickHidden.value = snap.pickJson;
+    }
+    if (panel) {
+      updateTransformSizingColumnsVisual(panel);
+    }
+    var pickRoot = panel && panel.querySelector(".js-landscape-pick");
+    if (pickRoot && typeof pickRoot._landscapePickRefresh === "function") {
+      pickRoot._landscapePickRefresh();
+    }
+    syncTransformRowsForCurrentMode(mainTr, advTr);
+    var editBtn = mainTr.querySelector(".js-data-prep-edit");
+    if (snap.expanded) {
+      advTr.removeAttribute("hidden");
+      if (editBtn) {
+        editBtn.setAttribute("aria-expanded", "true");
+      }
+      mainTr.classList.add("data-prep-item--expanded");
+    } else {
+      advTr.setAttribute("hidden", "");
+      if (editBtn) {
+        editBtn.setAttribute("aria-expanded", "false");
+      }
+      mainTr.classList.remove("data-prep-item--expanded");
+    }
+  }
+
+  function bindSolutionSubSecondRowPair(mainTr, advTr, tbody, uid, sectionRoot, options) {
+    var editBtn = mainTr.querySelector(".js-data-prep-edit");
+    var cloneBtn = mainTr.querySelector(".js-data-prep-clone");
+    var delBtn = mainTr.querySelector(".js-data-prep-delete");
+    var panel = advTr.querySelector(".js-data-prep-advanced-panel");
+    var rowsIn = mainTr.querySelector(".js-data-prep-rows");
+    if (rowsIn) {
+      attachCommaFormatting(rowsIn);
+      rowsIn.readOnly = true;
+      rowsIn.setAttribute("aria-readonly", "true");
+      rowsIn.setAttribute("title", "Computed from Edit settings");
+    }
+    if (panel) {
+      var pickRoot = panel.querySelector(".js-landscape-pick");
+      if (pickRoot) {
+        initLandscapePick(pickRoot);
+      }
+      bindDataPrepDualSizingAdvanced(mainTr, advTr);
+    }
+    function toggleEditPanel() {
+      if (!editBtn) {
+        return;
+      }
+      var expanded = editBtn.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        advTr.setAttribute("hidden", "");
+        editBtn.setAttribute("aria-expanded", "false");
+        mainTr.classList.remove("data-prep-item--expanded");
+      } else {
+        advTr.removeAttribute("hidden");
+        editBtn.setAttribute("aria-expanded", "true");
+        mainTr.classList.add("data-prep-item--expanded");
+      }
+    }
+    if (editBtn) {
+      editBtn.addEventListener("click", toggleEditPanel);
+    }
+    if (rowsIn) {
+      rowsIn.addEventListener("click", toggleEditPanel);
+    }
+    var cloneBaseName = (options && options.cloneBaseName) || "Sub-second Event 1";
+    var cloneAddRow = (options && options.cloneAddRow) || addSolutionSubSecondRow;
+    if (cloneBtn) {
+      cloneBtn.addEventListener("click", function () {
+        var snap = collectSolutionSubSecondSnapshot(mainTr, advTr);
+        var base = String(snap.name || "").trim();
+        snap.name = (base ? base : cloneBaseName) + " (2)";
+        cloneAddRow(tbody, uid, sectionRoot, snap, advTr);
+      });
+    }
+    if (delBtn) {
+      delBtn.addEventListener("click", function () {
+        advTr.remove();
+        mainTr.remove();
+        refreshSolutionCapabilitySectionVisibility(sectionRoot);
+      });
+    }
+  }
+
+  function addSolutionSubSecondRow(tbody, uid, sectionRoot, snapshot, insertAfterAdvancedTr) {
+    if (!tbody) {
+      return;
+    }
+    var n = tbody.querySelectorAll("tr.data-prep-item__main").length + 1;
+    var mainTr = document.createElement("tr");
+    mainTr.className = "data-prep-item__main";
+    mainTr.innerHTML =
+      "<td><input type=\"text\" class=\"input input--block js-data-prep-name\" autocomplete=\"off\" aria-label=\"Name\" /></td>" +
+      "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-data-prep-rows js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Rows Processed\" /></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-edit\" aria-expanded=\"false\" aria-label=\"Edit row details\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-clone\" aria-label=\"Duplicate this sub-second row\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\" /><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-delete\" aria-label=\"Delete this sub-second row\">×</button></td>";
+    var advTr = document.createElement("tr");
+    advTr.className = "data-prep-item__advanced";
+    advTr.setAttribute("hidden", "");
+    advTr.innerHTML =
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"5\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
+
+    if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
+      var ref = insertAfterAdvancedTr.nextSibling;
+      tbody.insertBefore(mainTr, ref);
+      tbody.insertBefore(advTr, mainTr.nextSibling);
+    } else {
+      tbody.appendChild(mainTr);
+      tbody.appendChild(advTr);
+    }
+    var nameIn = mainTr.querySelector(".js-data-prep-name");
+    if (nameIn && !snapshot) {
+      nameIn.value = "Sub-second Event " + n;
+    }
+    bindSolutionSubSecondRowPair(mainTr, advTr, tbody, uid, sectionRoot, {
+      cloneBaseName: "Sub-second Event 1",
+      cloneAddRow: addSolutionSubSecondRow,
+    });
+    if (snapshot) {
+      applySolutionSubSecondSnapshot(mainTr, advTr, snapshot);
+    }
+    formatNumericFieldsIn(mainTr);
+    refreshSolutionCapabilitySectionVisibility(sectionRoot);
+  }
+
+  function addSolutionZeroCopyRow(tbody, uid, sectionRoot, snapshot, insertAfterAdvancedTr) {
+    if (!tbody) {
+      return;
+    }
+    var n = tbody.querySelectorAll("tr.data-prep-item__main").length + 1;
+    var mainTr = document.createElement("tr");
+    mainTr.className = "data-prep-item__main";
+    mainTr.innerHTML =
+      "<td><input type=\"text\" class=\"input input--block js-data-prep-name\" autocomplete=\"off\" aria-label=\"Name\" /></td>" +
+      "<td><input type=\"text\" inputmode=\"numeric\" class=\"input input--block js-data-prep-rows js-formatted-number\" value=\"0\" autocomplete=\"off\" aria-label=\"Rows Processed\" /></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-edit\" aria-expanded=\"false\" aria-label=\"Edit row details\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-clone\" aria-label=\"Duplicate this zero copy row\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\" /><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" /></svg></button></td>" +
+      "<td class=\"data-prep-item__cell-action\"><button type=\"button\" class=\"btn btn--icon js-data-prep-delete\" aria-label=\"Delete this zero copy row\">×</button></td>";
+    var advTr = document.createElement("tr");
+    advTr.className = "data-prep-item__advanced";
+    advTr.setAttribute("hidden", "");
+    advTr.innerHTML =
+      "<td class=\"data-prep-item__advanced-cell\" colspan=\"5\"><div class=\"data-prep-advanced-panel detail-list detail-list--boxed js-data-prep-advanced-panel\"><div class=\"data-prep-subrow data-prep-subrow--last\"><div class=\"data-prep-transform-sizing\" role=\"group\" aria-label=\"Rows processed sizing\"><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--percent js-data-prep-transform-col-percent\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-percent\" checked aria-label=\"Use percent of total data landscape for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Percent of Total Data Landscape</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint data-prep-transform-sizing__hint\">Rows processed equals this percentage of all row volume across the full Data Landscape.</p><input type=\"text\" inputmode=\"decimal\" class=\"input input--block js-data-prep-transform-pct-of-landscape\" value=\"10\" placeholder=\"e.g. 10\" autocomplete=\"off\" aria-label=\"Percent of total data landscape\" /></div></div><div class=\"data-prep-transform-sizing__col data-prep-transform-sizing__col--pick js-data-prep-transform-col-pick\"><label class=\"data-prep-transform-sizing__header\"><input type=\"checkbox\" class=\"check-row__input js-data-prep-transform-use-pick\" aria-label=\"Use data source selection for rows processed\" /><span class=\"data-prep-transform-sizing__title\">Data Source Selection</span></label><div class=\"data-prep-transform-sizing__body\"><p class=\"hint landscape-pick__hint\">Select data sources and/or individual objects from the Data Landscape. Choosing a source selects every object under it.</p><div class=\"landscape-pick js-landscape-pick\"><input type=\"hidden\" class=\"js-landscape-pick-value\" value=\"\" autocomplete=\"off\" /><button type=\"button\" class=\"landscape-pick__toggle js-landscape-pick-toggle\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class=\"landscape-pick__summary js-landscape-pick-summary\">Select sources or objects…</span><span class=\"landscape-pick__caret\" aria-hidden=\"true\"></span></button><div class=\"landscape-pick__menu js-landscape-pick-menu\" hidden role=\"group\" aria-label=\"Data sources and objects\"></div></div></div></div></div></div></div></td>";
+
+    if (insertAfterAdvancedTr && insertAfterAdvancedTr.parentNode === tbody) {
+      var ref = insertAfterAdvancedTr.nextSibling;
+      tbody.insertBefore(mainTr, ref);
+      tbody.insertBefore(advTr, mainTr.nextSibling);
+    } else {
+      tbody.appendChild(mainTr);
+      tbody.appendChild(advTr);
+    }
+    var nameIn = mainTr.querySelector(".js-data-prep-name");
+    if (nameIn && !snapshot) {
+      nameIn.value = "Zero Copy Share " + n;
+    }
+    bindSolutionSubSecondRowPair(mainTr, advTr, tbody, uid, sectionRoot, {
+      cloneBaseName: "Zero Copy Share 1",
+      cloneAddRow: addSolutionZeroCopyRow,
+    });
+    if (snapshot) {
+      applySolutionSubSecondSnapshot(mainTr, advTr, snapshot);
+    }
+    if (!snapshot) {
+      var rowsIn = mainTr.querySelector(".js-data-prep-rows");
+      if (rowsIn) {
+        syncTransformRowsForCurrentMode(mainTr, advTr);
+      }
+    }
+    formatNumericFieldsIn(mainTr);
+    refreshSolutionCapabilitySectionVisibility(sectionRoot);
+  }
+
   function collectSolutionSegmentationSnapshot(mainTr, advTr) {
     var panel = advTr.querySelector(".js-data-prep-advanced-panel");
     var pct = panel && panel.querySelector(".js-data-prep-transform-pct-of-landscape");
@@ -4442,7 +4772,20 @@
     var chosen = (options || []).find(function (opt) {
       return opt.id === String(segmentSel.value || "");
     });
-    freqEl.value = chosen ? chosen.frequency : "";
+    function activationFrequencyLabel(v) {
+      var key = String(v || "").trim().toLowerCase();
+      if (key === "every-hour" || key === "hourly") {
+        return "Hourly";
+      }
+      if (key === "every-4-hours") {
+        return "4 Hours";
+      }
+      if (key === "every-12-hours") {
+        return "12 Hours";
+      }
+      return "Daily";
+    }
+    freqEl.value = chosen ? activationFrequencyLabel(chosen.frequency) : "Daily";
     var pop = parseLocaleNumber(popEl.value);
     if (isNaN(pop) || pop < 0) {
       pop = 0;
@@ -5830,13 +6173,17 @@
           : capability === "Segmentation"
             ? "data-prep-table--solution-seg-activation"
             : capability === "Activation"
-              ? "data-prep-table--solution-seg-activation"
+              ? "data-prep-table--solution-activation"
             : capability === "Streaming Actions"
               ? "data-prep-table--solution-streaming-actions"
               : capability === "Streaming Calculated Insights"
                 ? "data-prep-table--solution-streaming-insights"
                 : capability === "Streaming Data Transforms"
                   ? "data-prep-table--solution-streaming-transforms"
+                  : capability === "Sub-second Real-Time Events & Entities"
+                    ? "data-prep-table--solution-streaming-insights"
+                    : capability === "Zero Copy Sharing Rows Accessed"
+                      ? "data-prep-table--solution-streaming-insights"
             : "data-prep-table--solution-detail");
       var thead = document.createElement("thead");
       thead.innerHTML =
@@ -5845,13 +6192,17 @@
           : capability === "Segmentation"
             ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Frequency</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
             : capability === "Activation"
-              ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Segment</th><th scope=\"col\">Frequency</th><th scope=\"col\">Population</th><th scope=\"col\">Include Related Attributes</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+              ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Segment</th><th scope=\"col\">Frequency</th><th scope=\"col\">Population</th><th scope=\"col\">Related Attributes</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
             : capability === "Streaming Actions"
               ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Include Lookups?</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
               : capability === "Streaming Calculated Insights"
                 ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
                 : capability === "Streaming Data Transforms"
                   ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\">Include Lookup Data?</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+                  : capability === "Sub-second Real-Time Events & Entities"
+                    ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
+                    : capability === "Zero Copy Sharing Rows Accessed"
+                      ? "<tr><th scope=\"col\">Name</th><th scope=\"col\">Rows Processed</th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Edit</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Duplicate</span></th><th scope=\"col\" class=\"data-prep-table__th-action\"><span class=\"sr-only\">Delete</span></th></tr>"
           : "<tr><th scope=\"col\">Capability</th><th scope=\"col\">Est. annual volume</th><th scope=\"col\">Notes</th></tr>";
       var tbody = document.createElement("tbody");
       tbody.className =
@@ -5867,6 +6218,10 @@
                 ? "js-solution-streaming-insights-tbody"
                 : capability === "Streaming Data Transforms"
                   ? "js-solution-streaming-transforms-tbody"
+                  : capability === "Sub-second Real-Time Events & Entities"
+                    ? "js-solution-sub-second-tbody"
+                    : capability === "Zero Copy Sharing Rows Accessed"
+                      ? "js-solution-zero-copy-tbody"
           : "js-solution-capabilities-tbody";
       table.appendChild(thead);
       table.appendChild(tbody);
@@ -5887,6 +6242,10 @@
           addSolutionStreamingInsightsRow(tbody, uid, stack);
         } else if (capability === "Streaming Data Transforms") {
           addSolutionStreamingTransformsRow(tbody, uid, stack);
+        } else if (capability === "Sub-second Real-Time Events & Entities") {
+          addSolutionSubSecondRow(tbody, uid, stack);
+        } else if (capability === "Zero Copy Sharing Rows Accessed") {
+          addSolutionZeroCopyRow(tbody, uid, stack);
         } else {
           appendSolutionCapabilityRow(tbody, uid, capability);
         }
@@ -6889,6 +7248,9 @@
 
   if (addSourceBtn) {
     addSourceBtn.addEventListener("click", function () {
+      queueSalesforceInteractionEvent("Add Data Source", {
+        triggerType: "global_button",
+      });
       addSourceRow();
     });
   }
@@ -6897,6 +7259,10 @@
     addSourceByTypeBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var category = btn.getAttribute("data-source-type");
+        queueSalesforceInteractionEvent("Add Data Source", {
+          triggerType: "typed_button",
+          sourceCategory: category || "",
+        });
         addSourceRowForCategory(category);
       });
     });
@@ -6907,6 +7273,9 @@
   if (nextBtn) {
     nextBtn.addEventListener("click", function () {
       if (isLastOrderedStep(currentStep)) {
+        queueSalesforceInteractionEvent("Calculator Completed", {
+          stepNumber: currentStep,
+        });
         nextBtn.disabled = true;
         var t = nextBtn.textContent;
         nextBtn.textContent = "Complete";
@@ -6916,12 +7285,22 @@
         }, 900);
         return;
       }
+      queueSalesforceInteractionEvent("Step Navigated", {
+        direction: "next",
+        fromStep: currentStep,
+        toStep: getAdjacentOrderedStep(currentStep, 1),
+      });
       goToStep(getAdjacentOrderedStep(currentStep, 1));
     });
   }
 
   if (backBtn) {
     backBtn.addEventListener("click", function () {
+      queueSalesforceInteractionEvent("Step Navigated", {
+        direction: "back",
+        fromStep: currentStep,
+        toStep: getAdjacentOrderedStep(currentStep, -1),
+      });
       goToStep(getAdjacentOrderedStep(currentStep, -1));
     });
   }
@@ -6991,6 +7370,10 @@
 
   document.querySelectorAll(".js-landscape-pick").forEach(initLandscapePick);
 
+  initializeSalesforceInteractions();
+  queueSalesforceInteractionEvent("Calculator Viewed", {
+    path: (window.location && window.location.pathname) || "",
+  });
   goToStep(1);
   updateLandscapeSummary();
   syncCalculatorStateFromDom();
