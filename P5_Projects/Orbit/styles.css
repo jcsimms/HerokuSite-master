@@ -1,0 +1,231 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.left-rail {
+  position: relative;
+  width: 75vw;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+  cursor: grab;
+  user-select: none;
+}
+
+.left-rail.dragging {
+  cursor: grabbing;
+}
+
+.image-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.image-stage img {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+}
+
+.marker-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+
+.marker {
+  position: absolute;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.marker .boat {
+  position: absolute;
+  width: var(--boat-length, 25px);
+  height: var(--boat-beam, 10px);
+  transform-origin: center;
+  top: 50%;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+  cursor: default;
+  pointer-events: auto;
+}
+
+.marker .hull {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 64%;
+  transform: translateY(-50%);
+  background: #fff;
+  border-radius: 45% 12% 12% 45%;
+}
+
+.marker.sail .boat {
+  background: transparent;
+}
+
+.marker.sail svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.marker.power .cabin {
+  position: absolute;
+  left: 44%;
+  top: 30%;
+  width: 24%;
+  height: 38%;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.marker.left .boat {
+  right: 0;
+}
+
+.marker.right .boat {
+  left: 0;
+  transform: translateY(-50%) scaleX(-1);
+}
+
+.right-rail {
+  width: 25vw;
+  height: 100%;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1b1b1b;
+  color: #e8e8e8;
+  padding: 0.75rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-rail h2 {
+  margin-top: 0;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.right-rail p {
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+  font-size: 0.8rem;
+}
+
+.import-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+#infoCsvInput {
+  display: none;
+}
+
+.button-like {
+  display: inline-block;
+  width: fit-content;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid #4f4f4f;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #262626;
+}
+
+.import-status {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+.table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.75rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.25rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #242424;
+  z-index: 1;
+}
+
+td.berth {
+  font-weight: 600;
+  color: #f5f5f5;
+}
+
+input,
+select {
+  width: 100%;
+  background: #111;
+  color: #eee;
+  border: 1px solid #3b3b3b;
+  border-radius: 4px;
+  padding: 0.15rem 0.25rem;
+  font-size: 0.72rem;
+}
+
+.legend {
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  opacity: 0.9;
+}
+
+.boat-tooltip {
+  position: fixed;
+  z-index: 9999;
+  display: none;
+  max-width: 260px;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  background: rgba(20, 20, 20, 0.94);
+  color: #f5f5f5;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: pre-line;
+  pointer-events: none;
+}

@@ -1,13 +1,47 @@
-<!DOCTYPE html><html lang="en"><head>
-  <title>Orbit</title>
-  <script type="text/javascript" src="//cdn.evgnet.com/beacon/jsimms1442115/testpage/scripts/evergage.min.js"></script>
-  <script src="../../p5.js"></script>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <meta charset="utf-8">
-
-</head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dock Image Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
   <body>
-    <script src="sketch.js"></script>
-  
-
-</body></html>
+    <main class="layout">
+      <section class="left-rail" id="viewport" aria-label="Dock image viewport">
+        <div class="image-stage" id="stage">
+          <img src="Dock Image.png" alt="Dock project image" id="dockImage" />
+          <div class="marker-layer" id="markerLayer" aria-hidden="true"></div>
+        </div>
+      </section>
+      <aside class="right-rail">
+        <h2>Berth Admin</h2>
+        <p>Edit berth details. Berth IDs are locked from the coordinate CSV.</p>
+        <div class="import-row">
+          <label for="infoCsvInput" class="button-like">Import Berth Info CSV</label>
+          <input id="infoCsvInput" type="file" accept=".csv,text/csv" />
+          <span id="importStatus" class="import-status">No info CSV imported yet.</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Berth</th>
+                <th>Owner</th>
+                <th>Make</th>
+                <th>Length</th>
+                <th>Beam</th>
+                <th>Name</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="berthTableBody"></tbody>
+          </table>
+        </div>
+        <div class="legend">Boat size uses 1.4px per foot (`Length`). Type `S` = sail, `P` = power.</div>
+      </aside>
+    </main>
+    <div id="boatTooltip" class="boat-tooltip" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
